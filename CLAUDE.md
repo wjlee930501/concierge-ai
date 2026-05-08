@@ -1,7 +1,7 @@
-# CLAUDE.md — Concierge AI Review Context
+# CLAUDE.md — Concierge AI Implementation Context
 
 ## 역할
-Claude Code는 Concierge AI의 교차 검증자입니다. 기본 역할은 review-only입니다.
+Claude Code는 Concierge AI의 1차 구현자입니다. Codex CLI/OMX가 review-only 교차 검증자입니다.
 
 ## 반드시 읽을 문서
 1. `docs/prd/Concierge_AI_PRD_v1.1.md`
@@ -18,5 +18,5 @@ Claude Code는 Concierge AI의 교차 검증자입니다. 기본 역할은 revie
 - Korean UX copy, reduced motion, mobile behavior
 
 ## 금지
-- Codex가 담당한 구현을 대신 확장하지 말 것.
+- Codex CLI/OMX review 없이 merge/deploy 가능 상태라고 판단하지 말 것.
 - PRD에 없는 기능 제안은 별도 PRD update로 분리할 것.

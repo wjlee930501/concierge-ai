@@ -2,3 +2,190 @@
 
 ## [Init / 2026-05-07]
 - Project scaffold started from Concierge AI PRD v1.1.
+- Alignment Round 2 문서 작업 시작: Claude Round 1 리뷰 게이트에 대한 Codex 응답 작성.
+- Alignment Round 2 문서 작업 종료: CODEX_ROUND2.md 추가 및 Week 1 최소 시작 계약 정리.
+- Final Alignment 문서 작업 시작: Codex/Claude Round 1-2 합의문 통합 작성.
+- Final Alignment 문서 작업 종료: FINAL_ALIGNMENT.md 추가 및 3단계 게이트/35개 체크리스트/미해결 항목 정리.
+- W1 2026-05-07 21:06 KST scaffold slice 시작: npm workspace, shared contract, embed sandbox, test-only fixture, PR template 작업.
+- W1 2026-05-07 21:06 KST scaffold slice 종료: strict TS workspace, shared/postMessage-origin-choreographer tests, embed sandbox policy, fixture README, PR template 추가.
+- W1 2026-05-07 21:23 KST scaffold 검증: npm test/typecheck/lint/build, git diff --check, secret pattern scan, npm audit 통과; Claude review-only PASS(Critical 0, Important 3).
+- Next slice 후보: embed runtime factory에서 parent access assertion 연결, widget CSP frame-ancestors scaffold, sandbox null-origin handshake 결정 문서화.
+- W1 2026-05-08 02:41 KST cron slice 시작: embed runtime factory + CSP/frame-ancestors scaffold + origin/null-origin 정책 보강 예정.
+- W1 2026-05-08 02:47 KST cron slice 변경: embed runtime factory, CSP frame-ancestors scaffold, targetOrigin/null-origin 정책 tests 추가.
+- W1 2026-05-08 02:47 KST cron slice 검증: npm test/typecheck/lint/build, git diff --check, safe secret scan 통과.
+- W1 2026-05-08 02:47 KST cron slice 종료: scaffolding-only, production URL/secret/API/real scenario 접근 없음; Computer-Use 미실행.
+- W1 2026-05-08 02:51 KST Claude non-blocking 개선 시작: embed ready envelope shadowing 제거, frame-ancestors drift 테스트/README 보강 예정.
+- W1 2026-05-08 02:53 KST Claude non-blocking 개선 종료: runtime shadowing 제거, frameAncestors 기본/none 정책 tests, ready envelope metadata README 보강; npm test/typecheck/lint/build 및 git diff --check 통과.
+- W1 2026-05-08 02:56 KST 최종 검증: Claude review-only PASS(Critical 0, Important 0, Nit 3); Hermes npm test 30 passed/typecheck/lint/build/diff-check/secret scan/npm audit 통과.
+- Next slice 후보: widget shell skeleton + reduced-motion/choreographer DOM-level tests 또는 unresolved owner/deadline tracker docs.
+- W1 2026-05-08 03:27 KST cron slice 시작: Claude Important 보강(A) — embed parent 권한 표면, unresolved tracker, prompt-injection/secret-history 정책 문서화 예정.
+- W1 2026-05-08 03:34 KST cron slice 변경: embed parent 권한 표면(sessionStorage 포함), ready payload 식별자 금지 테스트, owner tracker, prompt-injection/secret-history 정책 문서화.
+- W1 2026-05-08 03:35 KST cron slice 검증: npm test/typecheck/lint/build, git diff --check, safe secret scan 통과; npm audit은 registry DNS ENOTFOUND로 미완료.
+- W1 2026-05-08 03:39 KST Hermes 최종 검증: npm test 32 passed, typecheck/lint/build, git diff --check, working tree+recent history safe secret scan, npm audit 통과; Claude review-only PASS(Critical 0, Important 0, Nit 5).
+- Next slice 후보: widget shell skeleton + reduced-motion/choreographer DOM-level tests 또는 M0 secret scan script 문서화.
+- W1 2026-05-08 03:48 KST widget shell slice 시작: apps/widget skeleton, reduced-motion/choreographer DOM-level tests, structural slot fixture 분리 작업.
+- W1 2026-05-08 03:56 KST widget shell slice 변경: apps/widget pure view-model scaffold, reduced-motion/choreographer shell tests, tests/fixtures/widget 구조 fixture 추가.
+- W1 2026-05-08 03:58 KST widget shell slice 검증: npm test 36 passed, typecheck/lint/build, git diff --check, safe secret scan/history scan, npm audit 통과; Claude review-only PASS(Critical 0, Important 0, Nit 5).
+- W1 2026-05-08 03:58 KST widget shell slice 종료: scaffolding-only, production URL/secret/API/real scenario/PIPA/KB 접근 없음; Computer-Use 미실행.
+- Next slice 후보: M0 secret scan script 문서화 또는 widget shell nit 보강(runtime freeze/comment/render guard).
+- W1 2026-05-08 04:15 KST M0 secret scan slice 시작: tracked/source 파일 전용 로컬 secret scan script, 안전 실행 문서, test-only fixture 검증 추가 예정.
+- W1 2026-05-08 04:24 KST M0 secret scan slice 변경: `scripts/security-scan.mjs`, `npm run security:scan`, redacted path/rule/count reporting, security fixture README/test 추가.
+- W1 2026-05-08 04:28 KST M0 secret scan slice 검증: npm test 39 passed, typecheck/lint/build, git diff --check, npm run security:scan, safe history scan, npm audit 통과; Claude review-only PASS(Critical 0, Important 2 문서 보강 후 non-blocking).
+- W1 2026-05-08 04:28 KST M0 secret scan slice 종료: M0 scanner는 source-like roots 최소 범위이며 root/current diff 전체/history family scan은 Week 1 수동+M1 CI 확장으로 문서화; production secret/API/webhook/real scenario/PIPA/KB 접근 없음.
+- Next slice 후보: widget shell nit 보강(runtime freeze/comment/render guard) 또는 secret scan exclusion walker 테스트 추가.
+- W1 2026-05-08 04:45 KST cron slice 시작: secret scan exclusion walker 보강 및 fixture 격리 회귀 테스트 예정.
+- W1 2026-05-08 04:48 KST cron slice 변경: `.omc`와 `.claude/worktrees` walker 제외를 보강하고 generated/vendor/local-state 제외 회귀 테스트 추가.
+- W1 2026-05-08 04:48 KST cron slice 검증: npm test 40 passed, typecheck/lint/build, npm run security:scan, git diff --check 통과.
+- W1 2026-05-08 04:48 KST cron slice 종료: M0 scanner redacted path/rule/count 출력 유지; production secret/API/webhook/real scenario/PIPA/KB 접근 없음; Computer-Use 미실행.
+- W1 2026-05-08 04:51 KST Hermes 최종 검증: npm test 40 passed, typecheck/lint/build, npm run security:scan, git diff --check, npm audit, safe history scan 통과; Claude review-only PASS(Critical 0, Important 3, Nit 5).
+- Next slice 후보: widget shell nit 보강(runtime freeze/comment/render guard) 또는 M1 root/current-diff/history scanner CI 확장.
+- W1 2026-05-08 04:55 KST 운영 전환: Concierge AI 자동 cron 중단, Claude Code 1차 구현/Codex CLI·OMX review-only 검증 체계로 AGENTS.md/CLAUDE.md 갱신.
+- W1 2026-05-08 05:21 KST scaffold slice 시작: 역할 전환 이후 Claude Code 1차 구현으로 M1 secret scan mode 분리(source|diff|history) scaffold 및 CI workflow scaffold 추가 예정.
+- W1 2026-05-08 05:21 KST scaffold slice 변경: `scripts/security-scan.mjs`에 source/diff/history 모드와 M1 token-family detector/redacted path/rule/count 출력 통일, `.env*`/local-state diff 제외, `security:scan:diff/history` scripts, CI workflow, local scanner command 문서 추가.
+- W1 2026-05-08 05:26 KST scaffold slice 검증: npm test 51 passed, typecheck/lint/build, source/diff/history security scan, git diff --check, npm audit 통과; Codex review-only 1차 BLOCKED 지적(.env diff 제외/M1 detector gap) 반영.
+- W1 2026-05-08 05:30 KST Codex review-only 2차 BLOCKED 지적 반영: diff mode symlink follow 차단(lstat), Slack `xox*` family detector 확장, symlink regression test 추가. Hermes 재검증: npm test 52 passed, typecheck/lint/build, source/diff/history security scan, git diff --check, npm audit 통과.
+- W1 2026-05-08 05:43 KST widget shell nit 보강 시작: Claude Code 1차 구현으로 WidgetShellViewModel render guard, slot 객체 deep-freeze, 구조 위반시 비밀 미노출 에러 추가 예정.
+- W1 2026-05-08 05:43 KST widget shell nit 보강 변경: `assertRenderableWidgetShell`/`isRenderableWidgetShell`/`WidgetShellRenderGuardError` 추가, `WIDGET_SHELL_KNOWN_SLOT_IDS` export, slot record + 개별 slot 객체 deep-freeze, render guard/freeze 회귀 테스트 추가.
+- W1 2026-05-08 05:45 KST widget shell nit 보강 Hermes 검증: render guard 에러의 malformed/secret-shaped slot id 미노출 보강 후 npm test 63 passed, typecheck/lint/build, source/diff/history security scan, git diff --check, npm audit 통과.
+- W1 2026-05-08 05:50 KST Codex review-only BLOCKED 지적 반영: expected slot 값이 undefined/null/non-object일 때 raw TypeError 대신 WidgetShellRenderGuardError로 처리하도록 slot shape guard 및 회귀 테스트 추가.
+- W1 2026-05-08 05:50 KST widget shell nit 보강 재검증/종료: npm test 64 passed, typecheck/lint/build, source/diff/history security scan, git diff --check, npm audit 통과; production secret/API/webhook/real scenario/PIPA/KB 접근 없음.
+- W1 2026-05-08 06:24 KST cron slice 시작: Claude Code 1차 구현으로 PR 증빙/cost ledger scaffold 보강 예정.
+- W1 2026-05-08 06:27 KST cron slice 변경: `packages/shared/src/pr-evidence.ts`에 PR evidence scope/change-area와 cost ledger 5필드 guard/schema 추가, PR template과 `docs/alignment/PR_EVIDENCE_AND_COST_LEDGER.md` 매핑 문서화, 18개 회귀 테스트 추가.
+- W1 2026-05-08 06:28 KST cron slice Hermes 검증: npm test 82 passed, typecheck/lint/build, source/diff/history security scan, git diff --check, npm audit 통과.
+- W1 2026-05-08 06:32 KST Codex review-only PASS(Critical 0, Important 0, Nit 0): scaffolding-only 경계 및 FINAL_ALIGNMENT §5/§6 #30 매핑 확인.
+- W1 2026-05-08 06:32 KST cron slice 종료: production secret/API/webhook/real scenario/final copy/AI runtime/PIPA/Admin/KB 접근 없음; commit/push/deploy/Computer-Use 미실행.
+- Next slice 후보: PR evidence scaffold에 current-diff 기반 변경 범위 감지 테스트 문서화 또는 cost ledger 예시 fixture/README 보강.
+- W1 2026-05-08 07:01 KST cron slice 시작: Claude Code 1차 구현으로 PR evidence current-diff 변경 범위 감지 scaffold 및 문서화 예정.
+- W1 2026-05-08 07:05 KST cron slice 변경: `inferPrEvidenceChangeAreas*` path-list helper, POSIX repo-relative path guard, iframe/AI-KB/PIPA/Admin path rule tests, current-diff helper 문서 추가.
+- W1 2026-05-08 07:08 KST Codex review-only PASS 후 후속 보강: iframe `*-embed-*` 문서/구현 drift와 exact-shaped test wording nit 반영.
+- W1 2026-05-08 07:09 KST cron slice 검증: npm test 99 passed, typecheck/lint/build, source/diff/history security scan, git diff --check, npm audit 통과; Codex review-only 최종 PASS(Critical 0, Important 0, Nit 0).
+- W1 2026-05-08 07:09 KST cron slice 종료: scaffolding-only, production secret/API/webhook/real scenario/final copy/AI runtime/PIPA/Admin/KB 접근 없음; commit/push/deploy/Computer-Use 미실행.
+- Next slice 후보: cost ledger 예시 fixture/README 보강 또는 PR evidence helper를 PR template validation script로 묶는 scaffold.
+- W1 2026-05-08 07:40 KST cron slice 시작: Claude Code 1차 구현으로 cost ledger 예시 fixture/README 보강 예정.
+- W1 2026-05-08 07:45 KST cron slice 변경: `tests/fixtures/cost-ledger`에 cross-week valid 예시와 missing key/Infinity/negative running-total/`W0` invalid 예시 추가, README에 FINAL_ALIGNMENT § 6 #30 다섯 필드 표 추가, `running_total_week` 4-key shape/cross-week 다양성/invalid gap class 회귀 테스트 추가; 기존 `pr-evidence.ts` guard 재사용.
+- W1 2026-05-08 07:45 KST cron slice 검증: `npx vitest run packages/shared/src/pr-evidence.cost-ledger-fixture.test.ts packages/shared/src/pr-evidence.test.ts` 46 passed, `npm run typecheck` 통과; production secret/API/webhook/real scenario/final copy/AI runtime/PIPA/Admin/KB 접근 없음, commit/push/deploy/Computer-Use 미실행.
+- W1 2026-05-08 07:47 KST Hermes 최종 검증: npm test 110 passed, typecheck/lint/build, source/diff/history security scan, git diff --check, npm audit 통과.
+- W1 2026-05-08 07:49 KST Codex review-only 최종 PASS(Critical 0, Important 0, Nit 0): README `pr_number 0/소수` nit을 `pr_number 0`으로 정정 후 재검토 통과.
+- W1 2026-05-08 07:49 KST cron slice 종료: scaffolding-only cost ledger fixture/docs 보강 완료; production secret/API/webhook/real scenario/final copy/AI runtime/PIPA/Admin/KB 접근 없음; commit/push/deploy/Computer-Use 미실행.
+- Next slice 후보: PR evidence helper를 PR template validation script로 묶는 scaffold 또는 cost ledger fixture를 PR template 예시와 연결하는 docs-only 보강.
+- W1 2026-05-08 08:19 KST cron slice 시작: Claude Code 1차 구현으로 PR template evidence validation script scaffold 예정.
+- W1 2026-05-08 08:29 KST cron slice 변경: `scripts/validate-pr-evidence.mjs`, `npm run pr:evidence:validate`, PR template 구조 validator tests, docs/alignment validator 경계 문서 추가.
+- W1 2026-05-08 08:34 KST Codex review-only BLOCKED 지적 반영: 직접 markdown symlink뿐 아니라 symlinked directory 경유 workspace escape도 realpath containment로 readFile 전 차단하고 회귀 테스트 추가.
+- W1 2026-05-08 08:37 KST cron slice 검증: npm test 116 passed, typecheck/lint/build, `npm run pr:evidence:validate`, source/diff/history security scan, git diff --check, npm audit 통과.
+- W1 2026-05-08 08:34 KST Codex review-only 최종 PASS(Critical 0, Important 0, Nit 0): symlinked directory blocker 해결 확인.
+- W1 2026-05-08 08:37 KST cron slice 종료: scaffolding-only PR evidence validator 완료; production secret/API/webhook/real scenario/final copy/AI runtime/PIPA/Admin/KB 접근 없음; commit/push/deploy/Computer-Use 미실행.
+- Next slice 후보: PR template validator를 CI/local docs에 연결하는 문서 보강 또는 PR evidence validator duplicate/fixture edge-case 추가.
+- W1 2026-05-08 09:07 KST cron slice 시작: Claude Code 1차 구현으로 PR evidence validator duplicate/fixture edge-case 보강 예정.
+- W1 2026-05-08 09:10 KST cron slice 변경: `findInlineCodeTokens`를 fenced block 인식형으로 강화하고, duplicate H2/fenced-only heading/fenced-only cost ledger key/CRLF/순수 helper(parseH2Headings·extractSectionBody·findInlineCodeTokens·validatePrEvidenceMarkdown) 회귀 테스트 추가.
+- W1 2026-05-08 09:10 KST cron slice 검증: `npx vitest run scripts/validate-pr-evidence.test.ts` 19 passed, `npm run typecheck`, `npm run pr:evidence:validate` 통과; production secret/API/webhook/real scenario/final copy/AI runtime/PIPA/Admin/KB 접근 없음, commit/push/deploy/Computer-Use 미실행.
+- W1 2026-05-08 09:13 KST Hermes 최종 검증: npm test 129 passed, typecheck/lint/build, `npm run pr:evidence:validate`, source/diff/history security scan, git diff --check, npm audit 통과.
+- W1 2026-05-08 09:15 KST Codex review-only PASS(Critical 0, Important 0, Nit 0): duplicate H2/fenced block/path-only output/scaffolding-only 경계 확인.
+- W1 2026-05-08 09:15 KST cron slice 종료: PR evidence validator duplicate/fixture edge-case 보강 완료; production secret/API/webhook/real scenario/final copy/AI runtime/PIPA/Admin/KB 접근 없음; commit/push/deploy/Computer-Use 미실행.
+- Next slice 후보: PR template validator를 CI/local docs에 연결하는 문서 보강 또는 PR evidence validator를 current diff fixture와 연결하는 edge-case 추가.
+- W1 2026-05-08 09:44 KST cron slice 시작: Claude Code 1차 구현으로 PR evidence validator를 CI gate와 local docs에 연결하는 scaffold 보강 예정.
+- W1 2026-05-08 09:45 KST cron slice 변경: `.github/workflows/ci.yml` verify job에 `npm run pr:evidence:validate` step을 build 직후/secret scan 직전에 추가, `docs/alignment/PR_EVIDENCE_AND_COST_LEDGER.md` § 4.1에 local 실행/CI gate subsection 추가, `scripts/validate-pr-evidence.ci-gate.test.ts`에 CI workflow가 validator step과 build→validator→source-secret-scan 순서를 유지하는지 회귀 테스트 추가.
+- W1 2026-05-08 09:48 KST Codex review-only PASS(Critical 0, Important 0, Nit 1): source scan step match test-strength nit 반영 완료.
+- W1 2026-05-08 09:48 KST cron slice 검증: `npm test` 13 files/131 passed, `npm run typecheck`, `npm run lint`, `npm run build`, `npm run pr:evidence:validate`, source/diff/history security scan(0 findings), `git diff --check`, `npm audit --audit-level=moderate`(0 vulnerabilities) 통과.
+- W1 2026-05-08 09:48 KST cron slice 종료: scaffolding-only PR evidence validator CI/local docs 연결 완료; production secret/API/webhook/real scenario/final copy/AI runtime/PIPA/Admin/KB 접근 없음; commit/push/deploy/Computer-Use 미실행.
+- Next slice 후보: PR evidence validator를 current diff fixture와 연결하는 edge-case 추가 또는 cost ledger fixture를 PR template 예시와 연결하는 docs-only 보강.
+- W1 2026-05-08 10:20 KST cron slice 시작: Claude Code 1차 구현으로 PR evidence validator와 current diff fixture 연결 scaffold 보강 예정.
+- W1 2026-05-08 10:24 KST cron slice 변경: `tests/fixtures/pr-evidence/diff-paths.fixture.ts` test-only current-diff path fixture 추가, `packages/shared/src/pr-evidence.test.ts`가 per-path/aggregate/non-match/invalid 예시를 직접 소비하도록 보강, PR evidence docs에 fixture 경계 문서화.
+- W1 2026-05-08 10:25 KST cron slice 검증: `npm test` 13 files/135 passed, `npm run typecheck`, `npm run lint`, `npm run build`, `npm run pr:evidence:validate`, source/diff/history security scan(0 findings), `git diff --check`, `npm audit --audit-level=moderate`(0 vulnerabilities) 통과.
+- W1 2026-05-08 10:26 KST Codex review-only PASS(Critical 0, Important 0, Nit 1): read-only sandbox에서 current-diff fixture test-only/직접 소비/경계 안전성 확인; Codex는 gate 재실행 없이 inspection으로 plausibility 확인.
+- W1 2026-05-08 10:26 KST cron slice 종료: scaffolding-only PR evidence current-diff fixture 연결 완료; production secret/API/webhook/real scenario/final copy/AI runtime/PIPA/Admin/KB 접근 없음; commit/push/deploy/Computer-Use 미실행.
+- Next slice 후보: PR evidence current-diff fixture README 추가 또는 PR evidence validator cost-ledger example fixture와 PR template 연결 docs-only 보강.
+- W1 2026-05-08 10:57 KST cron slice 시작: Claude Code 1차 구현으로 PR evidence current-diff fixture README/docs 연결 보강 예정.
+- W1 2026-05-08 11:00 KST cron slice 변경: `tests/fixtures/pr-evidence/README.md` 추가로 current-diff fixture test-only 경계/단일 출처/소비처/변경 범위 키를 문서화하고, README drift 회귀 테스트 3개 추가.
+- W1 2026-05-08 11:02 KST cron slice 검증: `npm test` 14 files/138 passed, typecheck/lint/build, `npm run pr:evidence:validate`, source/diff/history security scan(0 findings), `git diff --check`, `npm audit --audit-level=moderate`(0 vulnerabilities) 통과.
+- W1 2026-05-08 11:03 KST Codex review-only PASS(Critical 0, Important 0, Nit 1): read-only sandbox Vitest EPERM temp-dir 제한 외 blocker 없음; README/test/changelog가 test-only 경계와 alignment 연결을 유지함 확인.
+- W1 2026-05-08 11:03 KST cron slice 종료: scaffolding-only PR evidence current-diff fixture README/docs 연결 완료; production secret/API/webhook/real scenario/final copy/AI runtime/PIPA/Admin/KB 접근 없음; commit/push/deploy/Computer-Use 미실행.
+- Next slice 후보: PR evidence validator cost-ledger example fixture와 PR template 연결 docs-only 보강 또는 current-diff README와 alignment 문서 간 드리프트 체크 강화.
+- W1 2026-05-08 11:33 KST cron slice 시작: Claude Code 1차 구현으로 PR evidence validator cost-ledger example fixture와 PR template 연결 docs/test scaffold 보강 예정.
+- W1 2026-05-08 11:36 KST cron slice 변경: `scripts/validate-pr-evidence.cost-ledger-linkage.test.ts`로 schema constants/validator labels/cost-ledger fixture/PR template/alignment §4.1 키 드리프트를 연결하고, `docs/alignment/PR_EVIDENCE_AND_COST_LEDGER.md` §4.2에 test-only fixture linkage를 문서화.
+- W1 2026-05-08 11:40 KST Codex review-only PASS 후 후속 보강: §4.1 전용 검사로 테스트 범위를 좁히고, target path 출력 문서 표현과 nested `week_id` 라벨 문서화를 정정.
+- W1 2026-05-08 11:40 KST cron slice 검증: `npm test` 15 files/144 passed, typecheck/lint/build, `npm run pr:evidence:validate`, source/diff/history security scan(0 findings), `git diff --check`, `npm audit --audit-level=moderate`(0 vulnerabilities) 통과.
+- W1 2026-05-08 11:41 KST Codex review-only 최종 PASS(Critical 0, Important 0, Nit 1): 남은 nit은 4.2 delimiter 존재 assert 보강 제안이며 blocker 아님.
+- W1 2026-05-08 11:41 KST cron slice 종료: scaffolding-only PR evidence cost-ledger fixture ↔ PR template/docs 연결 완료; production secret/API/webhook/real scenario/final copy/AI runtime/PIPA/Admin/KB 접근 없음; commit/push/deploy/Computer-Use 미실행.
+- Next slice 후보: Codex nit(4.2 delimiter assert) 보강 또는 current-diff README와 alignment 문서 간 드리프트 체크 강화.
+- W1 2026-05-08 12:12 KST cron slice 시작: Claude Code 1차 구현으로 Codex nit(§4.2 delimiter assert) 보강 예정.
+- W1 2026-05-08 12:14 KST cron slice 변경: `scripts/validate-pr-evidence.cost-ledger-linkage.test.ts`가 §4.2 delimiter heading의 exact-once 존재와 §4.1 slice non-empty를 먼저 assert하도록 보강.
+- W1 2026-05-08 12:15 KST cron slice 검증: `npm test` 15 files/144 passed, typecheck/lint/build, `npm run pr:evidence:validate`, source/diff/history security scan(0 findings), `git diff --check`, `npm audit --audit-level=moderate`(0 vulnerabilities) 통과.
+- W1 2026-05-08 12:16 KST Codex review-only PASS(Critical 0, Important 0, Nit 0): read-only sandbox Vitest EPERM temp-dir 제한 외 blocker 없음; delimiter exact-once assert가 prior nit을 닫음 확인.
+- W1 2026-05-08 12:16 KST cron slice 종료: scaffolding-only test hardening 완료; production secret/API/webhook/real scenario/final copy/AI runtime/PIPA/Admin/KB 접근 없음; commit/push/deploy/Computer-Use 미실행.
+- Next slice 후보: current-diff README와 alignment 문서 간 드리프트 체크 강화 또는 PR evidence validator 출력 경계 edge-case 보강.
+- W1 2026-05-08 12:37 KST cron slice 시작: Claude Code 1차 구현으로 current-diff README와 alignment 문서 간 드리프트 체크 강화 예정.
+- W1 2026-05-08 12:45 KST cron slice 변경: current-diff fixture README와 alignment §2.1 Test-only subsection이 fixture export group/변경 범위 키/경계 토큰을 공유하도록 문서화하고 README drift 회귀 테스트를 보강.
+- W1 2026-05-08 12:46 KST cron slice 검증: `npm test` 15 files/147 passed, typecheck/lint/build, `npm run pr:evidence:validate`, source/diff/history security scan(0 findings), `git diff --check`, `npm audit --audit-level=moderate`(0 vulnerabilities) 통과.
+- W1 2026-05-08 12:48 KST Codex review-only 1차 BLOCKED 지적 반영: current tick CHANGELOG에 검증/종료 entry가 아직 없던 기록성 gap을 보강.
+- W1 2026-05-08 12:49 KST cron slice 종료: scaffolding-only current-diff fixture README/alignment drift check 보강 완료; production secret/API/webhook/real scenario/final copy/AI runtime/PIPA/Admin/KB 접근 없음; commit/push/deploy/Computer-Use 미실행.
+- W1 2026-05-08 12:51 KST Codex review-only 최종 PASS(Critical 0, Important 0, Nit 0): CHANGELOG 검증/종료 기록 gap 해소 및 fixture/docs drift 경계 확인.
+- Next slice 후보: PR evidence validator 출력 경계 edge-case 보강 또는 current-diff fixture alignment §2.1 table rule exactness 강화.
+- W1 2026-05-08 13:05 KST cron slice 시작: Claude Code 1차 구현으로 PR evidence validator 출력 경계 edge-case 보강 예정.
+- W1 2026-05-08 13:13 KST cron slice 변경: `sanitizeForReport`를 validator PASS/FAIL/unsafe/cannot-read/unknown-arg 출력 경로에 연결하고, markdown body·non-required inline token·newline target/argv 미노출 회귀 테스트와 docs 출력 경계 설명을 보강.
+- W1 2026-05-08 13:14 KST cron slice 검증: `npm test` 15 files/149 passed, typecheck/lint/build, `npm run pr:evidence:validate`, source/diff/history security scan(0 findings), `git diff --check`, `npm audit --audit-level=moderate`(0 vulnerabilities) 통과.
+- W1 2026-05-08 13:16 KST Codex review-only 1차 BLOCKED 지적 반영: read-error reason과 unknown argv의 control-character raw echo를 sanitize하고 newline path/arg 회귀 테스트 추가 후 동일 full gate 재통과.
+- W1 2026-05-08 13:17 KST Codex review-only 최종 PASS(Critical 0, Important 1, Nit 0): 남은 Important는 CHANGELOG final 기록 gap으로 본 entry에서 해소.
+- W1 2026-05-08 13:17 KST cron slice 종료: scaffolding-only PR evidence validator 출력 경계 hardening 완료; production secret/API/webhook/real scenario/final copy/AI runtime/PIPA/Admin/KB 접근 없음; commit/push/deploy/Computer-Use 미실행.
+- Next slice 후보: current-diff fixture alignment §2.1 table rule exactness 강화 또는 `validate-pr-template.mjs` 출력 경계 parity 점검.
+- W1 2026-05-08 13:36 KST cron slice 시작: Claude Code 1차 구현으로 `validate-pr-template.mjs` 출력 경계 parity 및 안전 경로 검증 보강 예정.
+- W1 2026-05-08 13:43 KST cron slice 변경: `validate-pr-template.mjs`의 런타임 import 오류를 제거하고 target path/unknown argv/read-error 출력 sanitize, workspace markdown/.env*/symlink guard, raw body/unknown heading 미노출 회귀 테스트를 추가; Codex 1차 BLOCKED 지적에 따라 `validate-pr-evidence.mjs` 포함 realpath 기준 `.env*` symlinked-dir 차단과 회귀 테스트를 보강.
+- W1 2026-05-08 13:44 KST cron slice 검증: `npm test` 16 files/163 passed, typecheck/lint/build, `npm run pr:evidence:validate`, source/diff/history security scan(0 findings), `git diff --check`, `npm audit --audit-level=moderate`(0 vulnerabilities) 통과.
+- W1 2026-05-08 13:48 KST Codex review-only 2차 BLOCKED 지적 반영: 코드/테스트 blocker는 해소됐고 남은 Important는 현재 tick 종료 entry 누락이므로 종료 기록을 추가.
+- W1 2026-05-08 13:48 KST cron slice 종료: scaffolding-only validator 출력/경로 hardening 완료; production secret/API/webhook/real scenario/final copy/AI runtime/PIPA/Admin/KB 접근 없음; commit/push/deploy/Computer-Use 미실행.
+- Next slice 후보: current-diff fixture alignment §2.1 table rule exactness 강화 또는 validator 공통 경로 guard dedupe scaffold.
+- W1 2026-05-08 14:08 KST cron slice 시작: Claude Code 1차 구현으로 current-diff fixture alignment §2.1 table rule exactness 강화 예정.
+- W1 2026-05-08 14:14 KST cron slice 변경: `PR_EVIDENCE_PATH_RULES` 기반으로 alignment §2.1/fixture README가 token prefix·dot·hyphen-wrapped·explicit path rule을 드리프트 없이 노출하도록 문서와 README drift 테스트를 보강.
+- W1 2026-05-08 14:17 KST Codex review-only BLOCKED 지적 반영: segment equality(`embed`/`iframe`/`kb`/`ai`/`pipa`/`admin`) 누락과 explicit path row exactness gap을 문서/테스트에 반영.
+- W1 2026-05-08 14:18 KST cron slice 검증: `npm test` 16 files/167 passed, typecheck/lint/build, `npm run pr:evidence:validate`, source/diff/history security scan(0 findings), `git diff --check`, `npm audit --audit-level=moderate`(0 vulnerabilities) 통과.
+- W1 2026-05-08 14:18 KST Codex review-only 최종 PASS(Critical 0, Important 0, Nit 0): §2.1 segment equality/explicit path exactness와 fixture README mirror 확인.
+- W1 2026-05-08 14:18 KST cron slice 종료: scaffolding-only current-diff §2.1 table exactness 강화 완료; production secret/API/webhook/real scenario/final copy/AI runtime/PIPA/Admin/KB 접근 없음; commit/push/deploy/Computer-Use 미실행.
+- Next slice 후보: validator 공통 경로 guard dedupe scaffold 또는 current-diff fixture segment-equality perPathExamples 보강.
+- W1 2026-05-08 14:39 KST cron slice 시작: Claude Code 1차 구현으로 current-diff fixture segment-equality perPathExamples 보강 예정.
+- W1 2026-05-08 14:42 KST cron slice 변경: `tests/fixtures/pr-evidence/diff-paths.fixture.ts`에 `embed`/`iframe`/`kb`/`ai`/`pipa`/`admin` exact segment equality perPathExamples를 추가하고, `packages/shared/src/pr-evidence.test.ts`가 `PR_EVIDENCE_PATH_RULES` token별 exact fixture 존재를 드리프트 체크하도록 보강; fixture README에 exact segment equality 소비 경계 문서화.
+- W1 2026-05-08 14:42 KST cron slice 검증: focused Vitest 2 files/50 passed; full gate `npm test` 16 files/168 passed, typecheck/lint/build, `npm run pr:evidence:validate`, source/diff/history security scan(0 findings), `git diff --check`, `npm audit --audit-level=moderate`(0 vulnerabilities) 통과.
+- W1 2026-05-08 14:43 KST Codex review-only 1차 BLOCKED 지적 반영: 코드/테스트 blocker는 없고 남은 Important는 현재 tick CHANGELOG 변경/검증/종료 entry 누락이므로 본 기록으로 해소.
+- W1 2026-05-08 14:45 KST Codex review-only 최종 PASS(Critical 0, Important 0, Nit 0): 14:39 tick 기록 gap 해소, exact segment fixture coverage, substring false-positive 유지, test-only 경계 확인.
+- W1 2026-05-08 14:43 KST cron slice 종료: scaffolding-only current-diff fixture segment equality 보강 완료; production secret/API/webhook/real scenario/final copy/AI runtime/PIPA/Admin/KB 접근 없음; commit/push/deploy/Computer-Use 미실행.
+- Next slice 후보: validator 공통 경로 guard dedupe scaffold 또는 PR evidence exact segment fixture README/alignment mirror test 보강.
+- W1 2026-05-08 15:06 KST cron slice 시작: Claude Code 1차 구현으로 validator 공통 markdown path guard/sanitize dedupe scaffold 보강 예정.
+- W1 2026-05-08 15:11 KST cron slice 변경: `scripts/markdown-target-guard.mjs` 공유 guard/sanitizer를 추가하고 `validate-pr-evidence.mjs`/`validate-pr-template.mjs`가 동일 함수 재사용·재export하도록 정리, 공통 guard parity 회귀 테스트 추가.
+- W1 2026-05-08 15:13 KST cron slice 검증: focused Vitest 3 files/51 passed; full gate `npm test` 17 files/184 passed, typecheck/lint/build, `npm run pr:evidence:validate`, source/diff/history security scan(0 findings), `git diff --check`, `npm audit --audit-level=moderate`(0 vulnerabilities) 통과.
+- W1 2026-05-08 15:13 KST Codex review-only PASS(Critical 0, Important 0, Nit 0): 공통 guard side-effect free, 두 validator의 lstat/realpath 경계 유지, symlink/.env*/출력 sanitize 테스트 확인.
+- W1 2026-05-08 15:13 KST cron slice 종료: scaffolding-only validator guard dedupe 완료; production secret/API/webhook/real scenario/final copy/AI runtime/PIPA/Admin/KB 접근 없음; commit/push/deploy/Computer-Use 미실행.
+- Next slice 후보: PR evidence exact segment fixture README/alignment mirror test 보강 또는 validator shared guard docs-only ownership note 보강.
+- W1 2026-05-08 15:35 KST cron slice 시작: Claude Code 1차 구현으로 PR evidence exact segment fixture README/alignment mirror test 보강 예정.
+- W1 2026-05-08 15:37 KST cron slice 변경: `tests/fixtures/pr-evidence/README.test.ts`에 exact segment equality coverage mirror 블록을 추가해 `PR_EVIDENCE_PATH_RULES` token ↔ exact segment fixture label/path/rationale ↔ README `exact segment equality` ↔ alignment §2.1 `segment 동등` 드리프트를 검출하도록 보강.
+- W1 2026-05-08 15:39 KST cron slice 검증: focused Vitest `tests/fixtures/pr-evidence/README.test.ts` 15 passed, full gate `npm test` 17 files/189 passed, typecheck/lint/build, `npm run pr:evidence:validate`, source/diff/history security scan(0 findings), `git diff --check`, `npm audit --audit-level=moderate`(0 vulnerabilities) 통과.
+- W1 2026-05-08 15:40 KST Codex review-only 1차 BLOCKED 지적 반영: 코드/테스트 blocker는 없고 현재 tick CHANGELOG 변경/검증/종료 entry 누락이 blocker였으므로 본 기록으로 해소.
+- W1 2026-05-08 15:40 KST cron slice 종료: scaffolding-only PR evidence exact segment fixture README/alignment mirror test 보강 완료; production secret/API/webhook/real scenario/final copy/AI runtime/PIPA/Admin/KB 접근 없음; commit/push/deploy/Computer-Use 미실행.
+- Next slice 후보: validator shared guard docs-only ownership note 보강 또는 PR evidence exact segment mirror assertion 메시지 가독성 보강.
+- W1 2026-05-08 16:02 KST cron slice 시작: Claude Code 1차 구현으로 validator shared guard docs-only ownership note 및 drift guard 보강 예정.
+- W1 2026-05-08 16:06 KST cron slice 변경: `docs/alignment/PR_EVIDENCE_AND_COST_LEDGER.md`에 `scripts/markdown-target-guard.mjs` single owner note를 추가하고, `scripts/markdown-target-guard.test.ts`가 두 validator의 shared guard re-export와 ownership note drift를 검증하도록 보강.
+- W1 2026-05-08 16:08 KST cron slice 검증: focused Vitest `scripts/markdown-target-guard.test.ts` 17 passed, full gate `npm test` 17 files/190 passed, typecheck/lint/build, `npm run pr:evidence:validate`, source/diff/history security scan(0 findings), `git diff --check`, `npm audit --audit-level=moderate`(0 vulnerabilities) 통과.
+- W1 2026-05-08 16:09 KST Codex review-only 최종 PASS(Critical 0, Important 0, Nit 0): prior blocker(CHANGELOG 기록 gap, ownership note drift test gap) 해소 확인; Codex read-only Vitest는 EPERM temp-dir 제한으로 미실행됐으나 Hermes gate 증빙과 inspection으로 PASS.
+- W1 2026-05-08 16:10 KST cron slice 종료: scaffolding-only validator shared guard ownership note/drift guard 보강 완료; production secret/API/webhook/real scenario/final copy/AI runtime/PIPA/Admin/KB 접근 없음; commit/push/deploy/Computer-Use 미실행.
+- Next slice 후보: PR evidence exact segment mirror assertion 메시지 가독성 보강 또는 validator shared guard docs heading depth 정리.
+- W1 2026-05-08 16:30 KST cron slice 시작: Claude Code 1차 구현으로 PR evidence exact segment mirror assertion 메시지 가독성 보강 예정.
+- W1 2026-05-08 16:32 KST cron slice 변경: `tests/fixtures/pr-evidence/README.test.ts`의 exact segment mirror assertion 메시지가 누락 token/fixture label/path/rationale/README·alignment pin을 구체적으로 안내하도록 보강.
+- W1 2026-05-08 16:33 KST cron slice 검증: focused Vitest `tests/fixtures/pr-evidence/README.test.ts` 15 passed, full gate `npm test` 17 files/190 passed, typecheck/lint/build, `npm run pr:evidence:validate`, source/diff/history security scan(0 findings), `git diff --check`, `npm audit --audit-level=moderate`(0 vulnerabilities) 통과.
+- W1 2026-05-08 16:36 KST Codex review-only PASS(Critical 0, Important 0, Nit 0): assertion 메시지의 출력 범위가 fixture label/repo-relative placeholder/rule token/doc drift로 제한되고 `.env*` 값/secret/production scenario/AI runtime/KB/PIPA/Admin 미노출 확인.
+- W1 2026-05-08 16:36 KST cron slice 종료: scaffolding-only assertion message hardening 완료; production secret/API/webhook/real scenario/final copy/AI runtime/PIPA/Admin/KB 접근 없음; commit/push/deploy/Computer-Use 미실행.
+- Next slice 후보: validator shared guard docs heading depth 정리 또는 PR evidence mirror helper 함수 추출로 테스트 중복 축소.
+- W1 2026-05-08 16:55 KST cron slice 시작: Claude Code 1차 구현으로 validator shared guard docs heading depth 정리(§4.1 ownership note H4 고정) 및 drift assertion 보강 예정.
+- W1 2026-05-08 16:55 KST cron slice 변경: `docs/alignment/PR_EVIDENCE_AND_COST_LEDGER.md` ownership note 견출 `####` 단일 출처 확인, `scripts/markdown-target-guard.test.ts`에 literal `#### Ownership note — markdown target guard` 정확히 1회·`#####` 변종 0회·`### 4.1 Structural validator`↔`#### Local 실행` 사이 위치 drift assertion 추가.
+- W1 2026-05-08 17:00 KST cron slice 검증: focused Vitest `scripts/markdown-target-guard.test.ts` 19 passed, full gate `npm test` 17 files/192 passed, typecheck/lint/build, `npm run pr:evidence:validate`, source/diff/history security scan(0 findings), `git diff --check`, `npm audit --audit-level=moderate`(0 vulnerabilities) 통과.
+- W1 2026-05-08 17:00 KST Codex review-only 1차 BLOCKED 지적 반영: 코드/테스트 blocker는 없고 현재 tick verification/종료 entry 누락이 Important였으므로 본 기록으로 해소.
+- W1 2026-05-08 17:00 KST cron slice 종료: scaffolding-only validator shared guard docs heading depth drift assertion 보강 완료; production secret/API/webhook/real scenario/final copy/AI runtime/PIPA/Admin/KB 접근 없음; commit/push/deploy/Computer-Use 미실행.
+- Next slice 후보: PR evidence mirror helper 함수 추출로 테스트 중복 축소 또는 validator shared guard docs heading order assertion 중복 정리.
+- W1 2026-05-08 17:22 KST cron slice 시작: Claude Code 1차 구현으로 PR evidence mirror helper 함수 추출 및 테스트 중복 축소 예정.
+- W1 2026-05-08 17:27 KST cron slice 변경: `tests/fixtures/pr-evidence/README.test.ts`에 file-local helper(`readReadme`/`readAlignment`/`sliceSection21`/`sliceTestOnlySubsection`/`sliceSection21Table`/`sliceReadmeSummary`/`getSection21PatternCell`/`getReadmeSummaryPatternCell`/`expectBaseTokenForms`/`expectHyphenWrappedTokenForm`/`buildRuleTokenIndex`/`findExactSegmentExample`)를 추출해 §2.1·README 요약·exact segment 미러 테스트의 중복 슬라이싱·표 파싱·토큰 form assertion을 제거했다. fixture/문서/helper drift assertion과 메시지는 보존, production runtime 변경 없음.
+- W1 2026-05-08 17:27 KST cron slice 검증: focused Vitest `tests/fixtures/pr-evidence/README.test.ts` 15 passed, `packages/shared/src/pr-evidence.test.ts` 동시 실행 시 2 files/55 passed, `npm run typecheck` 통과; production secret/API/webhook/real scenario/final copy/AI runtime/PIPA/Admin/KB 접근 없음, commit/push/deploy/Computer-Use 미실행.
+- W1 2026-05-08 17:29 KST Hermes 최종 검증: full gate `npm test` 17 files/192 passed, typecheck/lint/build, `npm run pr:evidence:validate`, source/diff/history security scan(0 findings), `git diff --check`, `npm audit --audit-level=moderate`(0 vulnerabilities) 통과.
+- W1 2026-05-08 17:31 KST Codex review-only 1차 BLOCKED 지적 반영: 코드/테스트 blocker는 없고 현재 tick full gate/종료 CHANGELOG entry 누락이 Important였으므로 본 기록으로 해소.
+- W1 2026-05-08 17:32 KST Codex review-only 최종 PASS(Critical 0, Important 0, Nit 0): full-gate/종료/Next slice 기록 확인, helper extraction blocker 없음.
+- W1 2026-05-08 17:33 KST cron slice 종료: scaffolding-only PR evidence mirror helper extraction 완료; production secret/API/webhook/real scenario/final copy/AI runtime/PIPA/Admin/KB 접근 없음; commit/push/deploy/Computer-Use 미실행.
+- Next slice 후보: validator shared guard docs heading order assertion 중복 정리 또는 PR evidence mirror helper assertion 메시지 범위 redaction 점검.
+- W1 2026-05-08 17:42 KST PR 정리 전 nit 보강: validator shared guard ownership heading order assertion을 단일 테스트로 합치고, exact segment mirror assertion helper를 추가해 fixture path/rationale 원문을 실패 메시지에 echo하지 않도록 정리.
+- W1 2026-05-08 17:44 KST Codex review-only BLOCKED 지적 반영: Vitest가 received 문자열을 출력할 수 있는 `example!.rationale` 직접 expect를 boolean includes assertion으로 변경해 rationale 원문 미노출 경계를 닫음.
+- W1 2026-05-08 17:44 KST PR 정리 전 재검증: focused Vitest 2 files/33 passed, full gate `npm test` 17 files/191 passed, typecheck/lint/build, `npm run pr:evidence:validate`, source/diff/history security scan(0 findings), `git diff --check`, `npm audit --audit-level=moderate`(0 vulnerabilities) 통과.
+- W1 2026-05-08 17:46 KST Codex review-only 최종 PASS(Critical 0, Important 0, Nit 0): rationale boolean assertion으로 prior blocker 해소, ownership heading/order 단일 H4 검증, CHANGELOG fix/verification entry 확인.

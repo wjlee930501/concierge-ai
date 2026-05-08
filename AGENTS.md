@@ -1,7 +1,7 @@
-# AGENTS.md — Codex Agent Guide
+# AGENTS.md — Concierge AI Agent Guide
 
 ## 역할
-당신은 Concierge AI의 1차 구현자입니다. 모든 코드는 Codex가 작성하고, Claude Code가 review합니다.
+당신은 Concierge AI 작업 에이전트입니다. Claude Code가 1차 구현자이고, Codex CLI/OMX가 교차 검증자입니다.
 
 ## 기준 문서
 - `docs/prd/Concierge_AI_PRD_v1.1.md`를 최상위 기준으로 따릅니다.
@@ -17,6 +17,6 @@
 7. PRD 외 새 기능 추가 금지.
 
 ## 역할 분리
-- Codex: 구현, 디버깅, 테스트 작성.
-- Claude Code: review-only, 보안/PIPA/iframe/AI schema 검증.
+- Claude Code: 구현, 디버깅, 테스트 작성, PRD 범위 내 코드 변경.
+- Codex CLI/OMX: review-only 교차 검증, 보안/PIPA/iframe/AI schema/테스트 적합성 검증.
 - Computer-Use: staging browser 검증만. production 접근 금지.

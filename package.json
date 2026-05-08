@@ -1,0 +1,24 @@
+{
+  "name": "conciergeai",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run typecheck",
+    "lint": "tsc --noEmit -p tsconfig.json --pretty false",
+    "pr:evidence:validate": "node scripts/validate-pr-evidence.mjs",
+    "security:scan": "node scripts/security-scan.mjs",
+    "security:scan:diff": "node scripts/security-scan.mjs --mode diff",
+    "security:scan:history": "node scripts/security-scan.mjs --mode history --commits 20",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "vitest": "^4.1.5"
+  }
+}
