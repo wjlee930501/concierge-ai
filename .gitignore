@@ -8,3 +8,6 @@ coverage/
 !.env.example
 
 .DS_Store
+
+# Local agent/orchestration state
+.omc/

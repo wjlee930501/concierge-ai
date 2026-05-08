@@ -3,6 +3,7 @@ import {
   createPostMessageEnvelope,
   isSupportedPostMessageOrigin,
   type OriginAllowlistInput,
+  type OriginPolicyEnvironment,
   type OriginPolicy,
   type PostMessageEnvelope
 } from "@conciergeai/shared";
@@ -33,6 +34,7 @@ export type EmbedRuntimeFactoryInput = {
   readonly sandboxTokens?: readonly string[];
   readonly parentAccessPolicy?: ParentPageAccessPolicy;
   readonly source?: string;
+  readonly environment?: OriginPolicyEnvironment;
 };
 
 export type EmbedReadyPayload = {
@@ -67,9 +69,13 @@ export function createEmbedRuntime(
       : createEmbedIframePolicy({ sandboxTokens: input.sandboxTokens });
   const allowedParentOrigins =
     input.allowedParentOrigins ?? TEST_ONLY_EMBED_PARENT_ORIGINS;
-  const originPolicy = createOriginPolicy({
-    allowedOrigins: allowedParentOrigins
-  });
+  const originPolicy =
+    input.environment === undefined
+      ? createOriginPolicy({ allowedOrigins: allowedParentOrigins })
+      : createOriginPolicy({
+          allowedOrigins: allowedParentOrigins,
+          environment: input.environment
+        });
   const cspPolicy = createEmbedCspPolicy({
     frameAncestors: input.frameAncestors ?? allowedParentOrigins
   });

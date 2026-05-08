@@ -52,6 +52,29 @@ export const REQUIRED_COST_LEDGER_KEY_LABELS = Object.freeze([
 
 const COST_LEDGER_HEADING = "Cost Ledger";
 
+export const REQUIRED_PR_EVIDENCE_FIELD_LABELS = Object.freeze([
+  Object.freeze({
+    section: "PRD Mapping",
+    labels: Object.freeze([
+      "PRD section / scenario ID:",
+      "FINAL_ALIGNMENT checklist items:"
+    ])
+  }),
+  Object.freeze({
+    section: "Tests",
+    labels: Object.freeze(["Unit:", "Integration:", "E2E:", "Commands run:"])
+  }),
+  Object.freeze({
+    section: "Computer-Use Verification",
+    labels: Object.freeze([
+      "Required: yes / no",
+      "Reason:",
+      "Scenario ID / viewport / steps, if required:",
+      "Staging browser evidence placeholder:"
+    ])
+  })
+]);
+
 function splitLinesPreservingFences(markdown) {
   const lines = markdown.split(/\r?\n/);
   return lines;
@@ -180,6 +203,7 @@ export function validatePrEvidenceMarkdown(markdown, options = {}) {
 
   let missingCostLedgerKeys = [];
   let costLedgerSectionPresent = (counts.get(COST_LEDGER_HEADING) ?? 0) > 0;
+  const missingFieldLabels = [];
 
   if (costLedgerSectionPresent) {
     const body = extractSectionBody(markdown, COST_LEDGER_HEADING);
@@ -193,17 +217,35 @@ export function validatePrEvidenceMarkdown(markdown, options = {}) {
     missingCostLedgerKeys = [...requiredCostLedgerKeys];
   }
 
+  for (const requirement of REQUIRED_PR_EVIDENCE_FIELD_LABELS) {
+    if ((counts.get(requirement.section) ?? 0) === 0) {
+      for (const label of requirement.labels) {
+        missingFieldLabels.push(`${requirement.section} > ${label}`);
+      }
+      continue;
+    }
+
+    const body = extractSectionBody(markdown, requirement.section);
+    for (const label of requirement.labels) {
+      if (!body.includes(label)) {
+        missingFieldLabels.push(`${requirement.section} > ${label}`);
+      }
+    }
+  }
+
   const ok =
     missingSections.length === 0 &&
     duplicatedSections.length === 0 &&
-    missingCostLedgerKeys.length === 0;
+    missingCostLedgerKeys.length === 0 &&
+    missingFieldLabels.length === 0;
 
   return {
     ok,
     presentSections,
     missingSections,
     duplicatedSections,
-    missingCostLedgerKeys
+    missingCostLedgerKeys,
+    missingFieldLabels
   };
 }
 
@@ -228,6 +270,11 @@ export function formatReport(targetPath, result) {
   if (result.missingCostLedgerKeys.length > 0) {
     lines.push(
       `  missing cost ledger keys: ${result.missingCostLedgerKeys.join(", ")}`
+    );
+  }
+  if (result.missingFieldLabels.length > 0) {
+    lines.push(
+      `  missing required field labels: ${result.missingFieldLabels.join(", ")}`
     );
   }
   return lines.join("\n");

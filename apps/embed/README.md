@@ -19,6 +19,9 @@ surface.
   `frameAncestors` defaults to `allowedParentOrigins`; an explicit empty list
   emits `frame-ancestors 'none'` without changing postMessage target-origin
   validation.
+- Runtime `environment` can tighten the allowlist: `staging`, `preview`, and
+  `production` origins must be `https`; `development` and `test` origins are
+  limited to localhost, loopback, and `.example.test` fixtures.
 - `null`/opaque postMessage origins are not supported and must fail closed
   before handshake handling.
 - CSP output always includes a `frame-ancestors` directive. The default uses

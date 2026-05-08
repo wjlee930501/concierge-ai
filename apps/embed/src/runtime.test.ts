@@ -59,6 +59,29 @@ describe("embed runtime factory scaffold", () => {
     ).toThrow(OriginPolicyError);
   });
 
+  it("applies environment-specific origin scheme guards", () => {
+    expect(() =>
+      createEmbedRuntime({
+        allowedParentOrigins: ["http://staging.example.test"],
+        environment: "staging"
+      })
+    ).toThrow(/must use https/u);
+
+    expect(() =>
+      createEmbedRuntime({
+        allowedParentOrigins: ["http://localhost:5173"],
+        environment: "development"
+      })
+    ).not.toThrow();
+
+    expect(() =>
+      createEmbedRuntime({
+        allowedParentOrigins: ["https://host.example.test"],
+        environment: "test"
+      })
+    ).not.toThrow();
+  });
+
   it("defaults CSP frame-ancestors to the allowed parent origins", () => {
     const runtime = createEmbedRuntime({
       allowedParentOrigins: [

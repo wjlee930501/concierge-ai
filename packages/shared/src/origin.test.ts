@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   OriginPolicyError,
+  assertOriginAllowedForEnvironment,
   createOriginPolicy,
   isSupportedPostMessageOrigin,
   isOriginAllowed,
@@ -37,6 +38,9 @@ describe("origin allowlist", () => {
 
   it("rejects wildcard targetOrigin values", () => {
     expect(() => toSafeTargetOrigin("*")).toThrow(OriginPolicyError);
+    expect(() => toSafeTargetOrigin("https://*.example.test")).toThrow(
+      OriginPolicyError
+    );
     expect(() => parseOriginAllowlist("https://staging.example.test,*")).toThrow(
       OriginPolicyError
     );
@@ -62,10 +66,67 @@ describe("origin allowlist", () => {
     expect(isSupportedPostMessageOrigin("null")).toBe(false);
     expect(isSupportedPostMessageOrigin("about:blank")).toBe(false);
     expect(isSupportedPostMessageOrigin("data:text/html,hello")).toBe(false);
+    expect(isSupportedPostMessageOrigin("file:///tmp/index.html")).toBe(false);
+    expect(isSupportedPostMessageOrigin("javascript:alert(1)")).toBe(false);
+    expect(isSupportedPostMessageOrigin("chrome-extension://abc123")).toBe(
+      false
+    );
     expect(isOriginAllowed("null", allowedOrigins)).toBe(false);
     expect(() => toSafeTargetOrigin("null")).toThrow(OriginPolicyError);
     expect(() => toSafeTargetOrigin("about:blank")).toThrow(
       /Null\/opaque/u
     );
+  });
+
+  it("requires https for staging, preview, and production origin policies", () => {
+    expect(() => parseOriginAllowlist("http://staging.example.test")).toThrow(
+      /must use https/u
+    );
+    expect(() => parseOriginAllowlist("http://preview.example.test")).toThrow(
+      /must use https/u
+    );
+    expect(() => parseOriginAllowlist("http://prod.example.test")).toThrow(
+      /must use https/u
+    );
+
+    for (const environment of ["staging", "preview", "production"] as const) {
+      expect(() =>
+        createOriginPolicy({
+          allowedOrigins: ["http://staging.example.test"],
+          environment
+        })
+      ).toThrow(/must use https/u);
+
+      expect(() =>
+        createOriginPolicy({
+          allowedOrigins: ["https://staging.example.test"],
+          environment
+        })
+      ).not.toThrow();
+    }
+  });
+
+  it("keeps development and test origins limited to localhost, loopback, and fixture hosts", () => {
+    for (const environment of ["development", "test"] as const) {
+      expect(() =>
+        assertOriginAllowedForEnvironment("http://localhost:5173", environment)
+      ).not.toThrow();
+      expect(() =>
+        assertOriginAllowedForEnvironment("http://127.0.0.1:5173", environment)
+      ).not.toThrow();
+      expect(() =>
+        assertOriginAllowedForEnvironment("http://[::1]:5173", environment)
+      ).not.toThrow();
+      expect(() =>
+        assertOriginAllowedForEnvironment(
+          "https://host.example.test",
+          environment
+        )
+      ).not.toThrow();
+
+      expect(() =>
+        assertOriginAllowedForEnvironment("https://staging.motion.test", environment)
+      ).toThrow(/localhost, loopback, or \.example\.test/u);
+    }
   });
 });

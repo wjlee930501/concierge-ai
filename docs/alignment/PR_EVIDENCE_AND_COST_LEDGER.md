@@ -88,9 +88,10 @@ type CostLedgerEntry = {
 `npm run pr:evidence:validate`는 `.github/pull_request_template.md`를 대상으로 다음 구조만 확인한다.
 
 - 필수 H2 섹션: `Scope`, `PRD Mapping`, `Changes`, `Tests`, `Computer-Use Verification`, `Secret Scan`, `Cost Ledger`
+- 필수 PRD/test/Computer-Use field label: `PRD section / scenario ID:`, `FINAL_ALIGNMENT checklist items:`, `Unit:`, `Integration:`, `E2E:`, `Commands run:`, `Required: yes / no`, `Reason:`, `Scenario ID / viewport / steps, if required:`, `Staging browser evidence placeholder:`
 - Cost Ledger inline label: top-level 5개 필드(`pr_number`, `computer_use_minutes`, `claude_review_tokens_estimate`, `llm_calls_estimate`, `running_total_week`)와 nested `running_total_week.week_id` / `week_id` 표기
 
-경계: 이 validator는 Week 1 scaffold용 PR body/template 구조 확인 도구이며 scope 체크 상태, ledger 숫자값, 사용자 노출 한국어 copy, production scenario content, secret, 외부 API를 검사하지 않는다. 대상 경로는 workspace 내부의 markdown 파일로 제한하고 `.env*` path segment와 symlink는 읽기 전 거부한다. 경로 안전성·출력 sanitize는 `scripts/markdown-target-guard.mjs`가 단일 출처이고, `scripts/validate-pr-evidence.mjs`와 `scripts/validate-pr-template.mjs`가 동일한 guard 함수(`assertSafeMarkdownTargetPath`, `assertPathStaysInsideWorkspace`, `sanitizeForReport`)를 import 해 동일한 입력을 동일한 wording으로 거부한다. 실제 PR 값 검증과 merge 판단은 FINAL_ALIGNMENT § 2/§ 5 gate와 review-only 절차를 따른다.
+경계: 이 validator는 Week 1 scaffold용 PR body/template 구조 확인 도구이며 scope 체크 상태, ledger 숫자값, staging browser 실제 실행 결과, 사용자 노출 한국어 copy, production scenario content, secret, 외부 API를 검사하지 않는다. 대신 PRD section, test command/evidence, Computer-Use 필요 여부와 staging browser evidence placeholder가 PR 본문에서 빠지지 않도록 label 존재만 fail-fast로 확인한다. 대상 경로는 workspace 내부의 markdown 파일로 제한하고 `.env*` path segment와 symlink는 읽기 전 거부한다. 경로 안전성·출력 sanitize는 `scripts/markdown-target-guard.mjs`가 단일 출처이고, `scripts/validate-pr-evidence.mjs`와 `scripts/validate-pr-template.mjs`가 동일한 guard 함수(`assertSafeMarkdownTargetPath`, `assertPathStaysInsideWorkspace`, `sanitizeForReport`)를 import 해 동일한 입력을 동일한 wording으로 거부한다. 실제 PR 값 검증과 merge 판단은 FINAL_ALIGNMENT § 2/§ 5 gate와 review-only 절차를 따른다.
 
 #### Ownership note — markdown target guard
 

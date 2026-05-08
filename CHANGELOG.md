@@ -1,6 +1,15 @@
 # CHANGELOG.md
 
+## [Week 1 / 2026-05-08]
+- W1 2026-05-08 KST MotionLabs homepage interaction 재정렬 시작: 채널톡형 floating chat/hero mockup 중심을 폐기하고 내장형 intent-aware guide prototype으로 수정 예정.
+- W1 2026-05-08 KST MotionLabs homepage interaction 재정렬 종료: spec/prototype을 외부 솔루션·채널톡형 floating chat·hero mockup 중심에서 홈페이지 본문 내장형 intent-aware guide layer로 수정; 브라우저 클릭/콘솔/스크린샷 검증 완료.
+- W1 2026-05-08 KST 방향 정정: inline guide layer 방향을 폐기하고 PRD 기준의 center-bottom floating + overlay virtual salesman으로 spec/prototype/injector 재수정; 로컬 prototype 브라우저 클릭/콘솔/스크린샷 및 실제 motionlabs.kr DOM overlay preview 확인.
+- W1 2026-05-08 KST 0.8v 보강 시작: apps/admin·packages/kb placeholder boundary, embed iframe skeleton·handshake flow, origin allowlist env contract 추가 예정.
+- W1 2026-05-08 KST 0.8v 보강 종료: apps/admin·packages/kb boundary, docs/architecture/SCENARIO_NAMESPACE_SEPARATION.md, embed iframe DOM skeleton·handshake state machine·validateIncomingEnvelope, origin env contract(CONCIERGE_ALLOWED_ORIGINS + environment validation) 추가; npm test 235 passed, typecheck/lint/build, pr:evidence:validate, source/history security scan 통과.
+
 ## [Init / 2026-05-07]
+- W1 2026-05-08 18:30 KST Codex 보안/evidence 보강 시작: origin scheme guard, message-specific postMessage validator, PR/Computer-Use evidence validator 강화 예정.
+- W1 2026-05-08 18:38 KST Codex 보안/evidence 보강 종료: 환경별 origin guard, ready/handshake/resize validator, PRD/test/Computer-Use evidence label gate 추가; npm test 200 passed, typecheck/lint, pr:evidence:validate, source/history security scan, git diff --check 통과.
 - Project scaffold started from Concierge AI PRD v1.1.
 - Alignment Round 2 문서 작업 시작: Claude Round 1 리뷰 게이트에 대한 Codex 응답 작성.
 - Alignment Round 2 문서 작업 종료: CODEX_ROUND2.md 추가 및 Week 1 최소 시작 계약 정리.

@@ -1,4 +1,10 @@
 export type OriginAllowlistInput = string | readonly string[];
+export type OriginPolicyEnvironment =
+  | "development"
+  | "test"
+  | "staging"
+  | "preview"
+  | "production";
 
 export type OriginPolicy = {
   readonly allowedOrigins: readonly string[];
@@ -27,8 +33,10 @@ export function parseOriginAllowlist(input: OriginAllowlistInput): string[] {
 
 export function createOriginPolicy(input: {
   readonly allowedOrigins: OriginAllowlistInput;
+  readonly environment?: OriginPolicyEnvironment;
 }): OriginPolicy {
   const allowedOrigins = parseOriginAllowlist(input.allowedOrigins);
+  assertOriginsAllowedForEnvironment(allowedOrigins, input.environment);
 
   return Object.freeze({
     allowedOrigins,
@@ -90,7 +98,7 @@ export function normalizeOrigin(originLike: string): string {
     throw new OriginPolicyError("Null/opaque origins are not supported");
   }
 
-  if (trimmedOrigin === "*") {
+  if (trimmedOrigin === "*" || trimmedOrigin.includes("*")) {
     throw new OriginPolicyError("Wildcard targetOrigin is forbidden");
   }
 
@@ -106,5 +114,92 @@ export function normalizeOrigin(originLike: string): string {
     throw new OriginPolicyError("Null/opaque origins are not supported");
   }
 
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
+    throw new OriginPolicyError("Only http and https origins are supported");
+  }
+
+  if (url.protocol === "http:" && isStagingPreviewOrProductionHost(url)) {
+    throw new OriginPolicyError(
+      "Staging, preview, and production origins must use https"
+    );
+  }
+
   return url.origin;
+}
+
+export function assertOriginsAllowedForEnvironment(
+  origins: readonly string[],
+  environment: OriginPolicyEnvironment | undefined
+): void {
+  if (environment === undefined) {
+    return;
+  }
+
+  for (const origin of origins) {
+    assertOriginAllowedForEnvironment(origin, environment);
+  }
+}
+
+export function assertOriginAllowedForEnvironment(
+  origin: string,
+  environment: OriginPolicyEnvironment
+): void {
+  const normalizedOrigin = normalizeOrigin(origin);
+  const url = new URL(normalizedOrigin);
+
+  if (isStagingPreviewOrProduction(environment) && url.protocol !== "https:") {
+    throw new OriginPolicyError(
+      "Staging, preview, and production origins must use https"
+    );
+  }
+
+  if (environment === "development" || environment === "test") {
+    if (url.protocol !== "http:" && url.protocol !== "https:") {
+      throw new OriginPolicyError(
+        "Development and test origins must use http or https"
+      );
+    }
+
+    if (!isLocalhostOrigin(url) && !isTestFixtureOrigin(url)) {
+      throw new OriginPolicyError(
+        "Development and test origins must be localhost, loopback, or .example.test fixtures"
+      );
+    }
+  }
+}
+
+function isStagingPreviewOrProduction(
+  environment: OriginPolicyEnvironment
+): boolean {
+  return (
+    environment === "staging" ||
+    environment === "preview" ||
+    environment === "production"
+  );
+}
+
+function isLocalhostOrigin(url: URL): boolean {
+  return (
+    url.hostname === "localhost" ||
+    url.hostname === "127.0.0.1" ||
+    url.hostname === "[::1]" ||
+    url.hostname === "::1"
+  );
+}
+
+function isTestFixtureOrigin(url: URL): boolean {
+  return (
+    url.hostname === "example.test" || url.hostname.endsWith(".example.test")
+  );
+}
+
+function isStagingPreviewOrProductionHost(url: URL): boolean {
+  const labels = url.hostname.toLowerCase().split(".");
+  return labels.some(
+    (label) =>
+      label === "staging" ||
+      label === "preview" ||
+      label === "prod" ||
+      label === "production"
+  );
 }

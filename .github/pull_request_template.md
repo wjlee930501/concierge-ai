@@ -42,6 +42,7 @@ scope 또는 변경 범위에 따라 추가 증빙을 첨부한다 (`requiredExt
 - Required: yes / no
 - Reason:
 - Scenario ID / viewport / steps, if required:
+- Staging browser evidence placeholder: 미실행이면 `not-run: staging browser verification not executed for this scaffold PR`로 남긴다.
 
 ## Secret Scan
 

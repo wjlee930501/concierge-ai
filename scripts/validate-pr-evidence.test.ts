@@ -97,6 +97,58 @@ describe("validate-pr-evidence CLI", () => {
     }
   });
 
+  it("fails when PRD, test, or Computer-Use evidence field labels are missing", async () => {
+    const fixtureDir = await mkdtemp(
+      path.join(repoRoot, ".tmp-pr-evidence-")
+    );
+    const fixturePath = path.join(fixtureDir, "missing_evidence_fields.md");
+    const markdown = [
+      "## Scope",
+      "- [ ] scaffolding-only",
+      "## PRD Mapping",
+      "- FINAL_ALIGNMENT checklist items: §5",
+      "## Changes",
+      "- noop",
+      "## Tests",
+      "- Unit: test",
+      "- Commands run: npm test",
+      "## Computer-Use Verification",
+      "- Required: yes / no",
+      "- Reason: scaffold",
+      "## Secret Scan",
+      "- ok",
+      "## Cost Ledger",
+      "- `pr_number`: 1",
+      "- `computer_use_minutes`: 0",
+      "- `claude_review_tokens_estimate`: 0",
+      "- `llm_calls_estimate`: 0",
+      "- `running_total_week`:",
+      "  - `week_id`: W1",
+      ""
+    ].join("\n");
+
+    try {
+      await writeFile(fixturePath, markdown, "utf8");
+      const result = await runValidator([fixturePath]);
+
+      expect(result.exitCode).toBe(1);
+      expect(result.stdout).toContain("missing required field labels:");
+      expect(result.stdout).toContain(
+        "PRD Mapping > PRD section / scenario ID:"
+      );
+      expect(result.stdout).toContain("Tests > Integration:");
+      expect(result.stdout).toContain("Tests > E2E:");
+      expect(result.stdout).toContain(
+        "Computer-Use Verification > Scenario ID / viewport / steps, if required:"
+      );
+      expect(result.stdout).toContain(
+        "Computer-Use Verification > Staging browser evidence placeholder:"
+      );
+    } finally {
+      await rm(fixtureDir, { force: true, recursive: true });
+    }
+  });
+
   it("exits with code 2 when the target file is missing", async () => {
     const result = await runValidator([
       path.join(repoRoot, "conciergeai-does-not-exist.md")
@@ -276,13 +328,20 @@ describe("validate-pr-evidence CLI", () => {
       "## Scope",
       "- [ ] scaffolding-only",
       "## PRD Mapping",
-      "- ref",
+      "- PRD section / scenario ID: scaffold",
+      "- FINAL_ALIGNMENT checklist items: §5",
       "## Changes",
       "- noop",
       "## Tests",
-      "- unit",
+      "- Unit: test",
+      "- Integration: not-run",
+      "- E2E: not-run",
+      "- Commands run: npm test",
       "## Computer-Use Verification",
-      "- no",
+      "- Required: yes / no",
+      "- Reason: scaffold",
+      "- Scenario ID / viewport / steps, if required: not-required",
+      "- Staging browser evidence placeholder: not-run",
       "## Secret Scan",
       "- ok",
       "## Cost Ledger",
@@ -321,13 +380,20 @@ describe("validate-pr-evidence CLI", () => {
       "## Scope",
       "- [ ] scaffolding-only",
       "## PRD Mapping",
-      "- ref",
+      "- PRD section / scenario ID: scaffold",
+      "- FINAL_ALIGNMENT checklist items: §5",
       "## Changes",
       "- noop",
       "## Tests",
-      "- unit",
+      "- Unit: test",
+      "- Integration: not-run",
+      "- E2E: not-run",
+      "- Commands run: npm test",
       "## Computer-Use Verification",
-      "- no",
+      "- Required: yes / no",
+      "- Reason: scaffold",
+      "- Scenario ID / viewport / steps, if required: not-required",
+      "- Staging browser evidence placeholder: not-run",
       "## Secret Scan",
       "- ok",
       "## Cost Ledger",
@@ -494,9 +560,37 @@ describe("validate-pr-evidence pure helpers", () => {
   });
 
   it("validatePrEvidenceMarkdown: returns ok=true when every required section and key is present exactly once", () => {
-    const sections = REQUIRED_PR_EVIDENCE_SECTIONS.map(
-      (heading) => `## ${heading}\n`
-    ).join("");
+    const sections = REQUIRED_PR_EVIDENCE_SECTIONS.map((heading) => {
+      if (heading === "PRD Mapping") {
+        return [
+          "## PRD Mapping",
+          "- PRD section / scenario ID: scaffold",
+          "- FINAL_ALIGNMENT checklist items: §5",
+          ""
+        ].join("\n");
+      }
+      if (heading === "Tests") {
+        return [
+          "## Tests",
+          "- Unit: test",
+          "- Integration: not-run",
+          "- E2E: not-run",
+          "- Commands run: npm test",
+          ""
+        ].join("\n");
+      }
+      if (heading === "Computer-Use Verification") {
+        return [
+          "## Computer-Use Verification",
+          "- Required: yes / no",
+          "- Reason: scaffold",
+          "- Scenario ID / viewport / steps, if required: not-required",
+          "- Staging browser evidence placeholder: not-run",
+          ""
+        ].join("\n");
+      }
+      return `## ${heading}\n`;
+    }).join("");
     const ledgerLines = REQUIRED_COST_LEDGER_KEY_LABELS.map(
       (key) => `- \`${key}\`: ok`
     ).join("\n");
