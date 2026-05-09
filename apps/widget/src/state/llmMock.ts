@@ -35,25 +35,78 @@ const KEYWORD_INTENT_TABLE: ReadonlyArray<{
   readonly response: string;
 }> = [
   {
-    keywords: ["데모", "보여", "직접", "demo"],
+    keywords: [
+      "데모",
+      "체험",
+      "테스트",
+      "샘플",
+      "받아",
+      "카카오",
+      "메시지",
+      "알림톡",
+      "직접",
+      "demo"
+    ],
     chipMatch: ["chip_demo", "chip_core"],
     response:
       "데모 흐름부터 짚어 드릴게요. 핵심 동작이 동영상이 아니라 직접 클릭으로 보이도록 안내합니다."
   },
   {
-    keywords: ["사례", "근거", "성과", "레퍼런스", "reference", "case"],
+    keywords: [
+      "사례",
+      "근거",
+      "성과",
+      "레퍼런스",
+      "매출",
+      "수치",
+      "데이터",
+      "reference",
+      "case"
+    ],
     chipMatch: ["chip_proof"],
     response:
       "사례·근거 섹션부터 짚어 드릴게요. 설명보다 신뢰 근거를 먼저 보면 도입 의사 결정 시간이 짧아집니다."
   },
   {
-    keywords: ["상담", "문의", "도입", "contact", "consult"],
+    keywords: [
+      "상담",
+      "문의",
+      "도입",
+      "가격",
+      "비용",
+      "견적",
+      "계약",
+      "해지",
+      "보안",
+      "개인정보",
+      "정보보호",
+      "iso",
+      "contact",
+      "consult"
+    ],
     chipMatch: ["chip_contact"],
     response:
       "상담 단계로 안내드릴게요. 입력해 주신 내용을 정리해 담당자에게 전달합니다."
   },
   {
-    keywords: ["핵심", "뭐", "무엇", "어떤", "core"],
+    keywords: [
+      "핵심",
+      "뭐",
+      "무엇",
+      "어떤",
+      "노쇼",
+      "리마인드",
+      "예약",
+      "자동",
+      "콘텐츠",
+      "진료과",
+      "정형외과",
+      "내과",
+      "검진",
+      "환자관리",
+      "crm",
+      "core"
+    ],
     chipMatch: ["chip_core"],
     response:
       "서비스 핵심부터 짚어 드릴게요. 30초 안에 무엇을 만드는지 보여 드립니다."
@@ -132,7 +185,7 @@ function pickFirstChip(
 }
 
 function looksLikePiiRequest(text: string): boolean {
-  return /개인정보|주민|환자\s*(?:연락처|전화|이메일|진단|처방)|연락처\s*(?:알려|보여)|이메일\s*(?:알려|보여)|전화번호\s*(?:알려|목록)/.test(
+  return /주민|환자\s*(?:연락처|전화|이메일|진단|처방)|개인정보\s*(?:목록|내역|원본|알려|보여|다운로드)|연락처\s*(?:알려|보여)|이메일\s*(?:알려|보여)|전화번호\s*(?:알려|목록)/.test(
     text
   );
 }

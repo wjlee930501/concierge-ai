@@ -52,6 +52,7 @@ export function App(): JSX.Element {
   const scenario = useMemo(() => loadPlaceholderScenario(), []);
   const { state, dispatch } = useScenarioRunner(scenario);
   const viewport = useViewport();
+  const renderHostPreview = shouldRenderHostPreview();
   const [choreographyUi, setChoreographyUi] = useState<ChoreographyUiState>(
     INITIAL_CHOREOGRAPHY_UI
   );
@@ -263,7 +264,7 @@ export function App(): JSX.Element {
 
   return (
     <div className="relative">
-      <HostPagePreview />
+      {renderHostPreview ? <HostPagePreview /> : null}
 
       <Spotlight
         target={isStep ? stepNode!.spotlightTarget : null}
@@ -448,4 +449,9 @@ function getAncestorOrigin(): string | null {
     return null;
   }
   return ancestorOrigins.item(0);
+}
+
+export function shouldRenderHostPreview(): boolean {
+  if (typeof window === "undefined") return true;
+  return window.parent === window;
 }

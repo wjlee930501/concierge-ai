@@ -19,7 +19,7 @@
         "title": "자동 리마인드가 핵심이에요.",
         "body": "진료 유형별 맞춤 리마인드로 노쇼를 줄이고, 카카오톡으로 환자 부담 없이 전달합니다."
       },
-      "spotlightTarget": "#section-auto-reminder",
+      "spotlightTarget": "[data-mc-section='auto-reminder']",
       "avatarPoint": "right",
       "choices": [
         { "id": "to_proof", "label": "다음: 성과 보기", "nextStepId": "step_proof" },
@@ -34,7 +34,7 @@
         "title": "수치로 증명된 효과.",
         "body": "재방문율 +12%, 매출 +16%, 객단가 +19%. 500개+ 병의원이 검증한 결과입니다."
       },
-      "spotlightTarget": "#section-results",
+      "spotlightTarget": "[data-mc-section='case-data']",
       "avatarPoint": "left",
       "choices": [
         { "id": "to_demo", "label": "다음: 데모 받기", "nextStepId": "step_demo" },
@@ -49,7 +49,7 @@
         "title": "지금 카카오톡으로 받아보세요.",
         "body": "진료과·템플릿을 고르면 실제 알림톡을 직접 받아볼 수 있어요."
       },
-      "spotlightTarget": "#section-demo",
+      "spotlightTarget": "[data-mc-section='crm-demo']",
       "avatarPoint": "up",
       "choices": [
         { "id": "to_contact", "label": "다음: 상담 신청", "nextStepId": "step_contact" },
@@ -64,7 +64,7 @@
         "title": "상담으로 마무리합니다.",
         "body": "도입 의향이 있는 원장님께는 1영업일 안에 담당자가 연락드립니다."
       },
-      "spotlightTarget": "#section-faq",
+      "spotlightTarget": "[data-mc-section='faq']",
       "avatarPoint": "left",
       "choices": [],
       "isClosing": true

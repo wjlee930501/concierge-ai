@@ -1,0 +1,18 @@
+# motionlabs-website is a separate concern; do not auto-load into context
+hosts/
+
+# only manually-referenced files from hosts/ should enter context
+# via explicit @path/to/file mention by operator
+
+# build / install artifacts (defensive, in case .gitignore drift)
+node_modules/
+dist/
+build/
+.next/
+.vercel/
+.turbo/
+
+# secrets defensive
+.env
+.env.local
+.env.production

@@ -35,6 +35,32 @@ describe("App choreography wiring", () => {
       "right_section_top"
     );
   });
+
+  it("uses the local host preview only in standalone widget preview mode", () => {
+    mockReducedMotion(false);
+
+    render(<App />);
+
+    expect(screen.queryByTestId("host-page-preview")).not.toBeNull();
+  });
+
+  it("hides the local host preview when embedded in a real host page", () => {
+    mockReducedMotion(false);
+    const originalParent = window.parent;
+    Object.defineProperty(window, "parent", {
+      configurable: true,
+      value: {}
+    });
+
+    render(<App />);
+
+    expect(screen.queryByTestId("host-page-preview")).toBeNull();
+
+    Object.defineProperty(window, "parent", {
+      configurable: true,
+      value: originalParent
+    });
+  });
 });
 
 function mockReducedMotion(matches: boolean): void {

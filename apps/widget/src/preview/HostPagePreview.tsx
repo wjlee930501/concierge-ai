@@ -9,7 +9,7 @@ import type { JSX } from "react";
 
 export function HostPagePreview(): JSX.Element {
   return (
-    <div className="font-sans text-ink">
+    <div className="font-sans text-ink" data-testid="host-page-preview">
       <SiteHeader />
       <main>
         <HeroSection />
@@ -68,6 +68,7 @@ function SiteHeader(): JSX.Element {
 function HeroSection(): JSX.Element {
   return (
     <section
+      data-mc-section="hero"
       id="section-hero"
       className="relative overflow-hidden bg-gradient-to-br from-white via-bg to-[#eef5ff] px-6 py-20 md:py-28"
     >
@@ -153,7 +154,11 @@ function Dot({ color }: { readonly color: string }): JSX.Element {
 function ClientCarousel(): JSX.Element {
   const slots = Array.from({ length: 10 });
   return (
-    <section id="section-clients" className="border-y border-black/5 bg-white py-14">
+    <section
+      data-mc-section="social-proof"
+      id="section-clients"
+      className="border-y border-black/5 bg-white py-14"
+    >
       <div className="mx-auto max-w-6xl px-6">
         <h2 className="text-center text-[clamp(22px,2.6vw,32px)] font-black tracking-tight">
           성공하는 병의원은 리비짓을 사용합니다.
@@ -195,7 +200,11 @@ function DoctorTestimonials(): JSX.Element {
     }
   ];
   return (
-    <section id="section-testimonials" className="bg-bg px-6 py-20">
+    <section
+      data-mc-section="customer-review"
+      id="section-testimonials"
+      className="bg-bg px-6 py-20"
+    >
       <div className="mx-auto max-w-6xl">
         <h2 className="text-center text-[clamp(22px,2.6vw,32px)] font-black tracking-tight">
           리비짓을 가장 먼저 도입한 원장님들의 후기를 확인하세요.
@@ -226,7 +235,11 @@ function DoctorTestimonials(): JSX.Element {
 
 function AutoReminderSection(): JSX.Element {
   return (
-    <section id="section-auto-reminder" className="bg-white px-6 py-24">
+    <section
+      data-mc-section="auto-reminder"
+      id="section-auto-reminder"
+      className="bg-white px-6 py-24"
+    >
       <div className="mx-auto grid max-w-6xl gap-12 md:grid-cols-2 md:items-center">
         <div>
           <SectionEyebrow label="자동 리마인드" />
@@ -283,7 +296,11 @@ function AutoReminderSection(): JSX.Element {
 function CustomContentSection(): JSX.Element {
   const tabs = ["정형외과", "내과", "산부인과", "안과", "피부과"];
   return (
-    <section id="section-custom-content" className="bg-bg px-6 py-24">
+    <section
+      data-mc-section="reminder-content"
+      id="section-custom-content"
+      className="bg-bg px-6 py-24"
+    >
       <div className="mx-auto max-w-6xl">
         <SectionEyebrow label="맞춤 콘텐츠" />
         <h2 className="mt-3 text-[clamp(28px,3.4vw,42px)] font-black leading-[1.18] tracking-[-0.03em]">
@@ -291,9 +308,10 @@ function CustomContentSection(): JSX.Element {
           <br />
           충성 고객을 만드세요.
         </h2>
-        <div className="mt-8 flex flex-wrap gap-2">
+        <div data-mc-section="specialty-tabs" className="mt-8 flex flex-wrap gap-2">
           {tabs.map((t, i) => (
             <span
+              data-mc-tab={i === 0 ? "orthopedics" : i === 1 ? "internal-medicine" : undefined}
               key={t}
               className={
                 i === 0
@@ -336,7 +354,11 @@ function CustomContentSection(): JSX.Element {
 
 function AnalyticsSection(): JSX.Element {
   return (
-    <section id="section-analytics" className="bg-white px-6 py-24">
+    <section
+      data-mc-section="data-analysis"
+      id="section-analytics"
+      className="bg-white px-6 py-24"
+    >
       <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[0.9fr_1.1fr] md:items-center">
         <div>
           <SectionEyebrow label="환자 데이터 분석" />
@@ -382,6 +404,7 @@ function AnalyticsSection(): JSX.Element {
 function DemoSection(): JSX.Element {
   return (
     <section
+      data-mc-section="crm-demo"
       id="section-demo"
       className="bg-gradient-to-br from-[#0d1f37] via-ink to-[#0a1226] px-6 py-24 text-white"
     >
@@ -450,7 +473,7 @@ function ResultsSection(): JSX.Element {
     }
   ];
   return (
-    <section id="section-results" className="bg-bg px-6 py-24">
+    <section data-mc-section="case-data" id="section-results" className="bg-bg px-6 py-24">
       <div className="mx-auto max-w-6xl">
         <h2 className="mx-auto max-w-3xl text-center text-[clamp(24px,3vw,36px)] font-black leading-[1.2] tracking-[-0.03em]">
           500개+의 병의원이 경험한 매출 상승과 경영 효율화,
@@ -458,8 +481,11 @@ function ResultsSection(): JSX.Element {
           이제 우리 병원의 차례입니다.
         </h2>
         <div className="mt-10 grid gap-5 md:grid-cols-3">
-          {cards.map((c) => (
+          {cards.map((c, index) => (
             <div
+              data-mc-card={
+                index === 0 ? "ortho-revisit-12" : index === 2 ? "im-revenue-19" : undefined
+              }
               key={c.headline}
               className="rounded-[24px] border border-black/5 bg-white p-6 shadow-[0_18px_40px_rgba(7,20,39,0.06)]"
             >
@@ -478,12 +504,12 @@ function ResultsSection(): JSX.Element {
 function AdvisorsSection(): JSX.Element {
   const slots = Array.from({ length: 12 });
   return (
-    <section id="section-advisors" className="bg-white px-6 py-24">
+    <section data-mc-section="advisors" id="section-advisors" className="bg-white px-6 py-24">
       <div className="mx-auto max-w-6xl">
         <h2 className="mx-auto max-w-3xl text-center text-[clamp(22px,2.6vw,32px)] font-black tracking-tight">
           리비짓은 24명+의 자문 전문의가 함께하는 믿을 수 있는 솔루션입니다.
         </h2>
-        <div className="mt-10 grid grid-cols-3 gap-4 md:grid-cols-6">
+        <div data-mc-group="ortho-advisors" className="mt-10 grid grid-cols-3 gap-4 md:grid-cols-6">
           {slots.map((_, i) => (
             <div key={i} className="text-center">
               <div className="mx-auto h-16 w-16 rounded-full bg-gradient-to-br from-bg to-accent/20" />
@@ -499,7 +525,7 @@ function AdvisorsSection(): JSX.Element {
 
 function SecuritySection(): JSX.Element {
   return (
-    <section id="section-security" className="bg-bg px-6 py-24">
+    <section data-mc-section="security" id="section-security" className="bg-bg px-6 py-24">
       <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[1.1fr_0.9fr] md:items-center">
         <div>
           <SectionEyebrow label="정보 보호" />
@@ -569,7 +595,7 @@ function FaqSection(): JSX.Element {
     }
   ];
   return (
-    <section id="section-faq" className="bg-bg px-6 py-24">
+    <section data-mc-section="faq" id="section-faq" className="bg-bg px-6 py-24">
       <div className="mx-auto max-w-3xl">
         <h2 className="text-center text-[clamp(22px,2.6vw,32px)] font-black tracking-tight">
           자주 묻는 질문
@@ -591,6 +617,7 @@ function FaqSection(): JSX.Element {
         </div>
         <div className="mt-10 flex justify-center">
           <a
+            data-mc-section="footer-cta"
             id="section-contact"
             href="#"
             className="rounded-full bg-ink px-6 py-3 text-[13px] font-extrabold text-white"

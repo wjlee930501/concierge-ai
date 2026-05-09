@@ -5,8 +5,17 @@
 @layer base {
   html,
   body {
-    background: linear-gradient(180deg, #ffffff 0%, #f6f9ff 50%, #eef5ff 100%);
     min-height: 100vh;
+  }
+
+  html:not([data-concierge-embedded="true"]),
+  html:not([data-concierge-embedded="true"]) body {
+    background: linear-gradient(180deg, #ffffff 0%, #f6f9ff 50%, #eef5ff 100%);
+  }
+
+  html[data-concierge-embedded="true"],
+  html[data-concierge-embedded="true"] body {
+    background: transparent;
   }
 }
 
