@@ -1,13 +1,13 @@
 {
   "id": "placeholder_v0",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "isPlaceholder": true,
   "heroBubble": {
-    "message": "처음 오셨다면 30초 안에 핵심부터 짚어 드릴게요. 보고 싶은 흐름을 골라 주세요.",
+    "message": "Re:Visit이 처음이세요? 30초 안에 어떤 도움을 드릴 수 있는지 짚어 드릴게요.",
     "quickChips": [
-      { "id": "chip_core", "label": "서비스 핵심 보기", "nextStepId": "step_core" },
-      { "id": "chip_proof", "label": "성과부터 보기", "nextStepId": "step_proof" },
-      { "id": "chip_demo", "label": "데모로 이동", "nextStepId": "step_demo" },
+      { "id": "chip_core", "label": "핵심 기능 보기", "nextStepId": "step_core" },
+      { "id": "chip_proof", "label": "성과 데이터 보기", "nextStepId": "step_proof" },
+      { "id": "chip_demo", "label": "직접 받아보기", "nextStepId": "step_demo" },
       { "id": "chip_contact", "label": "도입 상담", "nextStepId": "step_contact" }
     ]
   },
@@ -16,11 +16,11 @@
       "id": "step_core",
       "popover": {
         "label": "Core",
-        "title": "핵심부터 짚겠습니다.",
-        "body": "이 섹션은 서비스의 존재 이유를 가장 빠르게 보여 드리는 시작점입니다."
+        "title": "자동 리마인드가 핵심이에요.",
+        "body": "진료 유형별 맞춤 리마인드로 노쇼를 줄이고, 카카오톡으로 환자 부담 없이 전달합니다."
       },
-      "spotlightTarget": "#section-core",
-      "avatarPoint": "up",
+      "spotlightTarget": "#section-auto-reminder",
+      "avatarPoint": "right",
       "choices": [
         { "id": "to_proof", "label": "다음: 성과 보기", "nextStepId": "step_proof" },
         { "id": "to_contact", "label": "바로 상담하기", "nextStepId": "step_contact" }
@@ -31,13 +31,13 @@
       "id": "step_proof",
       "popover": {
         "label": "Proof",
-        "title": "관심이 생기면 근거를 보여드립니다.",
-        "body": "사례·근거 섹션은 추상적인 설명보다 빠르게 신뢰를 쌓아 줍니다."
+        "title": "수치로 증명된 효과.",
+        "body": "재방문율 +12%, 매출 +16%, 객단가 +19%. 500개+ 병의원이 검증한 결과입니다."
       },
-      "spotlightTarget": "#section-proof",
-      "avatarPoint": "right",
+      "spotlightTarget": "#section-results",
+      "avatarPoint": "left",
       "choices": [
-        { "id": "to_demo", "label": "다음: 데모 보기", "nextStepId": "step_demo" },
+        { "id": "to_demo", "label": "다음: 데모 받기", "nextStepId": "step_demo" },
         { "id": "to_contact", "label": "바로 상담하기", "nextStepId": "step_contact" }
       ],
       "isClosing": false
@@ -46,11 +46,11 @@
       "id": "step_demo",
       "popover": {
         "label": "Demo",
-        "title": "직접 보는 행동으로 연결합니다.",
-        "body": "데모 CTA로 바로 안내해 페이지 탐색 부담을 줄여 드립니다."
+        "title": "지금 카카오톡으로 받아보세요.",
+        "body": "진료과·템플릿을 고르면 실제 알림톡을 직접 받아볼 수 있어요."
       },
       "spotlightTarget": "#section-demo",
-      "avatarPoint": "left",
+      "avatarPoint": "up",
       "choices": [
         { "id": "to_contact", "label": "다음: 상담 신청", "nextStepId": "step_contact" }
       ],
@@ -59,11 +59,11 @@
     {
       "id": "step_contact",
       "popover": {
-        "label": "Conversion",
+        "label": "Contact",
         "title": "상담으로 마무리합니다.",
-        "body": "도입 의향이 있는 방문자를 입력 폼으로 연결해 전환을 닫습니다."
+        "body": "도입 의향이 있는 원장님께는 1영업일 안에 담당자가 연락드립니다."
       },
-      "spotlightTarget": "#section-contact",
+      "spotlightTarget": "#section-faq",
       "avatarPoint": "left",
       "choices": [],
       "isClosing": true
@@ -74,8 +74,8 @@
     "subtitle": "입력해 주신 정보는 안내 목적으로만 사용됩니다.",
     "fields": [
       { "id": "name", "label": "이름", "type": "text", "required": true, "placeholder": "홍길동" },
-      { "id": "email", "label": "이메일", "type": "email", "required": true, "placeholder": "you@example.com" },
-      { "id": "phone", "label": "연락처", "type": "tel", "required": false, "placeholder": "010-0000-0000" },
+      { "id": "phone", "label": "연락처", "type": "tel", "required": true, "placeholder": "010-0000-0000" },
+      { "id": "specialty", "label": "진료과", "type": "text", "required": true, "placeholder": "정형외과 / 내과 / …" },
       { "id": "message", "label": "메시지", "type": "textarea", "required": false, "placeholder": "어떤 도움이 필요하신가요?" }
     ],
     "pipaConsents": [

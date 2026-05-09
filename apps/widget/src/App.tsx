@@ -1,6 +1,7 @@
 import { useMemo, type JSX } from "react";
 import { HeroBubble } from "./components/HeroBubble";
 import { LeadFormCard } from "./components/LeadFormCard";
+import { MinimizedPill } from "./components/MinimizedPill";
 import { Spotlight } from "./components/Spotlight";
 import { SubmittedCard } from "./components/SubmittedCard";
 import type { ChipChoice } from "./components/QuickChips";
@@ -23,6 +24,7 @@ export function App(): JSX.Element {
   const isStep = phase.kind === "step-active";
   const isLeadForm = phase.kind === "lead-form";
   const isSubmitted = phase.kind === "submitted";
+  const isDismissed = phase.kind === "dismissed";
   const showHero = isHero || isStep;
 
   const stepNode = isStep ? phase.step : null;
@@ -123,6 +125,8 @@ export function App(): JSX.Element {
         onDismissSuggestion={() => dispatch({ type: "dismiss-ai-response" })}
         canGoBack={isStep}
         onBack={() => dispatch({ type: "back" })}
+        canDismiss={isHero}
+        onDismiss={() => dispatch({ type: "dismiss" })}
       />
 
       {isLeadForm ? (
@@ -148,6 +152,10 @@ export function App(): JSX.Element {
           thanksMessage={scenario.leadForm.thanksMessage}
           onReset={() => dispatch({ type: "reset" })}
         />
+      ) : null}
+
+      {isDismissed ? (
+        <MinimizedPill onReopen={() => dispatch({ type: "reopen" })} />
       ) : null}
     </div>
   );

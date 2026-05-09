@@ -128,6 +128,21 @@ export function reduceRunner(
       };
     }
 
+    case "dismiss": {
+      // 사용자가 안내 없이 페이지만 둘러보고 싶은 경우. hero-visible에서만 허용.
+      if (state.phase.kind !== "hero-visible") return state;
+      return {
+        ...state,
+        phase: { kind: "dismissed" },
+        freeInput: { ...FREE_INPUT_INITIAL, streamSeq: state.freeInput.streamSeq }
+      };
+    }
+
+    case "reopen": {
+      if (state.phase.kind !== "dismissed") return state;
+      return { ...state, phase: { kind: "hero-visible" } };
+    }
+
     case "back": {
       if (state.phase.kind === "lead-form") {
         const history = state.historyStepIds;

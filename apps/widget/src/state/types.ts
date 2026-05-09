@@ -7,7 +7,8 @@ export type RunnerPhase =
   | { readonly kind: "hero-visible" }
   | { readonly kind: "step-active"; readonly step: ScenarioStep }
   | { readonly kind: "lead-form" }
-  | { readonly kind: "submitted" };
+  | { readonly kind: "submitted" }
+  | { readonly kind: "dismissed" };
 
 export type LeadFormDraft = {
   readonly fields: Readonly<Record<string, string>>;
@@ -74,6 +75,8 @@ export type RunnerEvent =
     }
   | { readonly type: "submit-lead" }
   | { readonly type: "back" }
+  | { readonly type: "dismiss" }
+  | { readonly type: "reopen" }
   | { readonly type: "open-free-input" }
   | { readonly type: "close-free-input" }
   | { readonly type: "update-free-input-draft"; readonly value: string }

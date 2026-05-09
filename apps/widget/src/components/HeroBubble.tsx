@@ -27,6 +27,8 @@ export type HeroBubbleProps = {
   readonly onDismissSuggestion: () => void;
   readonly canGoBack: boolean;
   readonly onBack: () => void;
+  readonly canDismiss: boolean;
+  readonly onDismiss: () => void;
 };
 
 export function HeroBubble(props: HeroBubbleProps): JSX.Element {
@@ -139,6 +141,16 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
               >
                 {showFreeInput ? "선택지로 돌아가기" : "직접 물어보기"}
               </button>
+              {props.canDismiss ? (
+                <button
+                  type="button"
+                  className="rounded-full bg-white/80 px-3 py-1 text-[11px] font-bold text-mist shadow-[0_4px_12px_rgba(7,20,39,0.08)] hover:text-ink"
+                  onClick={props.onDismiss}
+                  aria-label="안내 없이 그냥 둘러보기"
+                >
+                  그냥 둘러보기
+                </button>
+              ) : null}
             </div>
           </div>
         </motion.section>
