@@ -1,9 +1,17 @@
-import type { JSX } from "react";
+import { useEffect, useRef, useState, type JSX } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import type {
   AnchorName,
   AnchorPoint,
   ScenarioAvatarPoint
+} from "@conciergeai/shared";
+import {
+  computeAnticipationOffset,
+  computeMotionDistance,
+  computeMoveProfile,
+  computePathControlPoint,
+  computeScrollLagOffset,
+  computeSettleOffset
 } from "@conciergeai/shared";
 import { Avatar, type AvatarExpression } from "./Avatar";
 import { QuickChips, type ChipChoice } from "./QuickChips";
@@ -54,6 +62,22 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
 
   const showSection = props.section !== null;
   const stackedBubble = showSection || props.message.length > 60;
+  const previousAnchorPosition = usePreviousAnchorPoint(props.anchorPosition);
+  const motionDistance = computeMotionDistance(
+    previousAnchorPosition,
+    props.anchorPosition
+  );
+  const moveProfile = computeMoveProfile(motionDistance);
+  const anticipation = computeAnticipationOffset(
+    previousAnchorPosition,
+    props.anchorPosition
+  );
+  const settle = computeSettleOffset();
+  const pathControl = computePathControlPoint(
+    previousAnchorPosition,
+    props.anchorPosition
+  );
+  const scrollLagY = useScrollLag(reduced);
 
   return (
     <AnimatePresence>
@@ -61,6 +85,10 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
         <motion.section
           aria-label="MotionLabs Concierge AI"
           data-current-anchor={props.currentAnchor}
+          data-motion-profile={moveProfile.name}
+          data-motion-duration-ms={moveProfile.durationMs}
+          data-path-control={`${Math.round(pathControl.x)},${Math.round(pathControl.y)}`}
+          data-scroll-lag-y={Math.round(scrollLagY)}
           className="pointer-events-auto fixed z-[90]"
           style={{ transform: "translate(-50%, -50%)" }}
           initial={{ opacity: 0 }}
@@ -73,7 +101,12 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
           transition={
             reduced
               ? { duration: 0 }
-              : { type: "spring", stiffness: 260, damping: 24 }
+              : {
+                  type: "spring",
+                  stiffness: moveProfile.stiffness,
+                  damping: moveProfile.damping,
+                  mass: moveProfile.mass
+                }
           }
         >
           {/* Floor glow */}
@@ -82,7 +115,30 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
             className="pointer-events-none absolute -inset-x-20 -bottom-6 -z-10 h-32 rounded-full bg-[radial-gradient(closest-side,rgba(7,20,39,0.18),transparent_70%)]"
           />
 
-          <div className="flex w-[min(560px,calc(100vw-32px))] flex-col items-center gap-2.5">
+          <motion.div
+            className="flex w-[min(560px,calc(100vw-32px))] flex-col items-center gap-2.5"
+            animate={
+              reduced
+                ? { x: 0, y: 0 }
+                : {
+                    x: [anticipation.x, 0, 0],
+                    y: [
+                      anticipation.y + scrollLagY,
+                      settle.y + scrollLagY,
+                      scrollLagY
+                    ]
+                  }
+            }
+            transition={
+              reduced
+                ? { duration: 0 }
+                : {
+                    duration: moveProfile.durationMs / 1000,
+                    times: [0, 0.78, 1],
+                    ease: [0.2, 0.8, 0.2, 1]
+                  }
+            }
+          >
             {/* AI streaming response (only during free-input thinking/replying) */}
             {showAiBubble ? (
               <div className="w-full max-w-[440px]">
@@ -187,11 +243,59 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
                 ) : null}
               </div>
             ) : null}
-          </div>
+          </motion.div>
         </motion.section>
       ) : null}
     </AnimatePresence>
   );
+}
+
+function usePreviousAnchorPoint(current: AnchorPoint): AnchorPoint {
+  const previousRef = useRef<AnchorPoint>(current);
+  const previous = previousRef.current;
+
+  useEffect(() => {
+    previousRef.current = current;
+  }, [current]);
+
+  return previous;
+}
+
+function useScrollLag(disabled: boolean): number {
+  const [offset, setOffset] = useState(0);
+  const lastScrollYRef = useRef(
+    typeof window === "undefined" ? 0 : window.scrollY
+  );
+
+  useEffect(() => {
+    if (disabled || typeof window === "undefined") {
+      setOffset(0);
+      return undefined;
+    }
+
+    let resetTimer: ReturnType<typeof window.setTimeout> | undefined;
+    const onScroll = () => {
+      const nextScrollY = window.scrollY;
+      const delta = nextScrollY - lastScrollYRef.current;
+      lastScrollYRef.current = nextScrollY;
+      setOffset(computeScrollLagOffset(delta));
+
+      if (resetTimer !== undefined) {
+        window.clearTimeout(resetTimer);
+      }
+      resetTimer = window.setTimeout(() => setOffset(0), 110);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      if (resetTimer !== undefined) {
+        window.clearTimeout(resetTimer);
+      }
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, [disabled]);
+
+  return disabled ? 0 : offset;
 }
 
 function SpeechPill(props: {

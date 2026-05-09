@@ -78,6 +78,12 @@ describe("App choreography wiring", () => {
       screen.getByTestId("speech-pill").getAttribute("data-polish-breathing")
     ).toBe("true");
     expect(
+      screen.getByTestId("concierge-avatar").getAttribute("data-avatar-asset")
+    ).toBe("smile");
+    const concierge = screen.getByLabelText("MotionLabs Concierge AI");
+    expect(concierge.getAttribute("data-motion-profile")).toBe("short");
+    expect(concierge.getAttribute("data-path-control")).toMatch(/^\d+,\d+$/);
+    expect(
       screen.getByText("핵심 기능 보기").getAttribute("data-feedback-window-ms")
     ).toBe("50");
   });

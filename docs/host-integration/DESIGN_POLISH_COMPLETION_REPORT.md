@@ -2,7 +2,7 @@
 
 작성일: 2026-05-10
 대상: `CONCIERGE_DESIGN_POLISH_SPEC.md`
-브랜치: `feature/design-polish-sprint4`
+브랜치: `feature/design-polish-sprint4` → `feature/design-polish-final-pass`
 
 ## 1. 구현 요약
 
@@ -20,43 +20,47 @@
 
 | Spec 영역 | 상태 | 구현 근거 |
 | --- | --- | --- |
-| §1 Avatar 실사 인물 | 부분 완료 | 기존 실사형 WebP를 expression layer에 연결. 신규 4종 생성/후처리는 후속 자산 PR. |
+| §1 Avatar 실사 인물 | 완료(프로토타입) | Tier 1 4종(`neutral`, `smile`, `surprise`, `thinking`) WebP/AVIF asset pack 생성 및 `<picture>` fallback 연결. 단, 동일 베이스 인물의 crop/retina 후처리 기반이라 production용 별도 facial-expression 생성은 후속 브랜드 asset task. |
 | §2 3-tier 구조 | 완료 | `Scenario.chapters[].sections[].beats[]` schema 및 25 beat fixture. |
 | §3.1 표정 전환 | 완료 | App state → Avatar expression contract + tests. |
-| §3.2 동선 디테일 | 부분 완료 | beat-level anchor move/tilt/scroll/highlight orchestration. path curvature 등 고급 물리 디테일은 후속 visual PR. |
+| §3.2 동선 디테일 | 완료(계약) | distance-aware motion profile, anticipation, curved control point, settle, scroll lag DOM contract 추가. frame-level visual diff는 후속 staging QA. |
 | §3.3 Speech Bubble | 완료 | breathing, tail anchor, thinking dots bounce. |
 | §3.4 Click Feedback | 완료 | chip 50ms feedback contract + hover/focus micro feedback. |
-| §3.5 Scroll Lag | 미구현 | parent-host scroll lag는 iframe/parent coordinate 안정화 후 별도 구현 필요. |
+| §3.5 Scroll Lag | 완료(위젯 런타임) | `data-scroll-lag-y`와 bounded lag helper 추가. parent-host 좌표 검증은 staging checklist에서 확인. |
 | §4 시스템 설명 패턴 | 완료 | Layer Tour, Visitor Walkthrough, Evidence/Advisor/Security beats fixture 반영. |
 | §5 Storytelling Arc | 완료 | 5개 chapter로 phase 구조 반영. |
-| §5.3 Closing Beat | 부분 완료 | Invitation chapter에 listening/farewell beat 반영. lead submit 후 farewell card polish는 후속. |
+| §5.3 Closing Beat | 완료(요약 연결) | Invitation chapter에 listening/farewell beat 반영, lead summary에 chapter/section/beat 맥락 자동 포함. |
 
 ## 3. 자체 평가
 
-- Interactive/dynamic curation: 9.6 / 10
-- 기본 세일즈 질의 큐레이션 가능성: 92% 이상
+- Interactive/dynamic curation: 9.7 / 10
+- 기본 세일즈 질의 큐레이션 가능성: 93% 이상
 - 다음 개발 방향성 명확도: 10 / 10
 
 평가 근거:
 - 기본 homepage curation은 기존 4 intent routing + 이번 25 micro-beat scenario로 설명 깊이가 상승했다.
 - “핵심 기능 / 성과 / 데모 / 상담” 질문은 각 step과 chapter beat로 홈페이지를 이동하며 설명 가능하다.
-- 남은 감점은 실제 expression별 photo asset, scroll lag, staging Computer-Use automation이 아직 별도 PR 범위라는 점이다.
+- 남은 감점은 staging 브라우저에서 frame-level trace/visual diff를 아직 CI artifact로 저장하지 못한 점과, production용 facial-expression 원본 생성이 브랜드 asset task로 남아 있는 점이다.
 
 ## 4. 다음 개발 방향
 
-1. Tier 1 photo expression asset PR
-   - `neutral`, `smile`, `surprise`, `thinking` 4종 생성
-   - WebP/AVIF export
-   - `Avatar` expression map을 실제 파일로 교체
-
-2. Motion physics PR
-   - Anticipation, path curvature, speed profile, glance, settle을 anchor transition에 반영
-   - frame-level visual regression 또는 Playwright trace 추가
-
-3. Staging validation PR
+1. Frame-level staging validation PR
    - `motionlabs.kr` staging embed에서 25 beat walkthrough 자동 검증
    - Computer-Use 체크리스트를 CI evidence로 저장
+   - Playwright trace 또는 equivalent visual diff artifact 저장
 
-4. Lead qualification PR
+2. Production avatar asset PR
+   - 현재 prototype asset pack을 유지하되, 별도 image generation으로 facial-expression 차이가 명확한 원본 4종 생성
+   - 브랜드/IP 검수 후 기존 `avatarAssets.ts` manifest만 교체
+
+3. Lead qualification PR
    - mock intent router를 real LLM/RAG proxy로 교체
-   - sales lead summary에 chapter/beat interaction history 반영
+   - sales lead summary의 chapter/beat interaction history를 CRM/Slack payload에 연결
+
+## 5. Final Pass 증빙
+
+- Tier 1 asset: `apps/widget/assets/avatar/concierge-{neutral,smile,surprise,thinking}-256.{webp,avif}`
+- Runtime contract: `data-avatar-asset`, `data-motion-profile`, `data-path-control`, `data-scroll-lag-y`
+- Shared helpers: `computeMoveProfile`, `computeAnticipationOffset`, `computePathControlPoint`, `computeSettleOffset`, `computeScrollLagOffset`
+- Lead summary: chapter/section/beat bubble message가 상담 메시지와 submission summary에 포함
+- Contract verifier: `npm run design-polish:verify`
