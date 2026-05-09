@@ -5,7 +5,7 @@ import type {
   AnchorPoint,
   ScenarioAvatarPoint
 } from "@conciergeai/shared";
-import { Avatar } from "./Avatar";
+import { Avatar, type AvatarExpression } from "./Avatar";
 import { QuickChips, type ChipChoice } from "./QuickChips";
 import { FreeInputBar } from "./FreeInputBar";
 import { AiSpeechBubble } from "./AiSpeechBubble";
@@ -15,6 +15,7 @@ export type HeroBubbleProps = {
   readonly visible: boolean;
   readonly avatarPoint: ScenarioAvatarPoint;
   readonly avatarMood: "idle" | "thinking" | "replying" | "pointing";
+  readonly avatarExpression: AvatarExpression;
   readonly anchorPosition: AnchorPoint;
   readonly currentAnchor: AnchorName;
   readonly avatarTilt: number;
@@ -131,11 +132,14 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
               <Avatar
                 point={props.avatarPoint}
                 mood={props.avatarMood}
+                expression={props.avatarExpression}
                 tilt={props.avatarTilt}
               />
               {props.bubbleVisible ? (
                 <SpeechPill
                   stacked={stackedBubble}
+                  reduced={reduced}
+                  currentAnchor={props.currentAnchor}
                   section={props.section}
                   message={props.message}
                   {...(props.variantSuffix !== undefined &&
@@ -192,6 +196,8 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
 
 function SpeechPill(props: {
   readonly stacked: boolean;
+  readonly reduced: boolean;
+  readonly currentAnchor: AnchorName;
   readonly section: { readonly label: string; readonly title: string } | null;
   readonly message: string;
   readonly variantSuffix?: string;
@@ -199,12 +205,27 @@ function SpeechPill(props: {
 }): JSX.Element {
   const radius = props.stacked ? "rounded-3xl" : "rounded-full";
   const contentKey = `${props.section?.label ?? "hero"}::${props.message.slice(0, 40)}`;
+  const breathing = !props.reduced;
   return (
     <motion.div
       layout
+      data-testid="speech-pill"
+      data-polish-breathing={breathing ? "true" : "false"}
+      data-tail-anchor={props.currentAnchor}
       className={`relative max-w-[460px] ${radius} bg-ink/95 px-4 py-3 text-white shadow-[0_18px_40px_rgba(7,20,39,0.35)] backdrop-blur`}
-      transition={{ duration: 0.32, ease: [0.2, 0.8, 0.2, 1] }}
+      animate={breathing ? { scale: [1, 1.005, 1] } : undefined}
+      transition={
+        breathing
+          ? { duration: 4, repeat: Infinity, ease: "easeInOut" }
+          : { duration: 0 }
+      }
     >
+      <motion.span
+        aria-hidden="true"
+        className="absolute -left-1.5 top-1/2 h-3 w-3 -translate-y-1/2 rotate-45 rounded-[2px] bg-ink/95"
+        animate={{ rotate: resolveTailRotation(props.currentAnchor) }}
+        transition={{ type: "spring", stiffness: 200, damping: 25 }}
+      />
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={contentKey}
@@ -247,4 +268,11 @@ function SpeechPill(props: {
       ) : null}
     </motion.div>
   );
+}
+
+function resolveTailRotation(anchor: AnchorName): number {
+  if (anchor.includes("right")) return 52;
+  if (anchor.includes("left")) return 38;
+  if (anchor.includes("bottom")) return 58;
+  return 45;
 }

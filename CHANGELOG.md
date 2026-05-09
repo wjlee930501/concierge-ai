@@ -1,5 +1,9 @@
 # CHANGELOG.md
 
+## [Design polish / 2026-05-10]
+- 2026-05-10 KST Design polish Sprint 4 foundation 시작: CONCIERGE_DESIGN_POLISH_SPEC 기준으로 Avatar expression layer, speech bubble breathing/typewriter affordance, chip click feedback, spec import, 검증 계획 수립 예정.
+- 2026-05-10 KST Design polish Sprint 4 foundation 종료: polish spec repo import, implementation plan, Avatar expression contract(listening/thinking/smile), speech bubble breathing/tail anchor, AI thinking dots, chip 50ms feedback 추가; App test 6 passed, npm test 34 files/297 passed, typecheck/lint/security/pr-evidence/build:vercel:widget/host-preview build/git diff check PASS, browser smoke(localhost:5173 expression/breathing/chip feedback/click→pointing) PASS. 후속: Tier 1 photo expression asset 생성, 3-tier scenario schema, staging Computer-Use automation.
+
 ## [Week 1 / 2026-05-08]
 - W1 2026-05-08 KST MotionLabs homepage interaction 재정렬 시작: 채널톡형 floating chat/hero mockup 중심을 폐기하고 내장형 intent-aware guide prototype으로 수정 예정.
 - W1 2026-05-08 KST MotionLabs homepage interaction 재정렬 종료: spec/prototype을 외부 솔루션·채널톡형 floating chat·hero mockup 중심에서 홈페이지 본문 내장형 intent-aware guide layer로 수정; 브라우저 클릭/콘솔/스크린샷 검증 완료.

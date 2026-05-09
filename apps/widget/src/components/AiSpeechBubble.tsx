@@ -58,11 +58,11 @@ function TypingDots(): JSX.Element {
         <motion.span
           key={i}
           className="h-1 w-1 rounded-full bg-mint"
-          animate={{ opacity: [0.2, 1, 0.2] }}
+          animate={{ opacity: [0.2, 1, 0.2], y: [0, -3, 0] }}
           transition={{
-            duration: 1.2,
+            duration: 0.6,
             repeat: Infinity,
-            delay: i * 0.2,
+            delay: i * 0.15,
             ease: "easeInOut"
           }}
         />

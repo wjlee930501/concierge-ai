@@ -8,6 +8,7 @@ import {
   type AvatarStateName
 } from "@conciergeai/shared";
 import { HeroBubble } from "./components/HeroBubble";
+import type { AvatarExpression } from "./components/Avatar";
 import { LeadFormCard } from "./components/LeadFormCard";
 import { MinimizedPill } from "./components/MinimizedPill";
 import { Spotlight } from "./components/Spotlight";
@@ -75,6 +76,13 @@ export function App(): JSX.Element {
     freeInputMode: state.freeInput.mode,
     avatarState: choreographyUi.avatarState,
     isStep
+  });
+  const avatarExpression = resolveAvatarExpression({
+    freeInputMode: state.freeInput.mode,
+    avatarState: choreographyUi.avatarState,
+    isStep,
+    isSubmitted,
+    isDismissed
   });
   const anchorPoint = anchorToPoint(choreographyUi.anchor, viewport);
   const safeAnchorPoint = clampBubbleAnchorPoint(anchorPoint, viewport);
@@ -275,6 +283,7 @@ export function App(): JSX.Element {
         visible={showHero}
         avatarPoint={heroPoint}
         avatarMood={avatarMood}
+        avatarExpression={avatarExpression}
         anchorPosition={safeAnchorPoint}
         currentAnchor={choreographyUi.anchor}
         avatarTilt={choreographyUi.tilt}
@@ -359,6 +368,23 @@ function resolveAvatarMood(input: {
   if (input.freeInputMode === "replying") return "replying";
   if (input.avatarState === "pointing" || input.isStep) return "pointing";
   return "idle";
+}
+
+function resolveAvatarExpression(input: {
+  readonly freeInputMode: "closed" | "open" | "thinking" | "replying";
+  readonly avatarState: AvatarStateName;
+  readonly isStep: boolean;
+  readonly isSubmitted: boolean;
+  readonly isDismissed: boolean;
+}): AvatarExpression {
+  if (input.isSubmitted) return "celebrate";
+  if (input.isDismissed) return "farewell";
+  if (input.freeInputMode === "open") return "listening";
+  if (input.freeInputMode === "thinking") return "thinking";
+  if (input.freeInputMode === "replying") return "smile";
+  if (input.avatarState === "pointing" || input.isStep) return "smile";
+  if (input.avatarState === "moving") return "neutral";
+  return "smile";
 }
 
 function useViewport(): {
