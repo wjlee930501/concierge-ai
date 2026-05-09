@@ -1,7 +1,7 @@
 # FINAL ALIGNMENT — 개발 착수 전 통합 합의문
 
 작성일: 2026-05-07
-기준 문서: `docs/prd/Concierge_AI_PRD_v1.1.md`, `docs/alignment/CODEX_ROUND1.md`, `docs/alignment/CLAUDE_ROUND1.md`, `docs/alignment/CODEX_ROUND2.md`, `docs/alignment/CLAUDE_ROUND2.md`
+기준 문서: `docs/prd/Concierge_AI_PRD_v1.2.md` (canonical), `docs/interaction/CURATION_CHOREOGRAPHY_SPEC.md`. v1.1 PRD와 alignment round 1~2 문서는 v1.2로 흡수되어 삭제됐다.
 목적: Concierge AI PoC 개발 전 Claude Code, Codex CLI/OMX, Computer-Use, Woojin의 책임 경계와 merge 기준을 운영 가능한 수준으로 고정한다.
 
 > 운영 override (2026-05-08~): 본 합의문은 PRD baseline 기준으로 작성되었지만, 현재 운영 체계는 Claude Code가 1차 구현자, Codex CLI/OMX가 review-only 교차 검증자다. 본문 내 "Codex가 작성한다 / Claude가 review한다" 표기는 모두 이 override로 읽는다. PRD baseline 자체는 별도 PRD update 없이 보존한다.
@@ -178,7 +178,7 @@ Week 1에서 source data 전에는 금지되는 범위:
 
 ## 7. unresolved items
 
-상세 owner/deadline 추적은 `docs/alignment/UNRESOLVED_OWNER_TRACKER.md`를 기준으로 한다. 아래 표는 합의문 원본의 blocker 목록이며, 최종 날짜나 승인 여부는 source data 없이 확정하지 않는다.
+아래 표는 합의문 원본의 blocker 목록이며, 최종 날짜나 승인 여부는 source data 없이 확정하지 않는다. v1.2 §25에서 정식 확정된 결정 (Re:putation/NMOS guard 폐기 / 5 visitor view 유지 / 시나리오 Re:Visit·New:Visit 2종) 은 PRD v1.2 본문에 반영됐다.
 
 | 항목 | 상태 | Owner | Deadline |
 |---|---|---|---|

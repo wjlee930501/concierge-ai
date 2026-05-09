@@ -229,3 +229,13 @@
 - W1 2026-05-09 KST 문서 동기화: CLAUDE.md/AGENTS.md/README.md/ROADMAP.md를 v1.2 + SPEC 참조로 갱신, banned-vocab 금지 줄 제거, PoC 단일 가치 명제(PRD v1.2 §0) 명문화. `Re:putation`/`NMOS` 외부 코드네임 차단 유지 여부는 v1.2 §25.1에 따라 대표님 확인 대기.
 - W1 2026-05-09 KST PRD v1.2 alignment 종료: production secret/API/webhook/real scenario/final copy 접근 없음, Computer-Use 미실행, FINAL_ALIGNMENT §3 boundary 보존.
 - W1 2026-05-09 KST 후반 v1.2 §25 결정 확정 반영: (1) Re:putation / NMOS 외부 코드네임 차단 폐기 — 별도 secret-codename guard 두지 않음. (2) 5 visitor view 분류 유지. (3) 시나리오 Re:Visit / New:Visit 2개로 축소 — `checkup_curation_v1` / `handdoc_curation_v1` / `investor_v1`은 본 PoC 범위 외, 해당 visitor view는 가장 가까운 Re:Visit / New:Visit 시나리오 또는 escalate_to_human으로 라우팅. PRD §1.2 / §3.1 / §7.1 / §7.4 / §25 update.
+
+## [Cleanup pass / 2026-05-09 후반]
+
+- 삭제 (PRD v1.2로 흡수된 docs): `docs/prd/Concierge_AI_PRD_v1.1.md`, `docs/interaction/CONCIERGE_AVATAR_INTERACTION_SPEC.md`, `docs/alignment/CODEX_ROUND1.md` / `CLAUDE_ROUND1.md` / `CODEX_ROUND2.md` / `CLAUDE_ROUND2.md` / `CLAUDE_FINAL_REVIEW.md` / `UNRESOLVED_OWNER_TRACKER.md` / `PR_EVIDENCE_AND_COST_LEDGER.md`. v1.2 + CURATION_CHOREOGRAPHY_SPEC + FINAL_ALIGNMENT 3 문서가 single source.
+- 삭제 (W1 prototype 흔적): `apps/widget/prototype-avatar-interaction.html`, `apps/widget/motionlabs-homepage-concierge-preview.js`.
+- 삭제 (W1 scaffolding 후 dead code): `apps/widget/src/shell.ts` + `shell.test.ts` (App.tsx + ScenarioRunner로 대체), `packages/shared/src/choreographer.ts` + 테스트 (Sprint 1 `choreography/avatar-state.ts`로 대체), `packages/kb/src/banned-vocab.ts` (v1.2 §6.1 deprecated stub), `tests/fixtures/widget/`.
+- 삭제 (over-engineered governance tooling): `scripts/validate-pr-template.mjs` + `validate-pr-evidence.ci-gate.test.ts` + `validate-pr-evidence.cost-ledger-linkage.test.ts` + `markdown-target-guard.test.ts`, `packages/shared/src/pr-evidence.ts` + 2 테스트, `tests/fixtures/pr-evidence/` + `tests/fixtures/cost-ledger/`. CI는 `pr:evidence:validate` + `security:scan`만 유지.
+- 갱신: `packages/shared/src/index.ts` (choreographer / pr-evidence export 제거), `packages/kb/src/index.ts` (banned-vocab export 제거), `apps/widget/src/index.ts` (shell re-export → workspace boundary marker), `CLAUDE.md` (primary source list 6개로 축소), `docs/alignment/FINAL_ALIGNMENT.md` (round 1~2·UNRESOLVED tracker 참조 제거), `.claude/`(stale session shortcuts 제거).
+- 검증: typecheck 4 tsconfig PASS, `npm test` 28 files / 228 passed (354 → 228, 메타-테스트 126 감소), security:scan PASS, pr:evidence:validate PASS.
+- 결과: 5700 deletions / 11 insertions / 38 files changed. PoC 핵심(widget UI / scenario engine / AI 7 tools / security 3-layer / choreography Sprint 1 / embed.js / admin skeleton / Vercel build) + PRD v1.2 + SPEC + FINAL_ALIGNMENT만 남김.

@@ -10,13 +10,12 @@
 
 ## Primary source of truth (read in this order)
 
-1. `docs/prd/Concierge_AI_PRD_v1.2.md` — canonical PRD (supersedes v1.1).
+1. `docs/prd/Concierge_AI_PRD_v1.2.md` — canonical PRD.
 2. `docs/interaction/CURATION_CHOREOGRAPHY_SPEC.md` — Avatar 큐레이션 인터랙션 정밀 spec (PRD v1.2 §4의 single source).
-3. `docs/alignment/FINAL_ALIGNMENT.md` — operating override + 35-item checklist (v1.2 §1이 §1을 정식 승격).
+3. `docs/alignment/FINAL_ALIGNMENT.md` — operating override + 35-item checklist.
 4. `AGENTS.md` — agent role contract.
-5. `.claude/context/current-focus.md` — current focus snapshot.
-6. `docs/prd/Concierge_AI_PRD_v1.1.md` — historical reference (v1.2 §23 변경 요약 참조).
-7. `docs/alignment/CODEX_ROUND1.md`, `CLAUDE_ROUND1.md`, `CODEX_ROUND2.md`, `CLAUDE_ROUND2.md`, `CLAUDE_FINAL_REVIEW.md` — alignment history.
+5. `ROADMAP.md` — phased delivery plan.
+6. `DEPLOY.md` — Vercel deployment guide.
 
 ## Role override (current operation, 2026-05-08~)
 
