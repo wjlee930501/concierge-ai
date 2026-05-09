@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { executeStep, type ExecuteStepHooks, type PostMessagePayload } from "./executeStep";
 import type {
   AnchorName,
+  AvatarExpressionName,
   AvatarStateName,
   ChoreographyChoice,
   ChoreographyStep,
@@ -29,6 +30,8 @@ function makeHooks(): {
   readonly tiltLog: number[];
   readonly choicesLog: readonly ChoreographyChoice[][];
   readonly bubbleVisibility: boolean[];
+  readonly expressionLog: AvatarExpressionName[];
+  readonly messageLog: Array<string | null>;
 } {
   const stateLog: AvatarStateName[] = [];
   const anchorLog: AnchorName[] = [];
@@ -36,6 +39,8 @@ function makeHooks(): {
   const tiltLog: number[] = [];
   const choicesLog: ChoreographyChoice[][] = [];
   const bubbleVisibility: boolean[] = [];
+  const expressionLog: AvatarExpressionName[] = [];
+  const messageLog: Array<string | null> = [];
   const targetRect: ChoreographyTargetRect = {
     left: 100,
     top: 100,
@@ -44,16 +49,29 @@ function makeHooks(): {
   };
   const hooks: ExecuteStepHooks = {
     setAvatarState: (s) => stateLog.push(s),
-    setBubbleMessage: () => {},
+    setBubbleMessage: (message) => messageLog.push(message),
     setBubbleVisible: (v) => bubbleVisibility.push(v),
     setCurrentAnchor: (a) => anchorLog.push(a),
     setTilt: (t) => tiltLog.push(t),
+    setAvatarExpression: (expression) => {
+      if (expression !== null) expressionLog.push(expression);
+    },
     setChoices: (c) => choicesLog.push([...c]),
     postToHost: (p) => postLog.push(p),
     queryHostRect: async () => targetRect,
     enterConversationMode: () => {}
   };
-  return { hooks, stateLog, anchorLog, postLog, tiltLog, choicesLog, bubbleVisibility };
+  return {
+    hooks,
+    stateLog,
+    anchorLog,
+    postLog,
+    tiltLog,
+    choicesLog,
+    bubbleVisibility,
+    expressionLog,
+    messageLog
+  };
 }
 
 describe("executeStep", () => {
@@ -139,5 +157,50 @@ describe("executeStep", () => {
       payload: { behavior: "instant" }
     });
     expect(env.tiltLog).toEqual([0]);
+  });
+
+  it("runs micro beats before final choices", async () => {
+    const env = makeHooks();
+    const stepWithBeats: ChoreographyStep = {
+      ...baseStep,
+      beats: [
+        {
+          id: "beat_register",
+          selector: "#patient-register",
+          anchor: "right_section_top",
+          expression: "smile",
+          message: "먼저 환자 정보가 등록되면...",
+          duration_ms: 3000,
+          typewriter_speed_ms: 40
+        },
+        {
+          id: "beat_message",
+          selector: "#message-sequence",
+          anchor: "right_section_bottom",
+          expression: "thinking",
+          message: "설정한 시점에 카카오톡으로 자동 발송돼요.",
+          duration_ms: 3000
+        }
+      ]
+    };
+
+    await executeStep(stepWithBeats, {
+      viewport: { width: 1280, height: 800 },
+      currentAnchor: "hero_center",
+      hooks: env.hooks,
+      wait: async () => {}
+    });
+
+    expect(env.expressionLog).toEqual(["smile", "thinking"]);
+    expect(env.anchorLog).toEqual([
+      "right_section_top",
+      "right_section_top",
+      "right_section_bottom"
+    ]);
+    expect(env.messageLog).toContain("먼저 환자 정보가 등록되면...");
+    expect(env.messageLog).toContain(
+      "설정한 시점에 카카오톡으로 자동 발송돼요."
+    );
+    expect(env.choicesLog[0]).toHaveLength(2);
   });
 });

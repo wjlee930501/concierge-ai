@@ -11,6 +11,252 @@
       { "id": "chip_contact", "label": "도입 상담", "nextStepId": "step_contact" }
     ]
   },
+  "chapters": [
+    {
+      "id": "chapter_hook",
+      "title": "호기심",
+      "transitionHint": "모션랩스의 환자 안내 흐름을 짧게 보여드릴게요.",
+      "sections": [
+        {
+          "id": "section_hook_intro",
+          "title": "첫 등장",
+          "stepId": "step_core",
+          "beats": [
+            {
+              "id": "beat_hook_smile",
+              "durationMs": 900,
+              "action": { "type": "expression_change", "expression": "smile" },
+              "bubbleMessage": { "text": "먼저 전체 흐름을 같이 훑어볼게요.", "typewriterSpeedMs": 50, "pauseAfterMs": 150 }
+            },
+            {
+              "id": "beat_hook_hero",
+              "durationMs": 2400,
+              "action": { "type": "highlight", "selector": "[data-mc-section='hero']" },
+              "bubbleMessage": { "text": "모션랩스는 신규 환자가 다시 오도록 안내 흐름을 자동화합니다.", "typewriterSpeedMs": 55 }
+            },
+            {
+              "id": "beat_hook_turn",
+              "durationMs": 800,
+              "action": { "type": "move", "anchor": "right_section_top", "tilt": -4 },
+              "bubbleMessage": { "text": "이제 실제 자동화 영역으로 이동해볼게요.", "typewriterSpeedMs": 55 }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chapter_discovery",
+      "title": "문제 발견",
+      "transitionHint": "병원 운영에서 가장 자주 막히는 지점을 짚습니다.",
+      "sections": [
+        {
+          "id": "section_discovery_reminder",
+          "title": "자동 리마인드",
+          "stepId": "step_core",
+          "defaultNextSectionId": "section_discovery_content",
+          "beats": [
+            {
+              "id": "beat_discovery_scroll_reminder",
+              "durationMs": 1600,
+              "action": { "type": "scroll_to", "selector": "[data-mc-section='auto-reminder']" },
+              "bubbleMessage": { "text": "환자 안내는 예약 직후부터 시작돼요.", "typewriterSpeedMs": 55 }
+            },
+            {
+              "id": "beat_discovery_highlight_reminder",
+              "durationMs": 3000,
+              "action": { "type": "highlight", "selector": "[data-mc-section='auto-reminder']" },
+              "bubbleMessage": { "text": "진료 유형별 리마인드가 자동으로 나가면 직원이 매번 챙기지 않아도 됩니다.", "typewriterSpeedMs": 60 }
+            },
+            {
+              "id": "beat_discovery_before_after",
+              "durationMs": 2200,
+              "action": { "type": "expression_change", "expression": "smile" },
+              "bubbleMessage": { "text": "수동 안내에서 자동 안내로 바뀌는 순간입니다.", "typewriterSpeedMs": 60 }
+            },
+            {
+              "id": "beat_discovery_wait",
+              "durationMs": 500,
+              "action": { "type": "wait", "durationMs": 500 },
+              "bubbleMessage": { "text": "핵심은 자동화 폭이에요.", "typewriterSpeedMs": 70 }
+            }
+          ]
+        },
+        {
+          "id": "section_discovery_content",
+          "title": "콘텐츠 안내",
+          "stepId": "step_core",
+          "beats": [
+            {
+              "id": "beat_content_scroll",
+              "durationMs": 1600,
+              "action": { "type": "scroll_to", "selector": "[data-mc-section='reminder-content']" },
+              "bubbleMessage": { "text": "발송되는 내용도 진료과별로 달라져요.", "typewriterSpeedMs": 55 }
+            },
+            {
+              "id": "beat_content_highlight",
+              "durationMs": 3000,
+              "action": { "type": "highlight", "selector": "[data-mc-section='reminder-content']" },
+              "bubbleMessage": { "text": "환자에게 필요한 준비사항과 재방문 이유를 자연스럽게 설명합니다.", "typewriterSpeedMs": 60 }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chapter_demonstration",
+      "title": "시스템 시연",
+      "transitionHint": "이제 운영자가 보는 시스템 흐름을 보여드립니다.",
+      "sections": [
+        {
+          "id": "section_layer_tour",
+          "title": "Layer Tour",
+          "stepId": "step_demo",
+          "defaultNextSectionId": "section_visitor_walkthrough",
+          "beats": [
+            {
+              "id": "beat_layer_overview",
+              "durationMs": 2200,
+              "action": { "type": "highlight", "selector": "[data-mc-section='crm-demo']" },
+              "bubbleMessage": { "text": "운영자는 이 화면에서 환자 안내 흐름을 확인합니다.", "typewriterSpeedMs": 55 }
+            },
+            {
+              "id": "beat_layer_move_left",
+              "durationMs": 700,
+              "action": { "type": "move", "anchor": "left_anchor", "tilt": 4 },
+              "bubbleMessage": { "text": "왼쪽에서 흐름을 따라가볼게요.", "typewriterSpeedMs": 55 }
+            },
+            {
+              "id": "beat_layer_data",
+              "durationMs": 3000,
+              "action": { "type": "highlight", "selector": "[data-mc-section='data-analysis']" },
+              "bubbleMessage": { "text": "발송 결과와 재방문 흐름은 데이터로 다시 확인할 수 있어요.", "typewriterSpeedMs": 60 }
+            },
+            {
+              "id": "beat_layer_expression",
+              "durationMs": 600,
+              "action": { "type": "expression_change", "expression": "thinking" },
+              "bubbleMessage": { "text": "여기서 병원별 개선 포인트가 나옵니다.", "typewriterSpeedMs": 65 }
+            }
+          ]
+        },
+        {
+          "id": "section_visitor_walkthrough",
+          "title": "Visitor Walkthrough",
+          "stepId": "step_demo",
+          "beats": [
+            {
+              "id": "beat_walkthrough_message",
+              "durationMs": 2600,
+              "action": { "type": "highlight", "selector": "[data-mc-section='crm-demo']" },
+              "bubbleMessage": { "text": "환자 입장에서는 카카오톡 안내를 받고 필요한 행동만 누르면 됩니다.", "typewriterSpeedMs": 55 }
+            },
+            {
+              "id": "beat_walkthrough_smile",
+              "durationMs": 800,
+              "action": { "type": "expression_change", "expression": "smile" },
+              "bubbleMessage": { "text": "병원은 결과만 확인하면 되고요.", "typewriterSpeedMs": 55 }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chapter_evidence",
+      "title": "증거",
+      "transitionHint": "사례 데이터로 효과를 확인합니다.",
+      "sections": [
+        {
+          "id": "section_case_data",
+          "title": "사례 카드",
+          "stepId": "step_proof",
+          "defaultNextSectionId": "section_advisors",
+          "beats": [
+            {
+              "id": "beat_case_scroll",
+              "durationMs": 1600,
+              "action": { "type": "scroll_to", "selector": "[data-mc-section='case-data']" },
+              "bubbleMessage": { "text": "이제 실제 결과를 볼게요.", "typewriterSpeedMs": 60 }
+            },
+            {
+              "id": "beat_case_highlight",
+              "durationMs": 3000,
+              "action": { "type": "highlight", "selector": "[data-mc-section='case-data']" },
+              "bubbleMessage": { "text": "재방문율과 매출 수치가 같이 올라간 사례를 우선 확인하세요.", "typewriterSpeedMs": 70 }
+            },
+            {
+              "id": "beat_case_card",
+              "durationMs": 2800,
+              "action": { "type": "highlight", "selector": "[data-mc-card='ortho-revisit-12']" },
+              "bubbleMessage": { "text": "정형외과는 도수치료 환자 재방문 관리에서 효과가 잘 보입니다.", "typewriterSpeedMs": 70 }
+            }
+          ]
+        },
+        {
+          "id": "section_advisors",
+          "title": "검수 신뢰",
+          "stepId": "step_proof",
+          "beats": [
+            {
+              "id": "beat_advisors",
+              "durationMs": 2800,
+              "action": { "type": "highlight", "selector": "[data-mc-section='advisors']" },
+              "bubbleMessage": { "text": "콘텐츠는 자문 전문의 검수를 거쳐 병원 현장에 맞게 다듬습니다.", "typewriterSpeedMs": 65 }
+            },
+            {
+              "id": "beat_security",
+              "durationMs": 2600,
+              "action": { "type": "highlight", "selector": "[data-mc-section='security']" },
+              "bubbleMessage": { "text": "보안과 개인정보 기준도 도입 검토의 핵심이라 함께 확인합니다.", "typewriterSpeedMs": 65 }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chapter_invitation",
+      "title": "초대",
+      "transitionHint": "관심도가 있으면 상담으로 부드럽게 연결합니다.",
+      "sections": [
+        {
+          "id": "section_contact_invite",
+          "title": "상담 연결",
+          "stepId": "step_contact",
+          "beats": [
+            {
+              "id": "beat_contact_scroll",
+              "durationMs": 1600,
+              "action": { "type": "scroll_to", "selector": "[data-mc-section='faq']" },
+              "bubbleMessage": { "text": "마지막으로 자주 묻는 질문을 확인하고 상담으로 연결할게요.", "typewriterSpeedMs": 65 }
+            },
+            {
+              "id": "beat_contact_listening",
+              "durationMs": 900,
+              "action": { "type": "expression_change", "expression": "listening" },
+              "bubbleMessage": { "text": "한 가지만 여쭤볼게요.", "typewriterSpeedMs": 75 }
+            },
+            {
+              "id": "beat_contact_highlight",
+              "durationMs": 2800,
+              "action": { "type": "highlight", "selector": "[data-mc-section='faq']" },
+              "bubbleMessage": { "text": "도입 방식과 보안 질문을 먼저 정리하면 상담 시간이 짧아집니다.", "typewriterSpeedMs": 70 }
+            },
+            {
+              "id": "beat_contact_wait",
+              "durationMs": 600,
+              "action": { "type": "wait", "durationMs": 600 },
+              "bubbleMessage": { "text": "준비되면 담당자에게 연결해드릴게요.", "typewriterSpeedMs": 70 }
+            },
+            {
+              "id": "beat_contact_farewell",
+              "durationMs": 800,
+              "action": { "type": "expression_change", "expression": "farewell" },
+              "bubbleMessage": { "text": "필요한 내용은 상담 메시지에 자동으로 정리됩니다.", "typewriterSpeedMs": 75 }
+            }
+          ]
+        }
+      ]
+    }
+  ],
   "steps": [
     {
       "id": "step_core",

@@ -1,5 +1,71 @@
 export type ScenarioAvatarPoint = "up" | "left" | "right";
 
+export type ScenarioBeatAction =
+  | {
+      readonly type: "scroll_to";
+      readonly selector: string;
+    }
+  | {
+      readonly type: "highlight";
+      readonly selector: string;
+      readonly durationMs?: number;
+    }
+  | {
+      readonly type: "move";
+      readonly anchor:
+        | "hero_center"
+        | "right_anchor"
+        | "left_anchor"
+        | "right_section_top"
+        | "right_section_bottom"
+        | "bottom_right"
+        | "top_center";
+      readonly tilt?: number;
+    }
+  | {
+      readonly type: "expression_change";
+      readonly expression:
+        | "neutral"
+        | "smile"
+        | "surprise"
+        | "thinking"
+        | "celebrate"
+        | "concerned"
+        | "listening"
+        | "farewell";
+    }
+  | {
+      readonly type: "wait";
+      readonly durationMs: number;
+    };
+
+export type ScenarioBeat = {
+  readonly id: string;
+  readonly durationMs?: number;
+  readonly action: ScenarioBeatAction;
+  readonly bubbleMessage?: {
+    readonly text: string;
+    readonly typewriterSpeedMs?: number;
+    readonly pauseAfterMs?: number;
+  };
+};
+
+export type ScenarioSection = {
+  readonly id: string;
+  readonly title: string;
+  readonly stepId: string;
+  readonly beats: readonly ScenarioBeat[];
+  readonly userChoiceAtEnd?: boolean;
+  readonly defaultNextSectionId?: string;
+};
+
+export type ScenarioChapter = {
+  readonly id: string;
+  readonly title: string;
+  readonly transitionHint?: string;
+  readonly sections: readonly ScenarioSection[];
+};
+
 export type ScenarioChoice = {
   readonly id: string;
   readonly label: string;
@@ -62,6 +128,7 @@ export type Scenario = {
   readonly isPlaceholder: boolean;
   readonly placeholderNotice?: string;
   readonly heroBubble: ScenarioHeroBubble;
+  readonly chapters?: readonly ScenarioChapter[];
   readonly steps: readonly ScenarioStep[];
   readonly leadForm: ScenarioLeadForm;
 };

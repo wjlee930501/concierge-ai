@@ -5,6 +5,7 @@ import {
   isOriginAllowed,
   type AnchorName,
   type AnchorPoint,
+  type AvatarExpressionName,
   type AvatarStateName
 } from "@conciergeai/shared";
 import { HeroBubble } from "./components/HeroBubble";
@@ -34,6 +35,7 @@ type ChoreographyUiState = {
   readonly avatarState: AvatarStateName;
   readonly anchor: AnchorName;
   readonly tilt: number;
+  readonly expressionOverride: AvatarExpressionName | null;
   readonly bubbleMessage: string | null;
   readonly bubbleVisible: boolean;
   readonly choicesVisible: boolean;
@@ -44,6 +46,7 @@ const INITIAL_CHOREOGRAPHY_UI: ChoreographyUiState = Object.freeze({
   avatarState: "idle",
   anchor: "hero_center",
   tilt: 0,
+  expressionOverride: null,
   bubbleMessage: null,
   bubbleVisible: true,
   choicesVisible: false
@@ -80,6 +83,7 @@ export function App(): JSX.Element {
   const avatarExpression = resolveAvatarExpression({
     freeInputMode: state.freeInput.mode,
     avatarState: choreographyUi.avatarState,
+    expressionOverride: choreographyUi.expressionOverride,
     isStep,
     isSubmitted,
     isDismissed
@@ -144,6 +148,7 @@ export function App(): JSX.Element {
         stepId: null,
         avatarState: "idle",
         tilt: 0,
+        expressionOverride: null,
         bubbleMessage: null,
         bubbleVisible: true,
         choicesVisible: false
@@ -199,12 +204,13 @@ export function App(): JSX.Element {
       stepId: stepNode.id,
       avatarState: "talking",
       tilt: 0,
+      expressionOverride: null,
       bubbleMessage: stepNode.popover.title,
       bubbleVisible: true,
       choicesVisible: false
     }));
 
-    void executeStep(scenarioStepToChoreographyStep(stepNode), {
+    void executeStep(scenarioStepToChoreographyStep(stepNode, scenario), {
       viewport,
       currentAnchor: currentAnchorRef.current,
       reducedMotion: state.reducedMotion,
@@ -229,6 +235,13 @@ export function App(): JSX.Element {
         setTilt: (deg) => {
           if (!isActive()) return;
           setChoreographyUi((prev) => ({ ...prev, tilt: deg }));
+        },
+        setAvatarExpression: (expression) => {
+          if (!isActive()) return;
+          setChoreographyUi((prev) => ({
+            ...prev,
+            expressionOverride: expression
+          }));
         },
         setChoices: () => {
           if (!isActive()) return;
@@ -362,6 +375,7 @@ export function App(): JSX.Element {
 function resolveAvatarMood(input: {
   readonly freeInputMode: "closed" | "open" | "thinking" | "replying";
   readonly avatarState: AvatarStateName;
+  readonly expressionOverride: AvatarExpressionName | null;
   readonly isStep: boolean;
 }): "idle" | "thinking" | "replying" | "pointing" {
   if (input.freeInputMode === "thinking") return "thinking";
@@ -382,6 +396,7 @@ function resolveAvatarExpression(input: {
   if (input.freeInputMode === "open") return "listening";
   if (input.freeInputMode === "thinking") return "thinking";
   if (input.freeInputMode === "replying") return "smile";
+  if (input.expressionOverride !== null) return input.expressionOverride;
   if (input.avatarState === "pointing" || input.isStep) return "smile";
   if (input.avatarState === "moving") return "neutral";
   return "smile";

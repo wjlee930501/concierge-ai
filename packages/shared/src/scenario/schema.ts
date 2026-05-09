@@ -2,6 +2,15 @@ import { z } from "zod";
 import type { Scenario, ScenarioStepLookup } from "./types";
 
 export const scenarioAvatarPointSchema = z.enum(["up", "left", "right"]);
+export const scenarioAnchorNameSchema = z.enum([
+  "hero_center",
+  "right_anchor",
+  "left_anchor",
+  "right_section_top",
+  "right_section_bottom",
+  "bottom_right",
+  "top_center"
+]);
 
 export const scenarioChoiceSchema = z
   .object({
@@ -42,6 +51,88 @@ export const scenarioHeroBubbleSchema = z
   .object({
     message: z.string().min(1),
     quickChips: z.array(scenarioQuickChipSchema).min(1).max(4)
+  })
+  .strict();
+
+export const scenarioExpressionSchema = z.enum([
+  "neutral",
+  "smile",
+  "surprise",
+  "thinking",
+  "celebrate",
+  "concerned",
+  "listening",
+  "farewell"
+]);
+
+export const scenarioBeatActionSchema = z.discriminatedUnion("type", [
+  z
+    .object({
+      type: z.literal("scroll_to"),
+      selector: z.string().min(1)
+    })
+    .strict(),
+  z
+    .object({
+      type: z.literal("highlight"),
+      selector: z.string().min(1),
+      durationMs: z.number().int().positive().optional()
+    })
+    .strict(),
+  z
+    .object({
+      type: z.literal("move"),
+      anchor: scenarioAnchorNameSchema,
+      tilt: z.number().min(-20).max(20).optional()
+    })
+    .strict(),
+  z
+    .object({
+      type: z.literal("expression_change"),
+      expression: scenarioExpressionSchema
+    })
+    .strict(),
+  z
+    .object({
+      type: z.literal("wait"),
+      durationMs: z.number().int().positive()
+    })
+    .strict()
+]);
+
+export const scenarioBeatSchema = z
+  .object({
+    id: z.string().min(1),
+    durationMs: z.number().int().positive().optional(),
+    action: scenarioBeatActionSchema,
+    bubbleMessage: z
+      .object({
+        text: z.string().min(1),
+        typewriterSpeedMs: z.number().int().positive().optional(),
+        pauseAfterMs: z.number().int().nonnegative().optional()
+      })
+      .strict()
+      .optional()
+  })
+  .strict();
+
+export const scenarioSectionSchema = z
+  .object({
+    id: z.string().min(1),
+    title: z.string().min(1),
+    stepId: z.string().min(1),
+    beats: z.array(scenarioBeatSchema).min(1),
+    userChoiceAtEnd: z.boolean().optional(),
+    defaultNextSectionId: z.string().min(1).optional()
+  })
+  .strict();
+
+export const scenarioChapterSchema = z
+  .object({
+    id: z.string().min(1),
+    title: z.string().min(1),
+    transitionHint: z.string().min(1).optional(),
+    sections: z.array(scenarioSectionSchema).min(1)
   })
   .strict();
 
@@ -94,6 +185,7 @@ export const scenarioSchema = z
     isPlaceholder: z.boolean(),
     placeholderNotice: z.string().min(1).optional(),
     heroBubble: scenarioHeroBubbleSchema,
+    chapters: z.array(scenarioChapterSchema).optional(),
     steps: z.array(scenarioStepSchema).min(1),
     leadForm: scenarioLeadFormSchema
   })
@@ -114,6 +206,40 @@ export const scenarioSchema = z
           message: `Quick chip ${chip.id} points to missing step ${chip.nextStepId}`,
           path: ["heroBubble", "quickChips"]
         });
+      }
+    }
+    const sectionIds = new Set<string>();
+    for (const chapter of scenario.chapters ?? []) {
+      for (const section of chapter.sections) {
+        if (!ids.has(section.stepId)) {
+          ctx.addIssue({
+            code: "custom",
+            message: `Section ${section.id} points to missing step ${section.stepId}`,
+            path: ["chapters"]
+          });
+        }
+        if (sectionIds.has(section.id)) {
+          ctx.addIssue({
+            code: "custom",
+            message: `Scenario section ids must be unique: ${section.id}`,
+            path: ["chapters"]
+          });
+        }
+        sectionIds.add(section.id);
+      }
+    }
+    for (const chapter of scenario.chapters ?? []) {
+      for (const section of chapter.sections) {
+        if (
+          section.defaultNextSectionId !== undefined &&
+          !sectionIds.has(section.defaultNextSectionId)
+        ) {
+          ctx.addIssue({
+            code: "custom",
+            message: `Section ${section.id} defaultNextSectionId points to missing section ${section.defaultNextSectionId}`,
+            path: ["chapters"]
+          });
+        }
       }
     }
     for (const step of scenario.steps) {

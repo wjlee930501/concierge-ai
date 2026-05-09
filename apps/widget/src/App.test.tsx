@@ -97,7 +97,7 @@ describe("App choreography wiring", () => {
     expect(screen.queryByText("다음: 성과 보기")).toBeNull();
 
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(6000);
+      await vi.advanceTimersByTimeAsync(48000);
     });
 
     expect(screen.queryByText("다음: 성과 보기")).not.toBeNull();

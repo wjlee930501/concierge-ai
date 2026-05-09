@@ -4,6 +4,7 @@ import {
   parseScenario,
   safeParseScenario
 } from "./schema";
+import placeholderScenario from "../../../../tests/fixtures/scenarios/placeholder_v0.json";
 
 const validScenario = {
   id: "placeholder_v0",
@@ -85,6 +86,106 @@ describe("scenarioSchema", () => {
     expect(scenario.id).toBe("placeholder_v0");
     expect(scenario.steps).toHaveLength(2);
     expect(scenario.heroBubble.quickChips).toHaveLength(2);
+  });
+
+  it("parses optional chapter/section/beat polish timelines", () => {
+    const scenarioWithChapters = structuredClone(validScenario);
+    scenarioWithChapters.chapters = [
+      {
+        id: "chapter_demo",
+        title: "제품 시연",
+        transitionHint: "시스템을 한 단계씩 보여드릴게요.",
+        sections: [
+          {
+            id: "section_demo",
+            title: "자동화 흐름",
+            stepId: "s1",
+            defaultNextSectionId: "section_proof",
+            beats: [
+              {
+                id: "beat_move",
+                durationMs: 3000,
+                action: {
+                  type: "move",
+                  anchor: "right_section_top",
+                  tilt: -4
+                },
+                bubbleMessage: {
+                  text: "여기서 환자 안내가 시작돼요.",
+                  typewriterSpeedMs: 60,
+                  pauseAfterMs: 200
+                }
+              }
+            ]
+          },
+          {
+            id: "section_proof",
+            title: "성과 확인",
+            stepId: "s2",
+            beats: [
+              {
+                id: "beat_highlight",
+                action: {
+                  type: "highlight",
+                  selector: "#b"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ];
+
+    const scenario = parseScenario(scenarioWithChapters);
+    expect(scenario.chapters?.[0]?.sections[0]?.beats[0]?.id).toBe(
+      "beat_move"
+    );
+  });
+
+  it("parses the polish placeholder fixture with 25 micro beats", () => {
+    const scenario = parseScenario(placeholderScenario);
+    const beatCount =
+      scenario.chapters?.reduce(
+        (chapterTotal, chapter) =>
+          chapterTotal +
+          chapter.sections.reduce(
+            (sectionTotal, section) => sectionTotal + section.beats.length,
+            0
+          ),
+        0
+      ) ?? 0;
+
+    expect(scenario.chapters).toHaveLength(5);
+    expect(beatCount).toBe(25);
+  });
+
+  it("rejects chapter sections that point at missing steps", () => {
+    const broken = structuredClone(validScenario);
+    broken.chapters = [
+      {
+        id: "chapter_demo",
+        title: "제품 시연",
+        sections: [
+          {
+            id: "section_demo",
+            title: "자동화 흐름",
+            stepId: "missing",
+            beats: [
+              {
+                id: "beat_move",
+                action: {
+                  type: "move",
+                  anchor: "right_section_top"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ];
+
+    const result = safeParseScenario(broken);
+    expect(result.ok).toBe(false);
   });
 
   it("rejects scenario with unknown quick chip target", () => {

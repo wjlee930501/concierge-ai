@@ -5,6 +5,7 @@ import {
   POST_MESSAGE_WIDGET_SOURCE,
   createPostMessageEnvelope,
   validateKnownPostMessageEnvelope,
+  type ChoreographyBeat,
   type ChoreographyStep,
   type ChoreographyTargetRect,
   type HostRectResponsePayload,
@@ -12,16 +13,24 @@ import {
   type PostMessagePayload,
   type PostMessageEnvelope,
   type PostMessageKnownType,
+  type Scenario,
+  type ScenarioBeat,
   type ScenarioStep
 } from "@conciergeai/shared";
 
 export function scenarioStepToChoreographyStep(
-  step: ScenarioStep
+  step: ScenarioStep,
+  scenario?: Scenario
 ): ChoreographyStep {
+  const beats =
+    scenario === undefined
+      ? []
+      : findStepBeats(scenario, step.id).map(scenarioBeatToChoreographyBeat);
   return {
     id: step.id,
     target_selector: step.spotlightTarget,
     transition_hint: step.popover.title,
+    ...(beats.length > 0 ? { beats } : {}),
     popover: {
       message: step.popover.body,
       choices: step.choices.map((choice) => ({
@@ -30,6 +39,70 @@ export function scenarioStepToChoreographyStep(
       }))
     }
   };
+}
+
+function findStepBeats(
+  scenario: Scenario,
+  stepId: string
+): readonly ScenarioBeat[] {
+  const beats: ScenarioBeat[] = [];
+  for (const chapter of scenario.chapters ?? []) {
+    for (const section of chapter.sections) {
+      if (section.stepId === stepId) beats.push(...section.beats);
+    }
+  }
+  return beats;
+}
+
+function scenarioBeatToChoreographyBeat(beat: ScenarioBeat): ChoreographyBeat {
+  const bubbleMessage = beat.bubbleMessage;
+  const base = {
+    id: beat.id,
+    ...(beat.durationMs !== undefined ? { duration_ms: beat.durationMs } : {}),
+    ...(bubbleMessage?.text !== undefined ? { message: bubbleMessage.text } : {}),
+    ...(bubbleMessage?.typewriterSpeedMs !== undefined
+      ? { typewriter_speed_ms: bubbleMessage.typewriterSpeedMs }
+      : {}),
+    ...(bubbleMessage?.pauseAfterMs !== undefined
+      ? { pause_after_ms: bubbleMessage.pauseAfterMs }
+      : {})
+  } satisfies ChoreographyBeat;
+
+  switch (beat.action.type) {
+    case "scroll_to":
+      return {
+        ...base,
+        selector: beat.action.selector,
+        scroll: true,
+        highlight: false
+      };
+    case "highlight":
+      return {
+        ...base,
+        selector: beat.action.selector,
+        ...(beat.action.durationMs !== undefined
+          ? { duration_ms: beat.action.durationMs }
+          : {}),
+        scroll: false,
+        highlight: true
+      };
+    case "move":
+      return {
+        ...base,
+        anchor: beat.action.anchor,
+        ...(beat.action.tilt !== undefined ? { tilt: beat.action.tilt } : {})
+      };
+    case "expression_change":
+      return {
+        ...base,
+        expression: beat.action.expression
+      };
+    case "wait":
+      return {
+        ...base,
+        duration_ms: beat.action.durationMs
+      };
+  }
 }
 
 export function createHostDriverEnvelope(input: {

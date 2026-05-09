@@ -2,6 +2,16 @@
 
 export type AvatarStateName = "idle" | "talking" | "moving" | "pointing";
 
+export type AvatarExpressionName =
+  | "neutral"
+  | "smile"
+  | "surprise"
+  | "thinking"
+  | "celebrate"
+  | "concerned"
+  | "listening"
+  | "farewell";
+
 export type AnchorName =
   | "hero_center"
   | "right_anchor"
@@ -34,6 +44,20 @@ export type ChoreographyChoice = {
   readonly next: string;
 };
 
+export type ChoreographyBeat = {
+  readonly id: string;
+  readonly selector?: string;
+  readonly anchor?: AnchorName;
+  readonly message?: string;
+  readonly expression?: AvatarExpressionName;
+  readonly duration_ms?: number;
+  readonly typewriter_speed_ms?: number;
+  readonly pause_after_ms?: number;
+  readonly tilt?: "auto" | number;
+  readonly highlight?: boolean;
+  readonly scroll?: boolean;
+};
+
 export type ChoreographyStep = {
   readonly id: string;
   readonly target_selector: string;
@@ -43,6 +67,7 @@ export type ChoreographyStep = {
   readonly use_connecting_line?: boolean;
   readonly use_trail?: boolean;
   readonly fallback_message?: string;
+  readonly beats?: readonly ChoreographyBeat[];
   readonly popover: {
     readonly message: string;
     readonly choices: readonly ChoreographyChoice[];
