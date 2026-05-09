@@ -1,13 +1,13 @@
 export const SPEECH_FLOAT_AMPLITUDE_PX = 1.6;
 
 export const SPEECH_FLOAT_ANIMATE = {
-  y: [-SPEECH_FLOAT_AMPLITUDE_PX, SPEECH_FLOAT_AMPLITUDE_PX],
-  scale: [1, 1.004]
-} as const;
+  y: [0, -SPEECH_FLOAT_AMPLITUDE_PX, 0, SPEECH_FLOAT_AMPLITUDE_PX, 0],
+  scale: [1, 1.003, 1, 1.003, 1]
+};
 
 export const SPEECH_FLOAT_TRANSITION = {
-  duration: 4.8,
+  duration: 5.6,
   repeat: Number.POSITIVE_INFINITY,
-  repeatType: "mirror",
-  ease: "easeInOut"
+  repeatType: "loop" as const,
+  ease: "easeInOut" as const
 } as const;

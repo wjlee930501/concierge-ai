@@ -5,6 +5,7 @@ import {
   POST_MESSAGE_HANDSHAKE_TYPE,
   POST_MESSAGE_HOST_DRIVER_CLEAR_TYPE,
   POST_MESSAGE_HOST_DRIVER_HIGHLIGHT_TYPE,
+  POST_MESSAGE_IFRAME_HITBOX_TYPE,
   POST_MESSAGE_HOST_RECT_QUERY_TYPE,
   POST_MESSAGE_HOST_RECT_RESPONSE_TYPE,
   POST_MESSAGE_HOST_SECTION_NOT_FOUND_TYPE,
@@ -176,6 +177,14 @@ describe("message-specific postMessage validation", () => {
       }
     ],
     [POST_MESSAGE_HOST_DRIVER_CLEAR_TYPE, {}],
+    [
+      POST_MESSAGE_IFRAME_HITBOX_TYPE,
+      {
+        rect: { left: 720, top: 520, width: 420, height: 220 },
+        viewport: { w: 1280, h: 800 },
+        padding: 16
+      }
+    ],
     [
       POST_MESSAGE_HOST_RECT_QUERY_TYPE,
       {

@@ -1,6 +1,7 @@
 import type { Scenario, ScenarioStep } from "@conciergeai/shared";
 import type { PageContext } from "./pageContext";
 import type { AiSuggestion } from "./llmMock";
+import type { MockLeadPayload } from "./leadPayload";
 
 export type RunnerPhase =
   | { readonly kind: "idle" }
@@ -28,6 +29,7 @@ export type LeadFormSubmission = {
   readonly consentVersion: string;
   readonly leadSummary: string;
   readonly pageVariant: PageContext["variant"];
+  readonly payload: MockLeadPayload;
 };
 
 export type SessionInteraction = {
@@ -53,6 +55,7 @@ export type RunnerState = {
   readonly historyStepIds: readonly string[];
   readonly leadDraft: LeadFormDraft;
   readonly submission: LeadFormSubmission | null;
+  readonly submitError: string | null;
   readonly reducedMotion: boolean;
   readonly pageContext: PageContext;
   readonly interactions: readonly SessionInteraction[];
@@ -74,6 +77,7 @@ export type RunnerEvent =
       readonly value: boolean;
     }
   | { readonly type: "submit-lead" }
+  | { readonly type: "submit-lead-failed"; readonly message: string }
   | { readonly type: "back" }
   | { readonly type: "dismiss" }
   | { readonly type: "reopen" }

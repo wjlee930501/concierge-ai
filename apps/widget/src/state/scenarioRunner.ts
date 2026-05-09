@@ -4,6 +4,12 @@ import {
   buildLeadSummary,
   type SessionInteraction as SummaryInteraction
 } from "./leadSummary";
+import {
+  buildConversationSummary,
+  buildMockLeadPayload,
+  buildVisitedSections,
+  resolveIntentFromInteractions
+} from "./leadPayload";
 import type {
   FreeInputSlice,
   LeadFormDraft,
@@ -34,6 +40,7 @@ export function createRunnerState(input: {
     historyStepIds: Object.freeze([]) as readonly string[],
     leadDraft: createEmptyLeadDraft(input.scenario),
     submission: null,
+    submitError: null,
     reducedMotion: input.reducedMotion === true,
     pageContext,
     interactions: Object.freeze([]) as readonly SessionInteraction[],
@@ -93,6 +100,7 @@ export function reduceRunner(
       };
       return {
         ...state,
+        submitError: null,
         leadDraft: {
           ...state.leadDraft,
           fields
@@ -108,6 +116,7 @@ export function reduceRunner(
       };
       return {
         ...state,
+        submitError: null,
         leadDraft: { ...state.leadDraft, consents }
       };
     }
@@ -119,9 +128,24 @@ export function reduceRunner(
         scenario: state.scenario,
         interactions: toSummaryInteractions(state.interactions)
       });
+      const intent = resolveIntentFromInteractions(
+        state.interactions,
+        state.leadDraft.fields
+      );
+      const payload = buildMockLeadPayload({
+        intent,
+        fields: state.leadDraft.fields,
+        consent: state.leadDraft.consents.required,
+        conversationSummary: buildConversationSummary({
+          intent,
+          fallbackSummary: summary
+        }),
+        visitedSections: buildVisitedSections(state.interactions)
+      });
       return {
         ...state,
         phase: { kind: "submitted" },
+        submitError: null,
         submission: {
           scenarioId: state.scenario.id,
           fields: { ...state.leadDraft.fields },
@@ -129,8 +153,17 @@ export function reduceRunner(
           submittedAt: now(),
           consentVersion: CONSENT_VERSION,
           leadSummary: summary,
-          pageVariant: state.pageContext.variant
+          pageVariant: state.pageContext.variant,
+          payload
         }
+      };
+    }
+
+    case "submit-lead-failed": {
+      if (state.phase.kind !== "lead-form") return state;
+      return {
+        ...state,
+        submitError: event.message
       };
     }
 
@@ -358,13 +391,14 @@ function enterLeadForm(state: RunnerState, step?: ScenarioStep): RunnerState {
     phase: { kind: "lead-form" },
     historyStepIds,
     leadDraft: draft,
+    submitError: null,
     freeInput: { ...FREE_INPUT_INITIAL, streamSeq: state.freeInput.streamSeq }
   };
 }
 
 function applyMessagePrefill(state: RunnerState): LeadFormDraft {
-  const messageField = state.scenario.leadForm.fields.find(
-    (field) => field.id === "message"
+  const messageField = state.scenario.leadForm.fields.find((field) =>
+    field.id === "painPoint" || field.id === "message"
   );
   if (messageField === undefined) {
     return state.leadDraft;
@@ -375,7 +409,7 @@ function applyMessagePrefill(state: RunnerState): LeadFormDraft {
   });
   const fields: Record<string, string> = {
     ...state.leadDraft.fields,
-    message: summary
+    [messageField.id]: summary
   };
   return {
     ...state.leadDraft,

@@ -134,6 +134,7 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
             />
 
             <motion.div
+              data-concierge-hitbox="true"
               className="flex w-[min(560px,calc(100vw-32px))] flex-col items-center gap-2.5 will-change-transform"
               animate={
                 reduced
@@ -292,7 +293,7 @@ function useScrollLag(disabled: boolean): number {
       return undefined;
     }
 
-    let resetTimer: ReturnType<typeof window.setTimeout> | undefined;
+    let resetTimer: number | undefined;
     const onScroll = () => {
       const nextScrollY = window.scrollY;
       const delta = nextScrollY - lastScrollYRef.current;
@@ -338,9 +339,13 @@ function SpeechPill(props: {
       data-floating-amplitude-px={SPEECH_FLOAT_AMPLITUDE_PX}
       data-tail-anchor={props.currentAnchor}
       className={`relative max-w-[460px] ${radius} bg-ink/95 px-4 py-3 text-white shadow-[0_18px_40px_rgba(7,20,39,0.35)] backdrop-blur`}
-      initial={breathing ? { y: 0, scale: 1 } : false}
-      animate={breathing ? SPEECH_FLOAT_ANIMATE : undefined}
-      transition={breathing ? SPEECH_FLOAT_TRANSITION : { duration: 0 }}
+      {...(breathing
+        ? {
+            initial: { y: 0, scale: 1 },
+            animate: SPEECH_FLOAT_ANIMATE,
+            transition: SPEECH_FLOAT_TRANSITION
+          }
+        : { initial: false, transition: { duration: 0 } })}
     >
       <motion.span
         aria-hidden="true"

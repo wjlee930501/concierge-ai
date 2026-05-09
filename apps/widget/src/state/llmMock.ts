@@ -12,6 +12,10 @@ import {
   detectInjection,
   SAFETY_RESPONSE_DEFAULT_COPY
 } from "@conciergeai/shared";
+import {
+  conciergeIntentToChipId,
+  routeConciergeIntent
+} from "./intentRouter";
 
 export type AiSuggestion =
   | { readonly kind: "navigate"; readonly chipId: string; readonly label: string }
@@ -29,89 +33,16 @@ export type StreamMockAiInput = {
   readonly tokenDelayMs?: number;
 };
 
-const KEYWORD_INTENT_TABLE: ReadonlyArray<{
-  readonly keywords: readonly string[];
-  readonly chipMatch: readonly string[];
-  readonly response: string;
-}> = [
-  {
-    keywords: [
-      "데모",
-      "체험",
-      "테스트",
-      "샘플",
-      "받아",
-      "카카오",
-      "메시지",
-      "알림톡",
-      "직접",
-      "demo"
-    ],
-    chipMatch: ["chip_demo", "chip_core"],
-    response:
-      "데모 흐름부터 짚어 드릴게요. 핵심 동작이 동영상이 아니라 직접 클릭으로 보이도록 안내합니다."
-  },
-  {
-    keywords: [
-      "사례",
-      "근거",
-      "성과",
-      "레퍼런스",
-      "매출",
-      "수치",
-      "데이터",
-      "reference",
-      "case"
-    ],
-    chipMatch: ["chip_proof"],
-    response:
-      "사례·근거 섹션부터 짚어 드릴게요. 설명보다 신뢰 근거를 먼저 보면 도입 의사 결정 시간이 짧아집니다."
-  },
-  {
-    keywords: [
-      "상담",
-      "문의",
-      "도입",
-      "가격",
-      "비용",
-      "견적",
-      "계약",
-      "해지",
-      "보안",
-      "개인정보",
-      "정보보호",
-      "iso",
-      "contact",
-      "consult"
-    ],
-    chipMatch: ["chip_contact"],
-    response:
-      "상담 단계로 안내드릴게요. 입력해 주신 내용을 정리해 담당자에게 전달합니다."
-  },
-  {
-    keywords: [
-      "핵심",
-      "뭐",
-      "무엇",
-      "어떤",
-      "노쇼",
-      "리마인드",
-      "예약",
-      "자동",
-      "콘텐츠",
-      "진료과",
-      "정형외과",
-      "내과",
-      "검진",
-      "환자관리",
-      "crm",
-      "core"
-    ],
-    chipMatch: ["chip_core"],
-    response:
-      "서비스 핵심부터 짚어 드릴게요. 30초 안에 무엇을 만드는지 보여 드립니다."
-  }
-];
+const INTENT_RESPONSE_COPY = {
+  revisit:
+    "기존 환자 재방문 관리 흐름으로 안내드릴게요. 진료 후 안내와 CRM을 한 번에 확인할 수 있습니다.",
+  newvisit:
+    "신환 유치와 병원 성장 과제에 맞춘 흐름으로 안내드릴게요. 성장 파트너십 관점에서 핵심만 짚겠습니다.",
+  px_intelligence:
+    "PX Intelligence 흐름으로 안내드릴게요. 환자 경험 데이터가 경영 의사결정으로 이어지는 지점을 보여드립니다.",
+  contact:
+    "상담 신청 흐름으로 안내드릴게요. 병원 상황에 맞춰 담당자가 안내할 수 있도록 필요한 정보만 정리합니다."
+} as const;
 
 export async function streamMockAiResponse(
   input: StreamMockAiInput
@@ -146,16 +77,14 @@ function matchIntent(
     return safetyMatch("pii_request");
   }
 
-  const lowered = trimmed.toLowerCase();
-  for (const row of KEYWORD_INTENT_TABLE) {
-    const hit = row.keywords.some((keyword) =>
-      lowered.includes(keyword.toLowerCase())
-    );
-    if (!hit) continue;
-    const chip = pickFirstChip(scenario.heroBubble.quickChips, row.chipMatch);
-    if (chip === null) continue;
+  const intent = routeConciergeIntent(trimmed);
+  if (intent !== "unknown") {
+    const chip = pickFirstChip(scenario.heroBubble.quickChips, [
+      conciergeIntentToChipId(intent)
+    ]);
+    if (chip === null) return safetyMatch("out_of_scope");
     return {
-      response: row.response,
+      response: INTENT_RESPONSE_COPY[intent],
       suggestion: { kind: "navigate", chipId: chip.id, label: chip.label }
     };
   }
@@ -175,9 +104,10 @@ function safetyMatch(reason: SafetyResponseReason): {
 
 function pickFirstChip(
   chips: readonly ScenarioQuickChip[],
-  preferredIds: readonly string[]
+  preferredIds: readonly (string | null)[]
 ): ScenarioQuickChip | null {
   for (const id of preferredIds) {
+    if (id === null) continue;
     const chip = chips.find((candidate) => candidate.id === id);
     if (chip !== undefined) return chip;
   }

@@ -9,9 +9,13 @@ const scenario = parseScenario({
   heroBubble: {
     message: "hi",
     quickChips: [
-      { id: "chip_core", label: "core", nextStepId: "s1" },
-      { id: "chip_demo", label: "demo", nextStepId: "s1" },
-      { id: "chip_proof", label: "proof", nextStepId: "s1" },
+      { id: "chip_revisit", label: "revisit", nextStepId: "s1" },
+      { id: "chip_newvisit", label: "newvisit", nextStepId: "s1" },
+      {
+        id: "chip_px_intelligence",
+        label: "px intelligence",
+        nextStepId: "s1"
+      },
       { id: "chip_contact", label: "contact", nextStepId: "s1" }
     ]
   },
@@ -65,7 +69,7 @@ describe("streamMockAiResponse", () => {
     if (done?.type === "done") {
       expect(done.suggestion.kind).toBe("navigate");
       if (done.suggestion.kind === "navigate") {
-        expect(["chip_demo", "chip_core"]).toContain(done.suggestion.chipId);
+        expect(done.suggestion.chipId).toBe("chip_contact");
       }
     }
   });
@@ -105,14 +109,14 @@ describe("streamMockAiResponse", () => {
   });
 
   it.each([
-    ["노쇼 줄일 수 있나요?", "chip_core"],
-    ["예약 리마인드 자동 발송 되나요?", "chip_core"],
-    ["정형외과 콘텐츠도 있나요?", "chip_core"],
-    ["내과 검진 안내도 되나요?", "chip_core"],
-    ["카카오톡 메시지 직접 받아보고 싶어요", "chip_demo"],
-    ["무료 체험 있나요?", "chip_demo"],
-    ["성과 수치나 도입 사례 있나요?", "chip_proof"],
-    ["매출 개선 근거 보여줘", "chip_proof"],
+    ["노쇼 줄일 수 있나요?", "chip_revisit"],
+    ["예약 리마인드 자동 발송 되나요?", "chip_revisit"],
+    ["정형외과 콘텐츠도 있나요?", "chip_revisit"],
+    ["내과 검진 안내도 되나요?", "chip_revisit"],
+    ["카카오톡 메시지 직접 받아보고 싶어요", "chip_contact"],
+    ["무료 체험 있나요?", "chip_contact"],
+    ["성과 수치나 도입 사례 있나요?", "chip_px_intelligence"],
+    ["매출 개선 근거 보여줘", "chip_px_intelligence"],
     ["가격이 어떻게 되나요?", "chip_contact"],
     ["개인정보 보안은 괜찮나요?", "chip_contact"],
     ["계약 해지는 어떻게 하나요?", "chip_contact"]

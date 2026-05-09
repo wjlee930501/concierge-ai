@@ -19,6 +19,7 @@ import { HostPagePreview } from "./preview/HostPagePreview";
 import { loadPlaceholderScenario } from "./preview/load-placeholder-scenario";
 import { isLeadDraftSubmittable } from "./state/scenarioRunner";
 import { useScenarioRunner } from "./state/useScenarioRunner";
+import { useIframeHitbox } from "./state/useIframeHitbox";
 import { buildVariantGreetingSuffix } from "./state/pageContext";
 import { readConciergeRuntimeConfig } from "./config/runtime";
 import {
@@ -41,6 +42,13 @@ type ChoreographyUiState = {
   readonly choicesVisible: boolean;
 };
 
+declare global {
+  interface Window {
+    __CONCIERGE_MOCK_SUBMIT_SHOULD_FAIL__?: boolean;
+    __CONCIERGE_LAST_MOCK_LEAD__?: unknown;
+  }
+}
+
 const INITIAL_CHOREOGRAPHY_UI: ChoreographyUiState = Object.freeze({
   stepId: null,
   avatarState: "idle",
@@ -57,6 +65,11 @@ export function App(): JSX.Element {
   const { state, dispatch } = useScenarioRunner(scenario);
   const viewport = useViewport();
   const renderHostPreview = shouldRenderHostPreview();
+  const runtimeConfig = useMemo(() => readConciergeRuntimeConfig(), []);
+  const parentOrigin = useMemo(
+    () => resolveParentOrigin(runtimeConfig.allowedOrigins),
+    [runtimeConfig.allowedOrigins]
+  );
   const [choreographyUi, setChoreographyUi] = useState<ChoreographyUiState>(
     INITIAL_CHOREOGRAPHY_UI
   );
@@ -93,6 +106,13 @@ export function App(): JSX.Element {
 
   const variantSuffix = buildVariantGreetingSuffix(state.pageContext);
   const canSubmit = isLeadDraftSubmittable(state);
+
+  useEffect(() => {
+    const payload = state.submission?.payload;
+    if (payload === undefined) return;
+    window.__CONCIERGE_LAST_MOCK_LEAD__ = payload;
+    console.info("[concierge-ai] mock lead submit", payload);
+  }, [state.submission?.payload]);
 
   const usedChipIds = useMemo(() => {
     const ids = new Set<string>();
@@ -140,6 +160,13 @@ export function App(): JSX.Element {
   const choiceContextById = new Map(
     choiceContexts.map((entry) => [entry.choice.id, entry.context])
   );
+  const hitboxSignal = `${state.phase.kind}:${choreographyUi.anchor}:${choreographyUi.bubbleVisible}:${choices.map((choice) => choice.id).join(",")}:${message}:${state.submitError ?? ""}`;
+
+  useIframeHitbox({
+    enabled: parentOrigin !== null,
+    targetOrigin: parentOrigin,
+    signal: hitboxSignal
+  });
 
   useEffect(() => {
     if (stepNode === null) {
@@ -160,8 +187,7 @@ export function App(): JSX.Element {
     const runId = runIdRef.current + 1;
     runIdRef.current = runId;
     const isActive = () => !cancelled && runIdRef.current === runId;
-    const runtimeConfig = readConciergeRuntimeConfig();
-    const targetOrigin = resolveParentOrigin(runtimeConfig.allowedOrigins);
+    const targetOrigin = parentOrigin;
     let bridge: ReturnType<typeof createHostDriverBridge> | undefined;
     const enterFallback = (fallback?: string) => {
       if (!isActive()) return;
@@ -189,7 +215,7 @@ export function App(): JSX.Element {
         targetWindow: window.parent,
         listenWindow: window,
         sourceWindow: window.parent,
-        targetOrigin,
+        targetOrigin: "*",
         allowedOrigins: [targetOrigin],
         onSectionNotFound: (payload) => {
           if (payload.selector === stepNode.spotlightTarget) {
@@ -281,7 +307,7 @@ export function App(): JSX.Element {
       });
       bridge?.detach();
     };
-  }, [state.reducedMotion, stepNode, viewport]);
+  }, [parentOrigin, scenario, state.reducedMotion, stepNode, viewport]);
 
   return (
     <div className="relative">
@@ -352,8 +378,19 @@ export function App(): JSX.Element {
           onToggleConsent={(consentId, value) =>
             dispatch({ type: "toggle-consent", consentId, value })
           }
-          onSubmit={() => dispatch({ type: "submit-lead" })}
+          onSubmit={() => {
+            if (window.__CONCIERGE_MOCK_SUBMIT_SHOULD_FAIL__ === true) {
+              dispatch({
+                type: "submit-lead-failed",
+                message:
+                  "mock submit 실패 상태입니다. 잠시 후 다시 시도해주세요."
+              });
+              return;
+            }
+            dispatch({ type: "submit-lead" });
+          }}
           {...(summaryHint !== undefined ? { summaryHint } : {})}
+          errorMessage={state.submitError}
           onBack={() => dispatch({ type: "back" })}
         />
       ) : null}
@@ -375,7 +412,6 @@ export function App(): JSX.Element {
 function resolveAvatarMood(input: {
   readonly freeInputMode: "closed" | "open" | "thinking" | "replying";
   readonly avatarState: AvatarStateName;
-  readonly expressionOverride: AvatarExpressionName | null;
   readonly isStep: boolean;
 }): "idle" | "thinking" | "replying" | "pointing" {
   if (input.freeInputMode === "thinking") return "thinking";
@@ -387,6 +423,7 @@ function resolveAvatarMood(input: {
 function resolveAvatarExpression(input: {
   readonly freeInputMode: "closed" | "open" | "thinking" | "replying";
   readonly avatarState: AvatarStateName;
+  readonly expressionOverride: AvatarExpressionName | null;
   readonly isStep: boolean;
   readonly isSubmitted: boolean;
   readonly isDismissed: boolean;

@@ -142,21 +142,17 @@ describe("scenarioSchema", () => {
     );
   });
 
-  it("parses the polish placeholder fixture with 25 micro beats", () => {
+  it("parses the guided conversion placeholder fixture", () => {
     const scenario = parseScenario(placeholderScenario);
-    const beatCount =
-      scenario.chapters?.reduce(
-        (chapterTotal, chapter) =>
-          chapterTotal +
-          chapter.sections.reduce(
-            (sectionTotal, section) => sectionTotal + section.beats.length,
-            0
-          ),
-        0
-      ) ?? 0;
-
-    expect(scenario.chapters).toHaveLength(5);
-    expect(beatCount).toBe(25);
+    expect(scenario.heroBubble.quickChips.map((chip) => chip.id)).toEqual([
+      "chip_revisit",
+      "chip_newvisit",
+      "chip_px_intelligence",
+      "chip_contact"
+    ]);
+    expect(scenario.leadForm.fields.map((field) => field.id)).toContain(
+      "hospitalName"
+    );
   });
 
   it("rejects chapter sections that point at missing steps", () => {

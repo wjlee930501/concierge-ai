@@ -4,11 +4,13 @@ import {
   POST_MESSAGE_HOST_RECT_QUERY_TYPE,
   POST_MESSAGE_HOST_RECT_RESPONSE_TYPE,
   POST_MESSAGE_HOST_SCROLL_TO_TYPE,
+  POST_MESSAGE_IFRAME_HITBOX_TYPE,
   POST_MESSAGE_HOST_SECTION_NOT_FOUND_TYPE,
   POST_MESSAGE_PARENT_SOURCE,
   createPostMessageEnvelope,
   validateKnownPostMessageEnvelope,
   type HostDriverHighlightMessagePayload,
+  type IframeHitboxPayload,
   type HostRectQueryMessagePayload,
   type HostRectResponsePayload,
   type HostScrollToMessagePayload,
@@ -23,7 +25,8 @@ const HOST_DRIVER_TYPES: readonly PostMessageKnownType[] = [
   POST_MESSAGE_HOST_SCROLL_TO_TYPE,
   POST_MESSAGE_HOST_DRIVER_HIGHLIGHT_TYPE,
   POST_MESSAGE_HOST_DRIVER_CLEAR_TYPE,
-  POST_MESSAGE_HOST_RECT_QUERY_TYPE
+  POST_MESSAGE_HOST_RECT_QUERY_TYPE,
+  POST_MESSAGE_IFRAME_HITBOX_TYPE
 ];
 
 type WidgetHostResponse =
@@ -81,6 +84,9 @@ export function attachConciergeHostDriver(input: {
               envelope.payload
             );
             return;
+          case POST_MESSAGE_IFRAME_HITBOX_TYPE:
+            applyIframeHitbox(input.iframe, envelope.payload);
+            return;
         }
       } catch {
         // Try the next known host-driver type, then fail closed.
@@ -93,6 +99,40 @@ export function attachConciergeHostDriver(input: {
     win.removeEventListener("message", onMessage);
     clearHighlight(doc);
   };
+}
+
+function applyIframeHitbox(
+  iframe: HTMLIFrameElement,
+  payload: IframeHitboxPayload
+): void {
+  if (
+    payload.rect === null ||
+    payload.rect.width <= 0 ||
+    payload.rect.height <= 0
+  ) {
+    iframe.style.pointerEvents = "none";
+    iframe.style.clipPath = "inset(100% 0px 0px 0px)";
+    return;
+  }
+
+  const padding = payload.padding;
+  const top = Math.max(0, Math.round(payload.rect.top - padding));
+  const left = Math.max(0, Math.round(payload.rect.left - padding));
+  const right = Math.max(
+    0,
+    Math.round(
+      payload.viewport.w - (payload.rect.left + payload.rect.width + padding)
+    )
+  );
+  const bottom = Math.max(
+    0,
+    Math.round(
+      payload.viewport.h - (payload.rect.top + payload.rect.height + padding)
+    )
+  );
+
+  iframe.style.pointerEvents = "auto";
+  iframe.style.clipPath = `inset(${top}px ${right}px ${bottom}px ${left}px round 28px)`;
 }
 
 function scrollToSelector(

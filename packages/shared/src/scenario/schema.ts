@@ -140,11 +140,30 @@ export const scenarioLeadFormFieldSchema = z
   .object({
     id: z.string().min(1),
     label: z.string().min(1),
-    type: z.enum(["text", "email", "tel", "textarea"]),
+    type: z.enum(["text", "email", "tel", "textarea", "select"]),
     required: z.boolean(),
-    placeholder: z.string().min(1).optional()
+    placeholder: z.string().min(1).optional(),
+    options: z
+      .array(
+        z
+          .object({
+            value: z.string().min(1),
+            label: z.string().min(1)
+          })
+          .strict()
+      )
+      .optional()
   })
-  .strict();
+  .strict()
+  .superRefine((field, ctx) => {
+    if (field.type === "select" && (field.options?.length ?? 0) === 0) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Select lead form fields must define options",
+        path: ["options"]
+      });
+    }
+  });
 
 export const scenarioPipaConsentSchema = z
   .object({

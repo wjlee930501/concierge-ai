@@ -101,9 +101,13 @@ export type ScenarioHeroBubble = {
 export type ScenarioLeadFormField = {
   readonly id: string;
   readonly label: string;
-  readonly type: "text" | "email" | "tel" | "textarea";
+  readonly type: "text" | "email" | "tel" | "textarea" | "select";
   readonly required: boolean;
   readonly placeholder?: string;
+  readonly options?: readonly {
+    readonly value: string;
+    readonly label: string;
+  }[];
 };
 
 export type ScenarioPipaConsent = {
