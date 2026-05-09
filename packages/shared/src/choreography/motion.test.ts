@@ -13,20 +13,20 @@ describe("motion polish helpers", () => {
     expect(computeMoveProfile(80)).toMatchObject({
       name: "short",
       durationMs: 600,
-      stiffness: 240,
-      damping: 24
+      stiffness: 135,
+      damping: 26
     });
     expect(computeMoveProfile(600)).toMatchObject({
       name: "standard",
       durationMs: 600,
-      stiffness: 180,
-      damping: 22
+      stiffness: 118,
+      damping: 28
     });
     expect(computeMoveProfile(1400)).toMatchObject({
       name: "long",
       durationMs: 840,
-      stiffness: 150,
-      damping: 24
+      stiffness: 96,
+      damping: 30
     });
   });
 
@@ -37,11 +37,11 @@ describe("motion polish helpers", () => {
   it("leans away from the target before moving and settles slightly above the final point", () => {
     expect(
       computeAnticipationOffset({ x: 100, y: 100 }, { x: 500, y: 120 })
-    ).toEqual({ x: -6, y: 0 });
+    ).toEqual({ x: -3, y: 0 });
     expect(
       computeAnticipationOffset({ x: 500, y: 100 }, { x: 100, y: 80 })
-    ).toEqual({ x: 6, y: 0 });
-    expect(computeSettleOffset()).toEqual({ x: 0, y: -2 });
+    ).toEqual({ x: 3, y: 0 });
+    expect(computeSettleOffset()).toEqual({ x: 0, y: -1 });
   });
 
   it("curves the transition path instead of using a straight midpoint", () => {
@@ -55,8 +55,8 @@ describe("motion polish helpers", () => {
   });
 
   it("damps scroll lag to a small bounded offset", () => {
-    expect(computeScrollLagOffset(120)).toBe(18);
-    expect(computeScrollLagOffset(-500)).toBe(-36);
-    expect(computeScrollLagOffset(1200)).toBe(36);
+    expect(computeScrollLagOffset(120)).toBe(7.2);
+    expect(computeScrollLagOffset(-500)).toBe(-18);
+    expect(computeScrollLagOffset(1200)).toBe(18);
   });
 });

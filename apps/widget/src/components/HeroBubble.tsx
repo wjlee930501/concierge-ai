@@ -85,16 +85,25 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
         <motion.section
           aria-label="MotionLabs Concierge AI"
           data-current-anchor={props.currentAnchor}
+          data-motion-positioning="transform"
           data-motion-profile={moveProfile.name}
           data-motion-duration-ms={moveProfile.durationMs}
           data-path-control={`${Math.round(pathControl.x)},${Math.round(pathControl.y)}`}
           data-scroll-lag-y={Math.round(scrollLagY)}
           className="pointer-events-auto fixed z-[90]"
-          style={{ transform: "translate(-50%, -50%)" }}
-          initial={{ opacity: 0 }}
+          style={{
+            left: 0,
+            top: 0,
+            willChange: "transform"
+          }}
+          initial={{
+            opacity: 0,
+            x: props.anchorPosition.x,
+            y: props.anchorPosition.y
+          }}
           animate={{
-            left: props.anchorPosition.x,
-            top: props.anchorPosition.y,
+            x: props.anchorPosition.x,
+            y: props.anchorPosition.y,
             opacity: 1
           }}
           exit={{ opacity: 0 }}
@@ -109,36 +118,40 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
                 }
           }
         >
-          {/* Floor glow */}
           <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -inset-x-20 -bottom-6 -z-10 h-32 rounded-full bg-[radial-gradient(closest-side,rgba(7,20,39,0.18),transparent_70%)]"
-          />
-
-          <motion.div
-            className="flex w-[min(560px,calc(100vw-32px))] flex-col items-center gap-2.5"
-            animate={
-              reduced
-                ? { x: 0, y: 0 }
-                : {
-                    x: [anticipation.x, 0, 0],
-                    y: [
-                      anticipation.y + scrollLagY,
-                      settle.y + scrollLagY,
-                      scrollLagY
-                    ]
-                  }
-            }
-            transition={
-              reduced
-                ? { duration: 0 }
-                : {
-                    duration: moveProfile.durationMs / 1000,
-                    times: [0, 0.78, 1],
-                    ease: [0.2, 0.8, 0.2, 1]
-                  }
-            }
+            className="absolute left-0 top-0 will-change-transform"
+            style={{ transform: "translate(-50%, -50%)" }}
           >
+            {/* Floor glow */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -inset-x-20 -bottom-6 -z-10 h-32 rounded-full bg-[radial-gradient(closest-side,rgba(7,20,39,0.18),transparent_70%)]"
+            />
+
+            <motion.div
+              className="flex w-[min(560px,calc(100vw-32px))] flex-col items-center gap-2.5 will-change-transform"
+              animate={
+                reduced
+                  ? { x: 0, y: 0 }
+                  : {
+                      x: [anticipation.x, anticipation.x * 0.35, 0],
+                      y: [
+                        anticipation.y + scrollLagY,
+                        settle.y + scrollLagY,
+                        scrollLagY
+                      ]
+                    }
+              }
+              transition={
+                reduced
+                  ? { duration: 0 }
+                  : {
+                      duration: moveProfile.durationMs / 1000,
+                      times: [0, 0.78, 1],
+                      ease: [0.2, 0.8, 0.2, 1]
+                    }
+              }
+            >
             {/* AI streaming response (only during free-input thinking/replying) */}
             {showAiBubble ? (
               <div className="w-full max-w-[440px]">
@@ -243,7 +256,8 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
                 ) : null}
               </div>
             ) : null}
-          </motion.div>
+            </motion.div>
+          </div>
         </motion.section>
       ) : null}
     </AnimatePresence>

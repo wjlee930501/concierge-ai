@@ -11,7 +11,7 @@ export type MoveProfile = {
   readonly mass: number;
 };
 
-const MAX_SCROLL_LAG = 36;
+const MAX_SCROLL_LAG = 18;
 
 export function computeMoveProfile(distance: number): MoveProfile {
   const durationMs = computeMoveDuration(distance);
@@ -19,9 +19,9 @@ export function computeMoveProfile(distance: number): MoveProfile {
     return {
       name: "short",
       durationMs,
-      stiffness: 240,
-      damping: 24,
-      mass: 0.75
+      stiffness: 135,
+      damping: 26,
+      mass: 0.95
     };
   }
 
@@ -29,18 +29,18 @@ export function computeMoveProfile(distance: number): MoveProfile {
     return {
       name: "long",
       durationMs,
-      stiffness: 150,
-      damping: 24,
-      mass: 1
+      stiffness: 96,
+      damping: 30,
+      mass: 1.12
     };
   }
 
   return {
     name: "standard",
     durationMs,
-    stiffness: 180,
-    damping: 22,
-    mass: 0.9
+    stiffness: 118,
+    damping: 28,
+    mass: 1.02
   };
 }
 
@@ -60,14 +60,14 @@ export function computeAnticipationOffset(
   const dx = to.x - from.x;
   const dy = to.y - from.y;
   if (Math.abs(dx) >= Math.abs(dy)) {
-    return { x: dx >= 0 ? -6 : 6, y: 0 };
+    return { x: dx >= 0 ? -3 : 3, y: 0 };
   }
 
-  return { x: 0, y: dy >= 0 ? -4 : 4 };
+  return { x: 0, y: dy >= 0 ? -2 : 2 };
 }
 
 export function computeSettleOffset(): AnchorPoint {
-  return { x: 0, y: -2 };
+  return { x: 0, y: -1 };
 }
 
 export function computePathControlPoint(
@@ -88,8 +88,8 @@ export function computePathControlPoint(
 }
 
 export function computeScrollLagOffset(scrollDeltaY: number): number {
-  const raw = scrollDeltaY * 0.15;
-  return clamp(raw, -MAX_SCROLL_LAG, MAX_SCROLL_LAG);
+  const raw = scrollDeltaY * 0.06;
+  return Math.round(clamp(raw, -MAX_SCROLL_LAG, MAX_SCROLL_LAG) * 10) / 10;
 }
 
 function clamp(value: number, min: number, max: number): number {

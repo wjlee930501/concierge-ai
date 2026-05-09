@@ -82,10 +82,11 @@ describe("App choreography wiring", () => {
     ).toBe("smile");
     const concierge = screen.getByLabelText("MotionLabs Concierge AI");
     expect(concierge.getAttribute("data-motion-profile")).toBe("short");
+    expect(concierge.getAttribute("data-motion-positioning")).toBe("transform");
     expect(concierge.getAttribute("data-path-control")).toMatch(/^\d+,\d+$/);
     expect(
       screen.getByText("핵심 기능 보기").getAttribute("data-feedback-window-ms")
-    ).toBe("50");
+    ).toBe("120");
   });
 
   it("hides step choices until executeStep reveals them and exposes the current anchor", async () => {

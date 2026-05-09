@@ -23,7 +23,7 @@
 | §1 Avatar 실사 인물 | 완료(프로토타입) | Tier 1 4종(`neutral`, `smile`, `surprise`, `thinking`) WebP/AVIF asset pack 생성 및 `<picture>` fallback 연결. 단, 동일 베이스 인물의 crop/retina 후처리 기반이라 production용 별도 facial-expression 생성은 후속 브랜드 asset task. |
 | §2 3-tier 구조 | 완료 | `Scenario.chapters[].sections[].beats[]` schema 및 25 beat fixture. |
 | §3.1 표정 전환 | 완료 | App state → Avatar expression contract + tests. |
-| §3.2 동선 디테일 | 완료(계약) | distance-aware motion profile, anticipation, curved control point, settle, scroll lag DOM contract 추가. frame-level visual diff는 후속 staging QA. |
+| §3.2 동선 디테일 | 완료(계약) | transform 기반 anchor 이동, 낮춘 stiffness, subtle anticipation, curved control point, settle, bounded scroll lag DOM contract 추가. frame-level visual diff는 후속 staging QA. |
 | §3.3 Speech Bubble | 완료 | breathing, tail anchor, thinking dots bounce. |
 | §3.4 Click Feedback | 완료 | chip 50ms feedback contract + hover/focus micro feedback. |
 | §3.5 Scroll Lag | 완료(위젯 런타임) | `data-scroll-lag-y`와 bounded lag helper 추가. parent-host 좌표 검증은 staging checklist에서 확인. |
@@ -60,7 +60,7 @@
 ## 5. Final Pass 증빙
 
 - Tier 1 asset: `apps/widget/assets/avatar/concierge-{neutral,smile,surprise,thinking}-256.{webp,avif}`
-- Runtime contract: `data-avatar-asset`, `data-motion-profile`, `data-path-control`, `data-scroll-lag-y`
+- Runtime contract: `data-avatar-asset`, `data-motion-positioning=transform`, `data-motion-profile`, `data-path-control`, `data-scroll-lag-y`
 - Shared helpers: `computeMoveProfile`, `computeAnticipationOffset`, `computePathControlPoint`, `computeSettleOffset`, `computeScrollLagOffset`
 - Lead summary: chapter/section/beat bubble message가 상담 메시지와 submission summary에 포함
 - Contract verifier: `npm run design-polish:verify`
