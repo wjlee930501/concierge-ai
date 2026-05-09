@@ -1,6 +1,10 @@
 import type { JSX } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import type { ScenarioAvatarPoint } from "@conciergeai/shared";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import type {
+  AnchorName,
+  AnchorPoint,
+  ScenarioAvatarPoint
+} from "@conciergeai/shared";
 import { Avatar } from "./Avatar";
 import { QuickChips, type ChipChoice } from "./QuickChips";
 import { FreeInputBar } from "./FreeInputBar";
@@ -11,6 +15,10 @@ export type HeroBubbleProps = {
   readonly visible: boolean;
   readonly avatarPoint: ScenarioAvatarPoint;
   readonly avatarMood: "idle" | "thinking" | "replying" | "pointing";
+  readonly anchorPosition: AnchorPoint;
+  readonly currentAnchor: AnchorName;
+  readonly avatarTilt: number;
+  readonly bubbleVisible: boolean;
   readonly isPlaceholderScenario: boolean;
   readonly section: { readonly label: string; readonly title: string } | null;
   readonly message: string;
@@ -32,6 +40,7 @@ export type HeroBubbleProps = {
 };
 
 export function HeroBubble(props: HeroBubbleProps): JSX.Element {
+  const reduced = useReducedMotion() === true;
   const showFreeInput = props.freeInput.mode !== "closed";
   const freeInputDisabled =
     props.freeInput.mode === "thinking" || props.freeInput.mode === "replying";
@@ -50,11 +59,21 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
       {props.visible ? (
         <motion.section
           aria-label="MotionLabs Concierge AI"
-          className="pointer-events-auto fixed bottom-6 left-1/2 z-[90]"
-          initial={{ x: "-50%", y: 24, opacity: 0 }}
-          animate={{ x: "-50%", y: 0, opacity: 1 }}
-          exit={{ x: "-50%", y: 16, opacity: 0 }}
-          transition={{ type: "spring", stiffness: 260, damping: 24 }}
+          data-current-anchor={props.currentAnchor}
+          className="pointer-events-auto fixed z-[90]"
+          style={{ transform: "translate(-50%, -50%)" }}
+          initial={{ opacity: 0 }}
+          animate={{
+            left: props.anchorPosition.x,
+            top: props.anchorPosition.y,
+            opacity: 1
+          }}
+          exit={{ opacity: 0 }}
+          transition={
+            reduced
+              ? { duration: 0 }
+              : { type: "spring", stiffness: 260, damping: 24 }
+          }
         >
           {/* Floor glow */}
           <div
@@ -82,7 +101,9 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
             ) : null}
 
             {/* Choice chips (above the speech pill) */}
-            {props.choices.length > 0 && !showFreeInput ? (
+            {props.bubbleVisible &&
+            props.choices.length > 0 &&
+            !showFreeInput ? (
               <QuickChips
                 chips={props.choices}
                 onSelect={props.onSelectChoice}
@@ -93,7 +114,7 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
             ) : null}
 
             {/* Free input (replaces chips when open) */}
-            {showFreeInput ? (
+            {props.bubbleVisible && showFreeInput ? (
               <div className="w-full max-w-[440px]">
                 <FreeInputBar
                   disabled={freeInputDisabled}
@@ -107,51 +128,61 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
 
             {/* Main speech pill: avatar + dark bubble */}
             <div className="flex items-center gap-2.5">
-              <Avatar point={props.avatarPoint} mood={props.avatarMood} />
-              <SpeechPill
-                stacked={stackedBubble}
-                section={props.section}
-                message={props.message}
-                {...(props.variantSuffix !== undefined &&
-                props.variantSuffix !== null
-                  ? { variantSuffix: props.variantSuffix }
-                  : {})}
-                isPlaceholderScenario={props.isPlaceholderScenario}
+              <Avatar
+                point={props.avatarPoint}
+                mood={props.avatarMood}
+                tilt={props.avatarTilt}
               />
+              {props.bubbleVisible ? (
+                <SpeechPill
+                  stacked={stackedBubble}
+                  section={props.section}
+                  message={props.message}
+                  {...(props.variantSuffix !== undefined &&
+                  props.variantSuffix !== null
+                    ? { variantSuffix: props.variantSuffix }
+                    : {})}
+                  isPlaceholderScenario={props.isPlaceholderScenario}
+                />
+              ) : null}
             </div>
 
             {/* Toggle row: back + free input toggle */}
-            <div className="flex items-center justify-center gap-2">
-              {props.canGoBack ? (
+            {props.bubbleVisible ? (
+              <div className="flex items-center justify-center gap-2">
+                {props.canGoBack ? (
+                  <button
+                    type="button"
+                    className="rounded-full bg-white/80 px-3 py-1 text-[11px] font-bold text-mist shadow-[0_4px_12px_rgba(7,20,39,0.08)] hover:text-ink"
+                    onClick={props.onBack}
+                    aria-label="이전 단계로"
+                  >
+                    ← 이전
+                  </button>
+                ) : null}
                 <button
                   type="button"
                   className="rounded-full bg-white/80 px-3 py-1 text-[11px] font-bold text-mist shadow-[0_4px_12px_rgba(7,20,39,0.08)] hover:text-ink"
-                  onClick={props.onBack}
-                  aria-label="이전 단계로"
+                  onClick={
+                    showFreeInput
+                      ? props.onCloseFreeInput
+                      : props.onOpenFreeInput
+                  }
                 >
-                  ← 이전
+                  {showFreeInput ? "선택지로 돌아가기" : "직접 물어보기"}
                 </button>
-              ) : null}
-              <button
-                type="button"
-                className="rounded-full bg-white/80 px-3 py-1 text-[11px] font-bold text-mist shadow-[0_4px_12px_rgba(7,20,39,0.08)] hover:text-ink"
-                onClick={
-                  showFreeInput ? props.onCloseFreeInput : props.onOpenFreeInput
-                }
-              >
-                {showFreeInput ? "선택지로 돌아가기" : "직접 물어보기"}
-              </button>
-              {props.canDismiss ? (
-                <button
-                  type="button"
-                  className="rounded-full bg-white/80 px-3 py-1 text-[11px] font-bold text-mist shadow-[0_4px_12px_rgba(7,20,39,0.08)] hover:text-ink"
-                  onClick={props.onDismiss}
-                  aria-label="안내 없이 그냥 둘러보기"
-                >
-                  그냥 둘러보기
-                </button>
-              ) : null}
-            </div>
+                {props.canDismiss ? (
+                  <button
+                    type="button"
+                    className="rounded-full bg-white/80 px-3 py-1 text-[11px] font-bold text-mist shadow-[0_4px_12px_rgba(7,20,39,0.08)] hover:text-ink"
+                    onClick={props.onDismiss}
+                    aria-label="안내 없이 그냥 둘러보기"
+                  >
+                    그냥 둘러보기
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
           </div>
         </motion.section>
       ) : null}
@@ -211,7 +242,7 @@ function SpeechPill(props: {
           title="실제 시나리오 카피는 source data 도착 후 교체"
           className="absolute -top-2 right-3 rounded-full border border-white/20 bg-ink px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-white/70"
         >
-          Demo
+          데모
         </span>
       ) : null}
     </motion.div>

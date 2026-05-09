@@ -1,8 +1,12 @@
 // PRD v1.2 §6.3 Layer 1 — input layer prompt injection detector.
 
 export const INJECTION_PATTERN_NAMES = [
-  "ignore_previous",
-  "role_hijack_chatgpt",
+  "role_hijack",
+  "unicode_direction_zwj_rtl",
+  "base64_encoded_payload",
+  "image_alt_text_injection",
+  "tool_call_mimicry",
+  "tool_result_reinjection",
   "system_prompt_leak",
   "html_script_tag",
   "act_as_different",
@@ -19,8 +23,28 @@ const INJECTION_PATTERN_TABLE: ReadonlyArray<{
   readonly name: InjectionPatternName;
   readonly re: RegExp;
 }> = [
-  { name: "ignore_previous", re: /ignore\s+(previous|prior|all)\s+instructions?/i },
-  { name: "role_hijack_chatgpt", re: /you\s+are\s+now\s+chatgpt/i },
+  {
+    name: "tool_result_reinjection",
+    re: /\b(tool|retrieval|kb)\s+(result|output|response)\s*:/i
+  },
+  {
+    name: "image_alt_text_injection",
+    re: /!\[[^\]]*(ignore\s+(previous|prior|all)\s+instructions?|system\s+prompt|당신은\s+이제)[^\]]*\]\([^)]+\)/i
+  },
+  {
+    name: "tool_call_mimicry",
+    re: /["']?(tool|function|name)["']?\s*:\s*["']?(navigate_to_section|show_kb_doc|ask_lead_info|submit_lead|escalate_to_human|safety_response|noop)["']?/i
+  },
+  {
+    name: "unicode_direction_zwj_rtl",
+    re: /[\u200B-\u200F\u202A-\u202E\u2066-\u2069]/
+  },
+  {
+    name: "base64_encoded_payload",
+    re: /\b(?:aWdub3Jl|c3lzdGVt|cHJvbXB0|aW5zdHJ1Y3Rpb25z)[A-Za-z0-9+/=_-]{8,}\b/i
+  },
+  { name: "role_hijack", re: /ignore\s+(previous|prior|all)\s+instructions?/i },
+  { name: "role_hijack", re: /you\s+are\s+now\s+chatgpt/i },
   { name: "system_prompt_leak", re: /system\s+prompt/i },
   { name: "html_script_tag", re: /<\s*script[\s>]/i },
   { name: "act_as_different", re: /act\s+as\s+(a\s+)?(different|new|another)/i },

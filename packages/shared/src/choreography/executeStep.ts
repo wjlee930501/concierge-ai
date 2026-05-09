@@ -66,6 +66,7 @@ export type ExecuteStepEnv = {
   readonly viewport: AnchorViewport;
   readonly currentAnchor: AnchorName;
   readonly hooks: ExecuteStepHooks;
+  readonly reducedMotion?: boolean;
   readonly wait?: (ms: number) => Promise<void>;
 };
 
@@ -85,13 +86,19 @@ export async function executeStep(
 ): Promise<{ readonly outcome: "completed" | "conversation-fallback" }> {
   const wait = env.wait ?? realWait;
   const { hooks } = env;
+  const reducedMotion = env.reducedMotion === true;
+  const waitFor = (ms: number): Promise<void> => wait(reducedMotion ? 0 : ms);
 
   // T+0ms — bouncing/talking + transition hint
+  hooks.postToHost({
+    type: "concierge:driver_clear",
+    payload: {}
+  });
   hooks.setAvatarState("talking");
   if (step.transition_hint !== undefined) {
     hooks.setBubbleMessage(step.transition_hint);
   }
-  await wait(EXECUTE_STEP_TIMINGS.transitionHint);
+  await waitFor(EXECUTE_STEP_TIMINGS.transitionHint);
 
   // T+250ms — bubble fade-out + rect query
   hooks.setBubbleVisible(false);
@@ -100,14 +107,14 @@ export async function executeStep(
     hooks.enterConversationMode(step.fallback_message);
     return { outcome: "conversation-fallback" };
   }
-  await wait(EXECUTE_STEP_TIMINGS.bubbleFadeOut);
+  await waitFor(EXECUTE_STEP_TIMINGS.bubbleFadeOut);
 
   // T+500ms — host scroll + Avatar moving
   hooks.postToHost({
     type: "concierge:scroll_to",
     payload: {
       selector: step.target_selector,
-      behavior: "smooth",
+      behavior: reducedMotion ? "instant" : "smooth",
       block: "center"
     }
   });
@@ -124,7 +131,7 @@ export async function executeStep(
     env.viewport
   );
   const moveDuration = computeMoveDuration(distance);
-  await wait(moveDuration);
+  await waitFor(moveDuration);
 
   // T+1100~1400ms — pointing
   hooks.setAvatarState("pointing");
@@ -133,8 +140,9 @@ export async function executeStep(
     x: targetRect.left + targetRect.width / 2,
     y: targetRect.top + targetRect.height / 2
   };
-  const tilt =
-    step.pointing_tilt === undefined || step.pointing_tilt === "auto"
+  const tilt = reducedMotion
+    ? 0
+    : step.pointing_tilt === undefined || step.pointing_tilt === "auto"
       ? computeTilt(avatarPoint, targetCenter)
       : step.pointing_tilt;
   hooks.setTilt(tilt);
@@ -148,13 +156,15 @@ export async function executeStep(
       color: "rgba(26, 86, 219, 0.25)"
     }
   });
-  await wait(EXECUTE_STEP_TIMINGS.spotlightFadeIn);
+  await waitFor(EXECUTE_STEP_TIMINGS.spotlightFadeIn);
 
   // T+1500~1800ms — talking
   hooks.setAvatarState("talking");
   hooks.setBubbleMessage(step.popover.message);
   hooks.setBubbleVisible(true);
-  await wait(step.popover.message.length * EXECUTE_STEP_TIMINGS.typewriterPerChar);
+  await waitFor(
+    step.popover.message.length * EXECUTE_STEP_TIMINGS.typewriterPerChar
+  );
 
   // After typewriter — choices
   hooks.setChoices(step.popover.choices);

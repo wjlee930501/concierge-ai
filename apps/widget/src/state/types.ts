@@ -77,6 +77,7 @@ export type RunnerEvent =
   | { readonly type: "back" }
   | { readonly type: "dismiss" }
   | { readonly type: "reopen" }
+  | { readonly type: "set-reduced-motion"; readonly value: boolean }
   | { readonly type: "open-free-input" }
   | { readonly type: "close-free-input" }
   | { readonly type: "update-free-input-draft"; readonly value: string }

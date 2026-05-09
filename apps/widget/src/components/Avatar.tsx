@@ -6,6 +6,7 @@ import avatarSrc from "../../assets/concierge-avatar-v0.1-320.webp";
 export type AvatarProps = {
   readonly point: ScenarioAvatarPoint;
   readonly mood?: "idle" | "thinking" | "replying" | "pointing";
+  readonly tilt?: number;
 };
 
 const POINT_OFFSET: Record<
@@ -21,6 +22,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
   const reduced = useReducedMotion() === true;
   const mood = props.mood ?? "idle";
   const target = POINT_OFFSET[props.point];
+  const tilt = props.tilt ?? 0;
   const idleAnimate =
     mood === "thinking"
       ? { y: [0, -1.5, 0, 1.5, 0] }
@@ -33,7 +35,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
 
   const containerAnimate = reduced
     ? { x: 0, y: 0, rotate: 0 }
-    : { x: target.x, y: target.y, rotate: target.rotate };
+    : { x: target.x, y: target.y, rotate: target.rotate + tilt };
   const containerTransition = {
     type: "spring" as const,
     stiffness: 160,

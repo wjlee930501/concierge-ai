@@ -1,6 +1,9 @@
 import type { Scenario, ScenarioStep } from "@conciergeai/shared";
 import { detectPageContext, type PageContext } from "./pageContext";
-import { buildLeadSummary, type SessionInteraction as SummaryInteraction } from "./leadSummary";
+import {
+  buildLeadSummary,
+  type SessionInteraction as SummaryInteraction
+} from "./leadSummary";
 import type {
   FreeInputSlice,
   LeadFormDraft,
@@ -48,7 +51,10 @@ export function reduceRunner(
       return { ...state, phase: { kind: "hero-visible" } };
 
     case "select-chip": {
-      if (state.phase.kind !== "hero-visible" && state.phase.kind !== "step-active") {
+      if (
+        state.phase.kind !== "hero-visible" &&
+        state.phase.kind !== "step-active"
+      ) {
         return state;
       }
       const chip = state.scenario.heroBubble.quickChips.find(
@@ -143,6 +149,10 @@ export function reduceRunner(
       return { ...state, phase: { kind: "hero-visible" } };
     }
 
+    case "set-reduced-motion":
+      if (state.reducedMotion === event.value) return state;
+      return { ...state, reducedMotion: event.value };
+
     case "back": {
       if (state.phase.kind === "lead-form") {
         const history = state.historyStepIds;
@@ -206,7 +216,10 @@ export function reduceRunner(
       ) {
         return state;
       }
-      if (state.freeInput.mode === "thinking" || state.freeInput.mode === "replying") {
+      if (
+        state.freeInput.mode === "thinking" ||
+        state.freeInput.mode === "replying"
+      ) {
         return state;
       }
       return {

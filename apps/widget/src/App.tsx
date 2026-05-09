@@ -1,4 +1,12 @@
-import { useMemo, type JSX } from "react";
+import { useEffect, useMemo, useRef, useState, type JSX } from "react";
+import {
+  anchorToPoint,
+  executeStep,
+  isOriginAllowed,
+  type AnchorName,
+  type AnchorPoint,
+  type AvatarStateName
+} from "@conciergeai/shared";
 import { HeroBubble } from "./components/HeroBubble";
 import { LeadFormCard } from "./components/LeadFormCard";
 import { MinimizedPill } from "./components/MinimizedPill";
@@ -10,14 +18,45 @@ import { loadPlaceholderScenario } from "./preview/load-placeholder-scenario";
 import { isLeadDraftSubmittable } from "./state/scenarioRunner";
 import { useScenarioRunner } from "./state/useScenarioRunner";
 import { buildVariantGreetingSuffix } from "./state/pageContext";
+import { readConciergeRuntimeConfig } from "./config/runtime";
+import {
+  createHostDriverBridge,
+  scenarioStepToChoreographyStep
+} from "./state/choreographyBridge";
 
 type ChoiceContext =
   | { readonly kind: "hero"; readonly chipId: string }
   | { readonly kind: "step"; readonly choiceId: string };
 
+type ChoreographyUiState = {
+  readonly stepId: string | null;
+  readonly avatarState: AvatarStateName;
+  readonly anchor: AnchorName;
+  readonly tilt: number;
+  readonly bubbleMessage: string | null;
+  readonly bubbleVisible: boolean;
+  readonly choicesVisible: boolean;
+};
+
+const INITIAL_CHOREOGRAPHY_UI: ChoreographyUiState = Object.freeze({
+  stepId: null,
+  avatarState: "idle",
+  anchor: "hero_center",
+  tilt: 0,
+  bubbleMessage: null,
+  bubbleVisible: true,
+  choicesVisible: false
+});
+
 export function App(): JSX.Element {
   const scenario = useMemo(() => loadPlaceholderScenario(), []);
   const { state, dispatch } = useScenarioRunner(scenario);
+  const viewport = useViewport();
+  const [choreographyUi, setChoreographyUi] = useState<ChoreographyUiState>(
+    INITIAL_CHOREOGRAPHY_UI
+  );
+  const currentAnchorRef = useRef<AnchorName>("hero_center");
+  const runIdRef = useRef(0);
 
   const phase = state.phase;
   const isHero = phase.kind === "hero-visible";
@@ -29,14 +68,15 @@ export function App(): JSX.Element {
 
   const stepNode = isStep ? phase.step : null;
   const heroPoint = stepNode?.avatarPoint ?? "up";
-  const avatarMood =
-    state.freeInput.mode === "thinking"
-      ? "thinking"
-      : state.freeInput.mode === "replying"
-      ? "replying"
-      : isStep
-      ? "pointing"
-      : "idle";
+  const isCurrentStepChoreography =
+    stepNode !== null && choreographyUi.stepId === stepNode.id;
+  const avatarMood = resolveAvatarMood({
+    freeInputMode: state.freeInput.mode,
+    avatarState: choreographyUi.avatarState,
+    isStep
+  });
+  const anchorPoint = anchorToPoint(choreographyUi.anchor, viewport);
+  const safeAnchorPoint = clampBubbleAnchorPoint(anchorPoint, viewport);
 
   const variantSuffix = buildVariantGreetingSuffix(state.pageContext);
   const canSubmit = isLeadDraftSubmittable(state);
@@ -54,17 +94,28 @@ export function App(): JSX.Element {
     : undefined;
 
   // Build unified content & choices for HeroBubble depending on phase.
-  const message = stepNode?.popover.body ?? scenario.heroBubble.message;
-  const section = stepNode !== null
-    ? { label: stepNode.popover.label, title: stepNode.popover.title }
-    : null;
-
-  const choiceContexts: { readonly choice: ChipChoice; readonly context: ChoiceContext }[] =
+  const message =
     stepNode !== null
-      ? stepNode.choices.map((choice) => ({
-          choice: { id: choice.id, label: choice.label },
-          context: { kind: "step", choiceId: choice.id }
-        }))
+      ? isCurrentStepChoreography
+        ? choreographyUi.bubbleMessage ?? stepNode.popover.body
+        : stepNode.popover.title
+      : scenario.heroBubble.message;
+  const section =
+    stepNode !== null
+      ? { label: stepNode.popover.label, title: stepNode.popover.title }
+      : null;
+
+  const choiceContexts: {
+    readonly choice: ChipChoice;
+    readonly context: ChoiceContext;
+  }[] =
+    stepNode !== null
+      ? isCurrentStepChoreography && choreographyUi.choicesVisible
+        ? stepNode.choices.map((choice) => ({
+            choice: { id: choice.id, label: choice.label },
+            context: { kind: "step", choiceId: choice.id }
+          }))
+        : []
       : scenario.heroBubble.quickChips
           .filter((chip) => !usedChipIds.has(chip.id))
           .map((chip) => ({
@@ -76,6 +127,139 @@ export function App(): JSX.Element {
   const choiceContextById = new Map(
     choiceContexts.map((entry) => [entry.choice.id, entry.context])
   );
+
+  useEffect(() => {
+    if (stepNode === null) {
+      setChoreographyUi((prev) => ({
+        ...prev,
+        stepId: null,
+        avatarState: "idle",
+        tilt: 0,
+        bubbleMessage: null,
+        bubbleVisible: true,
+        choicesVisible: false
+      }));
+      return undefined;
+    }
+
+    let cancelled = false;
+    const runId = runIdRef.current + 1;
+    runIdRef.current = runId;
+    const isActive = () => !cancelled && runIdRef.current === runId;
+    const runtimeConfig = readConciergeRuntimeConfig();
+    const targetOrigin = resolveParentOrigin(runtimeConfig.allowedOrigins);
+    let bridge: ReturnType<typeof createHostDriverBridge> | undefined;
+    const enterFallback = (fallback?: string) => {
+      if (!isActive()) return;
+      cancelled = true;
+      bridge?.postToHost({
+        type: "concierge:driver_clear",
+        payload: {}
+      });
+      setChoreographyUi((prev) => ({
+        ...prev,
+        avatarState: "talking",
+        bubbleMessage:
+          fallback ?? "안내 위치를 찾지 못했어요. 이어서 도와드릴게요.",
+        bubbleVisible: true,
+        choicesVisible: false
+      }));
+    };
+
+    if (
+      targetOrigin !== null &&
+      typeof window !== "undefined" &&
+      window.parent !== window
+    ) {
+      bridge = createHostDriverBridge({
+        targetWindow: window.parent,
+        listenWindow: window,
+        sourceWindow: window.parent,
+        targetOrigin,
+        allowedOrigins: [targetOrigin],
+        onSectionNotFound: (payload) => {
+          if (payload.selector === stepNode.spotlightTarget) {
+            enterFallback();
+          }
+        }
+      });
+    }
+
+    setChoreographyUi((prev) => ({
+      ...prev,
+      stepId: stepNode.id,
+      avatarState: "talking",
+      tilt: 0,
+      bubbleMessage: stepNode.popover.title,
+      bubbleVisible: true,
+      choicesVisible: false
+    }));
+
+    void executeStep(scenarioStepToChoreographyStep(stepNode), {
+      viewport,
+      currentAnchor: currentAnchorRef.current,
+      reducedMotion: state.reducedMotion,
+      hooks: {
+        setAvatarState: (next) => {
+          if (!isActive()) return;
+          setChoreographyUi((prev) => ({ ...prev, avatarState: next }));
+        },
+        setBubbleMessage: (msg) => {
+          if (!isActive()) return;
+          setChoreographyUi((prev) => ({ ...prev, bubbleMessage: msg }));
+        },
+        setBubbleVisible: (visible) => {
+          if (!isActive()) return;
+          setChoreographyUi((prev) => ({ ...prev, bubbleVisible: visible }));
+        },
+        setCurrentAnchor: (next) => {
+          if (!isActive()) return;
+          currentAnchorRef.current = next;
+          setChoreographyUi((prev) => ({ ...prev, anchor: next }));
+        },
+        setTilt: (deg) => {
+          if (!isActive()) return;
+          setChoreographyUi((prev) => ({ ...prev, tilt: deg }));
+        },
+        setChoices: () => {
+          if (!isActive()) return;
+          setChoreographyUi((prev) => ({ ...prev, choicesVisible: true }));
+        },
+        postToHost: (payload) => {
+          if (isActive()) bridge?.postToHost(payload);
+        },
+        queryHostRect: async (selector) => {
+          if (!isActive()) return null;
+          if (bridge !== undefined) {
+            return bridge.queryHostRect(selector);
+          }
+          const node = document.querySelector<HTMLElement>(selector);
+          if (node === null) {
+            return null;
+          }
+          const rect = node.getBoundingClientRect();
+          return {
+            left: rect.left,
+            top: rect.top,
+            width: rect.width,
+            height: rect.height
+          };
+        },
+        enterConversationMode: (fallback) => {
+          enterFallback(fallback);
+        }
+      }
+    });
+
+    return () => {
+      cancelled = true;
+      bridge?.postToHost({
+        type: "concierge:driver_clear",
+        payload: {}
+      });
+      bridge?.detach();
+    };
+  }, [state.reducedMotion, stepNode, viewport]);
 
   return (
     <div className="relative">
@@ -90,6 +274,10 @@ export function App(): JSX.Element {
         visible={showHero}
         avatarPoint={heroPoint}
         avatarMood={avatarMood}
+        anchorPosition={safeAnchorPoint}
+        currentAnchor={choreographyUi.anchor}
+        avatarTilt={choreographyUi.tilt}
+        bubbleVisible={stepNode === null || choreographyUi.bubbleVisible}
         isPlaceholderScenario={scenario.isPlaceholder}
         section={section}
         message={message}
@@ -159,4 +347,105 @@ export function App(): JSX.Element {
       ) : null}
     </div>
   );
+}
+
+function resolveAvatarMood(input: {
+  readonly freeInputMode: "closed" | "open" | "thinking" | "replying";
+  readonly avatarState: AvatarStateName;
+  readonly isStep: boolean;
+}): "idle" | "thinking" | "replying" | "pointing" {
+  if (input.freeInputMode === "thinking") return "thinking";
+  if (input.freeInputMode === "replying") return "replying";
+  if (input.avatarState === "pointing" || input.isStep) return "pointing";
+  return "idle";
+}
+
+function useViewport(): {
+  readonly width: number;
+  readonly height: number;
+  readonly isMobile: boolean;
+} {
+  const [viewport, setViewport] = useState(() => readViewport());
+
+  useEffect(() => {
+    const onResize = () => setViewport(readViewport());
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  return viewport;
+}
+
+function readViewport(): {
+  readonly width: number;
+  readonly height: number;
+  readonly isMobile: boolean;
+} {
+  if (typeof window === "undefined") {
+    return { width: 1280, height: 800, isMobile: false };
+  }
+  return {
+    width: window.innerWidth,
+    height: window.innerHeight,
+    isMobile: window.innerWidth < 768
+  };
+}
+
+function clampBubbleAnchorPoint(
+  point: AnchorPoint,
+  viewport: {
+    readonly width: number;
+    readonly height: number;
+    readonly isMobile: boolean;
+  }
+): AnchorPoint {
+  const bubbleWidth = Math.min(560, Math.max(0, viewport.width - 32));
+  const horizontalInset = bubbleWidth / 2 + 16;
+  const verticalInset = viewport.isMobile ? 96 : 112;
+
+  return {
+    x: clamp(point.x, horizontalInset, viewport.width - horizontalInset),
+    y: clamp(point.y, verticalInset, viewport.height - verticalInset)
+  };
+}
+
+function clamp(value: number, min: number, max: number): number {
+  if (max < min) return (min + max) / 2;
+  return Math.min(max, Math.max(min, value));
+}
+
+function resolveParentOrigin(allowedOrigins: readonly string[]): string | null {
+  if (typeof window === "undefined" || typeof document === "undefined") {
+    return allowedOrigins[0] ?? null;
+  }
+
+  const candidates = [
+    document.referrer,
+    getAncestorOrigin(),
+    allowedOrigins[0] ?? null
+  ];
+  for (const candidate of candidates) {
+    if (candidate === null || candidate.length === 0) continue;
+    try {
+      const origin = new URL(candidate).origin;
+      if (isOriginAllowed(origin, allowedOrigins)) {
+        return origin;
+      }
+    } catch {
+      // Continue to the next source of parent-origin evidence.
+    }
+  }
+
+  return null;
+}
+
+function getAncestorOrigin(): string | null {
+  const location = window.location as Location & {
+    readonly ancestorOrigins?: DOMStringList;
+  };
+  const ancestorOrigins = location.ancestorOrigins;
+  if (ancestorOrigins === undefined || ancestorOrigins.length === 0) {
+    return null;
+  }
+  return ancestorOrigins.item(0);
 }

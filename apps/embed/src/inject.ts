@@ -13,6 +13,7 @@ import {
   validateKnownPostMessageEnvelope,
   type PostMessageEnvelope
 } from "@conciergeai/shared";
+import { attachConciergeHostDriver } from "./host-driver";
 
 export type ConciergeInjectOptions = EmbedRuntimeFactoryInput & {
   readonly widgetSrc: string;
@@ -47,6 +48,11 @@ export function injectConciergeWidget(
   const iframe = createIframe({ runtime, options });
   const target = options.mountTarget ?? document.body;
   target.appendChild(iframe);
+  const widgetOrigin = new URL(options.widgetSrc, window.location.href).origin;
+  const detachHostDriver = attachConciergeHostDriver({
+    iframe,
+    widgetOrigin
+  });
 
   const handshakeNonce = generateNonce();
   const messageListener = (event: MessageEvent) => {
@@ -54,18 +60,17 @@ export function injectConciergeWidget(
     try {
       const envelope = validateKnownPostMessageEnvelope(event.data, {
         origin: event.origin,
-        allowedOrigins: runtime.cspPolicy.frameAncestors,
+        allowedOrigins: [widgetOrigin],
         expectedType: EMBED_READY_MESSAGE_TYPE
       });
       if (envelope.type !== EMBED_READY_MESSAGE_TYPE) return;
-      const targetOrigin = runtime.targetOriginFor(event.origin);
       const handshake = createPostMessageEnvelope({
         type: POST_MESSAGE_HANDSHAKE_TYPE,
         nonce: handshakeNonce,
         source: POST_MESSAGE_PARENT_SOURCE,
         payload: { targetSource: POST_MESSAGE_EMBED_SOURCE }
       });
-      iframe.contentWindow?.postMessage(handshake, targetOrigin);
+      iframe.contentWindow?.postMessage(handshake, widgetOrigin);
       options.onReady?.(envelope.payload as EmbedReadyPayload);
     } catch {
       /* swallow invalid envelopes per security policy */
@@ -79,6 +84,7 @@ export function injectConciergeWidget(
     runtime,
     destroy(): void {
       window.removeEventListener("message", messageListener);
+      detachHostDriver();
       iframe.remove();
     }
   };

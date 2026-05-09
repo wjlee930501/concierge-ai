@@ -52,7 +52,8 @@
       "spotlightTarget": "#section-demo",
       "avatarPoint": "up",
       "choices": [
-        { "id": "to_contact", "label": "다음: 상담 신청", "nextStepId": "step_contact" }
+        { "id": "to_contact", "label": "다음: 상담 신청", "nextStepId": "step_contact" },
+        { "id": "to_core", "label": "핵심 다시 보기", "nextStepId": "step_core" }
       ],
       "isClosing": false
     },

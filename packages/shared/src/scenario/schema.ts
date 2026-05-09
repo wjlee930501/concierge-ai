@@ -74,11 +74,9 @@ export const scenarioLeadFormSchema = z
       .refine(
         (consents) => {
           const ids = consents.map((consent) => consent.id);
-          const expected: ReadonlyArray<"required" | "marketing" | "expanded"> = [
-            "required",
-            "marketing",
-            "expanded"
-          ];
+          const expected: ReadonlyArray<
+            "required" | "marketing" | "expanded"
+          > = ["required", "marketing", "expanded"];
           return expected.every((id) => ids.includes(id));
         },
         { message: "PIPA consent must include required, marketing, expanded" }
@@ -119,6 +117,16 @@ export const scenarioSchema = z
       }
     }
     for (const step of scenario.steps) {
+      if (
+        !step.isClosing &&
+        (step.choices.length < 2 || step.choices.length > 4)
+      ) {
+        ctx.addIssue({
+          code: "custom",
+          message: "Non-closing scenario steps must expose 2 to 4 choices",
+          path: ["steps"]
+        });
+      }
       for (const choice of step.choices) {
         if (choice.nextStepId !== null && !ids.has(choice.nextStepId)) {
           ctx.addIssue({

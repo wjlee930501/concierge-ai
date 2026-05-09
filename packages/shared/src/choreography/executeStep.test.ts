@@ -68,6 +68,7 @@ describe("executeStep", () => {
     expect(result.outcome).toBe("completed");
     expect(env.stateLog).toEqual(["talking", "moving", "pointing", "talking"]);
     expect(env.postLog.map((p) => p.type)).toEqual([
+      "concierge:driver_clear",
       "concierge:scroll_to",
       "concierge:driver_highlight"
     ]);
@@ -117,5 +118,26 @@ describe("executeStep", () => {
       wait: async () => {}
     });
     expect(env.tiltLog).toEqual([-12]);
+  });
+
+  it("jumps immediately and disables tilt/typewriter waits when reduced motion is enabled", async () => {
+    const env = makeHooks();
+    const waits: number[] = [];
+    await executeStep(baseStep, {
+      viewport: { width: 1280, height: 800 },
+      currentAnchor: "hero_center",
+      hooks: env.hooks,
+      reducedMotion: true,
+      wait: async (ms) => {
+        waits.push(ms);
+      }
+    });
+
+    expect(waits).toEqual([0, 0, 0, 0, 0]);
+    expect(env.postLog[1]).toMatchObject({
+      type: "concierge:scroll_to",
+      payload: { behavior: "instant" }
+    });
+    expect(env.tiltLog).toEqual([0]);
   });
 });

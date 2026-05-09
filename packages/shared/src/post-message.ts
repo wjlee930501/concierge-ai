@@ -5,6 +5,16 @@ export const POST_MESSAGE_READY_TYPE = "concierge.embed.ready" as const;
 export const POST_MESSAGE_HANDSHAKE_TYPE =
   "concierge.parent.handshake" as const;
 export const POST_MESSAGE_RESIZE_TYPE = "concierge.widget.resize" as const;
+export const POST_MESSAGE_HOST_SCROLL_TO_TYPE = "concierge:scroll_to" as const;
+export const POST_MESSAGE_HOST_DRIVER_HIGHLIGHT_TYPE =
+  "concierge:driver_highlight" as const;
+export const POST_MESSAGE_HOST_DRIVER_CLEAR_TYPE =
+  "concierge:driver_clear" as const;
+export const POST_MESSAGE_HOST_RECT_QUERY_TYPE = "concierge:rect_query" as const;
+export const POST_MESSAGE_HOST_RECT_RESPONSE_TYPE =
+  "concierge:rect_response" as const;
+export const POST_MESSAGE_HOST_SECTION_NOT_FOUND_TYPE =
+  "concierge:section_not_found" as const;
 
 export const POST_MESSAGE_EMBED_SOURCE = "concierge.embed" as const;
 export const POST_MESSAGE_PARENT_SOURCE = "concierge.parent" as const;
@@ -36,7 +46,13 @@ export type PostMessageEnvelope<
 export type PostMessageKnownType =
   | typeof POST_MESSAGE_READY_TYPE
   | typeof POST_MESSAGE_HANDSHAKE_TYPE
-  | typeof POST_MESSAGE_RESIZE_TYPE;
+  | typeof POST_MESSAGE_RESIZE_TYPE
+  | typeof POST_MESSAGE_HOST_SCROLL_TO_TYPE
+  | typeof POST_MESSAGE_HOST_DRIVER_HIGHLIGHT_TYPE
+  | typeof POST_MESSAGE_HOST_DRIVER_CLEAR_TYPE
+  | typeof POST_MESSAGE_HOST_RECT_QUERY_TYPE
+  | typeof POST_MESSAGE_HOST_RECT_RESPONSE_TYPE
+  | typeof POST_MESSAGE_HOST_SECTION_NOT_FOUND_TYPE;
 
 export type ReadyMessagePayload = {
   readonly sandbox: string;
@@ -53,6 +69,46 @@ export type ResizeMessagePayload = {
   readonly height: number;
 };
 
+export type HostScrollToMessagePayload = {
+  readonly selector: string;
+  readonly behavior: "smooth" | "instant";
+  readonly block: "start" | "center" | "end";
+};
+
+export type HostDriverHighlightMessagePayload = {
+  readonly selector: string;
+  readonly padding: number;
+  readonly radius: number;
+  readonly color: string;
+};
+
+export type HostDriverClearMessagePayload = Record<string, never>;
+
+export type HostRectQueryMessagePayload = {
+  readonly selector: string;
+  readonly request_id: string;
+};
+
+export type HostRectResponsePayload = {
+  readonly request_id: string;
+  readonly rect: HostRectPayload | null;
+  readonly viewport: {
+    readonly w: number;
+    readonly h: number;
+  };
+};
+
+export type HostRectPayload = {
+  readonly left: number;
+  readonly top: number;
+  readonly width: number;
+  readonly height: number;
+};
+
+export type HostSectionNotFoundPayload = {
+  readonly selector: string;
+};
+
 export type ReadyMessageEnvelope = PostMessageEnvelope<
   ReadyMessagePayload,
   typeof POST_MESSAGE_READY_TYPE
@@ -65,11 +121,41 @@ export type ResizeMessageEnvelope = PostMessageEnvelope<
   ResizeMessagePayload,
   typeof POST_MESSAGE_RESIZE_TYPE
 >;
+export type HostScrollToMessageEnvelope = PostMessageEnvelope<
+  HostScrollToMessagePayload,
+  typeof POST_MESSAGE_HOST_SCROLL_TO_TYPE
+>;
+export type HostDriverHighlightMessageEnvelope = PostMessageEnvelope<
+  HostDriverHighlightMessagePayload,
+  typeof POST_MESSAGE_HOST_DRIVER_HIGHLIGHT_TYPE
+>;
+export type HostDriverClearMessageEnvelope = PostMessageEnvelope<
+  HostDriverClearMessagePayload,
+  typeof POST_MESSAGE_HOST_DRIVER_CLEAR_TYPE
+>;
+export type HostRectQueryMessageEnvelope = PostMessageEnvelope<
+  HostRectQueryMessagePayload,
+  typeof POST_MESSAGE_HOST_RECT_QUERY_TYPE
+>;
+export type HostRectResponseEnvelope = PostMessageEnvelope<
+  HostRectResponsePayload,
+  typeof POST_MESSAGE_HOST_RECT_RESPONSE_TYPE
+>;
+export type HostSectionNotFoundEnvelope = PostMessageEnvelope<
+  HostSectionNotFoundPayload,
+  typeof POST_MESSAGE_HOST_SECTION_NOT_FOUND_TYPE
+>;
 
 export type KnownPostMessageEnvelope =
   | ReadyMessageEnvelope
   | HandshakeMessageEnvelope
-  | ResizeMessageEnvelope;
+  | ResizeMessageEnvelope
+  | HostScrollToMessageEnvelope
+  | HostDriverHighlightMessageEnvelope
+  | HostDriverClearMessageEnvelope
+  | HostRectQueryMessageEnvelope
+  | HostRectResponseEnvelope
+  | HostSectionNotFoundEnvelope;
 
 export type PostMessageValidationContext = {
   readonly origin: string;
@@ -178,6 +264,54 @@ export function validateKnownPostMessageEnvelope(
         throw new Error("Invalid Concierge resize postMessage");
       }
       return envelope as ResizeMessageEnvelope;
+    case POST_MESSAGE_HOST_SCROLL_TO_TYPE:
+      if (
+        envelope.source !== POST_MESSAGE_WIDGET_SOURCE ||
+        !isHostScrollToPayload(envelope.payload)
+      ) {
+        throw new Error("Invalid Concierge host-driver postMessage");
+      }
+      return envelope as HostScrollToMessageEnvelope;
+    case POST_MESSAGE_HOST_DRIVER_HIGHLIGHT_TYPE:
+      if (
+        envelope.source !== POST_MESSAGE_WIDGET_SOURCE ||
+        !isHostDriverHighlightPayload(envelope.payload)
+      ) {
+        throw new Error("Invalid Concierge host-driver postMessage");
+      }
+      return envelope as HostDriverHighlightMessageEnvelope;
+    case POST_MESSAGE_HOST_DRIVER_CLEAR_TYPE:
+      if (
+        envelope.source !== POST_MESSAGE_WIDGET_SOURCE ||
+        !isEmptyRecord(envelope.payload)
+      ) {
+        throw new Error("Invalid Concierge host-driver postMessage");
+      }
+      return envelope as HostDriverClearMessageEnvelope;
+    case POST_MESSAGE_HOST_RECT_QUERY_TYPE:
+      if (
+        envelope.source !== POST_MESSAGE_WIDGET_SOURCE ||
+        !isHostRectQueryPayload(envelope.payload)
+      ) {
+        throw new Error("Invalid Concierge host-driver postMessage");
+      }
+      return envelope as HostRectQueryMessageEnvelope;
+    case POST_MESSAGE_HOST_RECT_RESPONSE_TYPE:
+      if (
+        envelope.source !== POST_MESSAGE_PARENT_SOURCE ||
+        !isHostRectResponsePayload(envelope.payload)
+      ) {
+        throw new Error("Invalid Concierge host response postMessage");
+      }
+      return envelope as HostRectResponseEnvelope;
+    case POST_MESSAGE_HOST_SECTION_NOT_FOUND_TYPE:
+      if (
+        envelope.source !== POST_MESSAGE_PARENT_SOURCE ||
+        !isHostSectionNotFoundPayload(envelope.payload)
+      ) {
+        throw new Error("Invalid Concierge host response postMessage");
+      }
+      return envelope as HostSectionNotFoundEnvelope;
     default:
       throw new Error("Unknown Concierge postMessage type");
   }
@@ -238,10 +372,7 @@ function isReadyPayload(value: unknown): value is ReadyMessagePayload {
 }
 
 function isHandshakePayload(value: unknown): value is HandshakeMessagePayload {
-  return (
-    isRecord(value) &&
-    value.targetSource === POST_MESSAGE_EMBED_SOURCE
-  );
+  return isRecord(value) && value.targetSource === POST_MESSAGE_EMBED_SOURCE;
 }
 
 function isResizePayload(value: unknown): value is ResizeMessagePayload {
@@ -254,4 +385,84 @@ function isResizePayload(value: unknown): value is ResizeMessagePayload {
     Number.isFinite(value.height) &&
     value.height > 0
   );
+}
+
+function isHostScrollToPayload(
+  value: unknown
+): value is HostScrollToMessagePayload {
+  return (
+    isRecord(value) &&
+    isNonEmptyString(value.selector) &&
+    (value.behavior === "smooth" || value.behavior === "instant") &&
+    (value.block === "start" ||
+      value.block === "center" ||
+      value.block === "end")
+  );
+}
+
+function isHostDriverHighlightPayload(
+  value: unknown
+): value is HostDriverHighlightMessagePayload {
+  return (
+    isRecord(value) &&
+    isNonEmptyString(value.selector) &&
+    isNonNegativeFiniteNumber(value.padding) &&
+    isNonNegativeFiniteNumber(value.radius) &&
+    isNonEmptyString(value.color)
+  );
+}
+
+function isHostRectQueryPayload(
+  value: unknown
+): value is HostRectQueryMessagePayload {
+  return (
+    isRecord(value) &&
+    isNonEmptyString(value.selector) &&
+    isNonEmptyString(value.request_id)
+  );
+}
+
+function isHostRectResponsePayload(
+  value: unknown
+): value is HostRectResponsePayload {
+  return (
+    isRecord(value) &&
+    isNonEmptyString(value.request_id) &&
+    (value.rect === null || isHostRectPayload(value.rect)) &&
+    isRecord(value.viewport) &&
+    isPositiveFiniteNumber(value.viewport.w) &&
+    isPositiveFiniteNumber(value.viewport.h)
+  );
+}
+
+function isHostRectPayload(value: unknown): value is HostRectPayload {
+  return (
+    isRecord(value) &&
+    isFiniteNumber(value.left) &&
+    isFiniteNumber(value.top) &&
+    isNonNegativeFiniteNumber(value.width) &&
+    isNonNegativeFiniteNumber(value.height)
+  );
+}
+
+function isHostSectionNotFoundPayload(
+  value: unknown
+): value is HostSectionNotFoundPayload {
+  return isRecord(value) && isNonEmptyString(value.selector);
+}
+
+function isEmptyRecord(value: unknown): value is Record<string, never> {
+  return isRecord(value) && Object.keys(value).length === 0;
+}
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value);
+}
+
+function isNonNegativeFiniteNumber(value: unknown): value is number {
+  return isFiniteNumber(value) && value >= 0;
+}
+
+function isPositiveFiniteNumber(value: unknown): value is number {
+  return isFiniteNumber(value) && value > 0;
 }

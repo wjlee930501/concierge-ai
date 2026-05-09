@@ -26,7 +26,10 @@ const baseScenario = parseScenario({
       },
       spotlightTarget: "#a",
       avatarPoint: "up",
-      choices: [{ id: "next", label: "[PLACEHOLDER] go", nextStepId: "s2" }],
+      choices: [
+        { id: "next", label: "[PLACEHOLDER] go", nextStepId: "s2" },
+        { id: "lead", label: "[PLACEHOLDER] lead", nextStepId: null }
+      ],
       isClosing: false
     },
     {

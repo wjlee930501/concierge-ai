@@ -26,7 +26,10 @@ const validScenario = {
       },
       spotlightTarget: "#a",
       avatarPoint: "up",
-      choices: [{ id: "x", label: "[PLACEHOLDER] go", nextStepId: "s2" }],
+      choices: [
+        { id: "x", label: "[PLACEHOLDER] go", nextStepId: "s2" },
+        { id: "y", label: "[PLACEHOLDER] stop", nextStepId: null }
+      ],
       isClosing: false
     },
     {
@@ -116,6 +119,28 @@ describe("scenarioSchema", () => {
   it("rejects scenario with duplicate step ids", () => {
     const broken = structuredClone(validScenario);
     broken.steps[1]!.id = "s1";
+    const result = safeParseScenario(broken);
+    expect(result.ok).toBe(false);
+  });
+
+  it("rejects non-closing curation steps with fewer than two choices", () => {
+    const broken = structuredClone(validScenario);
+    broken.steps[0]!.choices = [
+      { id: "x", label: "[PLACEHOLDER] go", nextStepId: "s2" }
+    ];
+    const result = safeParseScenario(broken);
+    expect(result.ok).toBe(false);
+  });
+
+  it("rejects non-closing curation steps with more than four choices", () => {
+    const broken = structuredClone(validScenario);
+    broken.steps[0]!.choices = [
+      { id: "a", label: "[PLACEHOLDER] a", nextStepId: "s2" },
+      { id: "b", label: "[PLACEHOLDER] b", nextStepId: "s2" },
+      { id: "c", label: "[PLACEHOLDER] c", nextStepId: "s2" },
+      { id: "d", label: "[PLACEHOLDER] d", nextStepId: "s2" },
+      { id: "e", label: "[PLACEHOLDER] e", nextStepId: "s2" }
+    ];
     const result = safeParseScenario(broken);
     expect(result.ok).toBe(false);
   });

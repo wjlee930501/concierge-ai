@@ -109,13 +109,16 @@ export type AiToolInput<TName extends AiToolName> = z.infer<
   (typeof aiToolSchemas)[TName]
 >;
 
-export type AiToolCall<TName extends AiToolName = AiToolName> = {
-  readonly tool: TName;
-  readonly input: AiToolInput<TName>;
-  readonly nonce: string;
-  readonly timestamp: number;
-  readonly metadata?: AiToolCallMetadata;
-};
+export type AiToolCall<TName extends AiToolName = AiToolName> =
+  TName extends AiToolName
+    ? {
+        readonly tool: TName;
+        readonly input: AiToolInput<TName>;
+        readonly nonce: string;
+        readonly timestamp: number;
+        readonly metadata?: AiToolCallMetadata;
+      }
+    : never;
 
 // PRD v1.2 §5.4 — capture_intent metadata 표면 (silent).
 export const aiToolCallMetadataSchema = z

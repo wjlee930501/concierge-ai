@@ -1,11 +1,15 @@
-import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState
+} from "react";
 import type { Scenario } from "@conciergeai/shared";
 import { detectPageContext, type PageContext } from "./pageContext";
 import { streamMockAiResponse } from "./llmMock";
-import {
-  createRunnerState,
-  reduceRunner
-} from "./scenarioRunner";
+import { createRunnerState, reduceRunner } from "./scenarioRunner";
 import type { RunnerEvent, RunnerState } from "./types";
 
 const HERO_DELAY_MIN_MS = 3000;
@@ -31,6 +35,10 @@ export function useScenarioRunner(scenario: Scenario): {
   );
   const initialDelay = useRef<number>(pickHeroDelay(reducedMotion));
   const lastStreamSeq = useRef<number>(0);
+
+  useEffect(() => {
+    dispatch({ type: "set-reduced-motion", value: reducedMotion });
+  }, [reducedMotion]);
 
   useEffect(() => {
     if (state.phase.kind !== "idle") return undefined;
@@ -80,7 +88,32 @@ export function useScenarioRunner(scenario: Scenario): {
 }
 
 function usePrefersReducedMotion(): boolean {
-  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+  const [reduced, setReduced] = useState(readPrefersReducedMotion);
+
+  useEffect(() => {
+    if (
+      typeof window === "undefined" ||
+      typeof window.matchMedia !== "function"
+    ) {
+      return undefined;
+    }
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(media.matches);
+    const onChange = (event: MediaQueryListEvent) => {
+      setReduced(event.matches);
+    };
+    media.addEventListener("change", onChange);
+    return () => media.removeEventListener("change", onChange);
+  }, []);
+
+  return reduced;
+}
+
+function readPrefersReducedMotion(): boolean {
+  if (
+    typeof window === "undefined" ||
+    typeof window.matchMedia !== "function"
+  ) {
     return false;
   }
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;

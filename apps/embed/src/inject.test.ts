@@ -1,9 +1,14 @@
 // @vitest-environment jsdom
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  POST_MESSAGE_EMBED_SOURCE,
+  createPostMessageEnvelope
+} from "@conciergeai/shared";
 import {
   CONCIERGE_DEFAULT_IFRAME_ID,
   injectConciergeWidget
 } from "./inject";
+import { EMBED_READY_MESSAGE_TYPE } from "./runtime";
 
 describe("injectConciergeWidget", () => {
   beforeEach(() => {
@@ -54,6 +59,41 @@ describe("injectConciergeWidget", () => {
     });
 
     expect(handle.iframe.parentElement).toBe(mount);
+    handle.destroy();
+  });
+
+  it("accepts ready messages from the widget origin even when the parent origin allowlist differs", () => {
+    const onReady = vi.fn();
+    const handle = injectConciergeWidget({
+      widgetSrc: "https://widget.example.test/widget/",
+      allowedParentOrigins: ["https://host.example.test"],
+      frameAncestors: ["https://host.example.test"],
+      onReady
+    });
+    const postMessage = vi.spyOn(handle.iframe.contentWindow!, "postMessage");
+
+    window.dispatchEvent(
+      new MessageEvent("message", {
+        source: handle.iframe.contentWindow,
+        origin: "https://widget.example.test",
+        data: createPostMessageEnvelope({
+          type: EMBED_READY_MESSAGE_TYPE,
+          nonce: "ready-1",
+          source: POST_MESSAGE_EMBED_SOURCE,
+          payload: {
+            sandbox: "allow-scripts",
+            frameAncestors: ["https://host.example.test"],
+            parentAccessPolicy: { parentDomScrape: false }
+          }
+        })
+      })
+    );
+
+    expect(onReady).toHaveBeenCalledOnce();
+    expect(postMessage).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "concierge.parent.handshake" }),
+      "https://widget.example.test"
+    );
     handle.destroy();
   });
 });
