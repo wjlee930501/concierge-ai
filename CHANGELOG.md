@@ -1,6 +1,8 @@
 # CHANGELOG.md
 
 ## [Design polish / 2026-05-10]
+- 2026-05-10 KST Guided Conversion Layer PoC 시작: `concierge_ai_improvement_directive_v1.md` 기준으로 문서 확장을 최소화하고 host fixture, selector map, rule-based intent routing, section guide, lead form mock submit, click-through/mobile/reduced-motion e2e를 실제 동작 표면 중심으로 구현 예정.
+- 2026-05-10 KST Guided Conversion Layer PoC 종료: host fixture `data-concierge-section` 5종, selector map, rule-based intent router, section spotlight/scroll, iframe hitbox click-through, lead form mock payload/failure, mobile/reduced-motion e2e 구현; 검증 `npm test` 42 files/322 passed, typecheck/lint/build/build:embed/build:vercel:widget, `npm run test:e2e` 7 passed, design-polish/pr-evidence/security source+diff/audit/git diff check PASS. real LLM/Supabase/Slack/Admin/CRM 미연결.
 - 2026-05-10 KST Speech bubble floating smoothing 시작: 말풍선 반복 floating이 루프 끝에서 시작점으로 튀는 문제를 mirror loop 계약으로 보강하고 브라우저 smoke까지 재검증 예정.
 - 2026-05-10 KST Speech bubble floating smoothing 종료: SpeechPill floating을 1.6px amplitude mirror loop로 변경하고 data-floating-loop/amplitude 계약 및 회귀 테스트 추가; focused test 2 files/8 passed, npm test 39 files/312 passed, typecheck/lint, design-polish:verify, pr:evidence:validate, security source/diff scan, build, build:vercel:widget, git diff --check, npm audit, browser smoke(localhost:5173 mirror loop, y range -1.6~1.182, max step 0.12px) PASS.
 - 2026-05-10 KST Design polish final pass 시작: 남은 보강 범위(Tier 1 expression assets WebP/AVIF wiring, motion physics helpers/scroll lag, sales lead chapter·beat summary, staging validation checklist)를 별도 브랜치에서 구현 및 검증 예정.

@@ -2,6 +2,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   POST_MESSAGE_EMBED_SOURCE,
+  POST_MESSAGE_IFRAME_HITBOX_TYPE,
+  POST_MESSAGE_WIDGET_SOURCE,
   createPostMessageEnvelope
 } from "@conciergeai/shared";
 import {
@@ -59,6 +61,40 @@ describe("injectConciergeWidget", () => {
     });
 
     expect(handle.iframe.parentElement).toBe(mount);
+    handle.destroy();
+  });
+
+  it("starts click-through and clips pointer events to widget hitbox messages", () => {
+    const handle = injectConciergeWidget({
+      widgetSrc: "https://widget.example.test/widget/",
+      allowedParentOrigins: ["https://host.example.test"],
+      frameAncestors: ["https://host.example.test"]
+    });
+
+    expect(handle.iframe.style.pointerEvents).toBe("none");
+
+    window.dispatchEvent(
+      new MessageEvent("message", {
+        source: handle.iframe.contentWindow,
+        origin: "https://widget.example.test",
+        data: createPostMessageEnvelope({
+          type: POST_MESSAGE_IFRAME_HITBOX_TYPE,
+          nonce: "hitbox-1",
+          source: POST_MESSAGE_WIDGET_SOURCE,
+          payload: {
+            rect: { left: 720, top: 520, width: 420, height: 220 },
+            viewport: { w: 1280, h: 800 },
+            padding: 16
+          }
+        })
+      })
+    );
+
+    expect(handle.iframe.style.pointerEvents).toBe("auto");
+    expect(handle.iframe.style.clipPath).toBe(
+      "inset(504px 124px 44px 704px round 28px)"
+    );
+
     handle.destroy();
   });
 

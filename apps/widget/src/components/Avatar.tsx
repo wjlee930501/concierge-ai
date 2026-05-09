@@ -72,10 +72,14 @@ export function Avatar(props: AvatarProps): JSX.Element {
           <motion.picture
             key={expression}
             className="block h-full w-full"
-            initial={reduced ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={reduced ? undefined : { opacity: 0 }}
-            transition={{ duration: reduced ? 0 : 0.3 }}
+            {...(reduced
+              ? { initial: false, transition: { duration: 0 } }
+              : {
+                  initial: { opacity: 0 },
+                  exit: { opacity: 0 },
+                  transition: { duration: 0.3 }
+                })}
           >
             <source srcSet={asset.avif} type="image/avif" />
             <source srcSet={asset.webp} type="image/webp" />

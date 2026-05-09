@@ -50,7 +50,7 @@ describe("App choreography wiring", () => {
     act(() => {
       vi.advanceTimersByTime(3000);
     });
-    fireEvent.click(screen.getByText("핵심 기능 보기"));
+    fireEvent.click(screen.getByText("기존 환자 재방문을 높이고 싶어요"));
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(6000);
@@ -79,7 +79,7 @@ describe("App choreography wiring", () => {
     ).toBe("true");
     expect(
       screen.getByTestId("speech-pill").getAttribute("data-floating-loop")
-    ).toBe("mirror");
+    ).toBe("loop");
     expect(
       screen.getByTestId("speech-pill").getAttribute(
         "data-floating-amplitude-px"
@@ -93,7 +93,9 @@ describe("App choreography wiring", () => {
     expect(concierge.getAttribute("data-motion-positioning")).toBe("transform");
     expect(concierge.getAttribute("data-path-control")).toMatch(/^\d+,\d+$/);
     expect(
-      screen.getByText("핵심 기능 보기").getAttribute("data-feedback-window-ms")
+      screen
+        .getByText("기존 환자 재방문을 높이고 싶어요")
+        .getAttribute("data-feedback-window-ms")
     ).toBe("120");
   });
 
@@ -107,18 +109,47 @@ describe("App choreography wiring", () => {
     act(() => {
       vi.advanceTimersByTime(3000);
     });
-    fireEvent.click(screen.getByText("핵심 기능 보기"));
+    fireEvent.click(screen.getByText("기존 환자 재방문을 높이고 싶어요"));
 
-    expect(screen.queryByText("다음: 성과 보기")).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: "상담 신청하기" })
+    ).toBeNull();
 
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(48000);
+      await vi.advanceTimersByTimeAsync(9000);
     });
 
-    expect(screen.queryByText("다음: 성과 보기")).not.toBeNull();
+    expect(
+      screen.queryByRole("button", { name: "상담 신청하기" })
+    ).not.toBeNull();
     const concierge = screen.getByLabelText("MotionLabs Concierge AI");
     expect(concierge.getAttribute("data-current-anchor")).toBe(
       "right_section_top"
+    );
+  });
+
+  it("opens the guided lead form with hospital, interest, and consent controls", async () => {
+    vi.useFakeTimers();
+    vi.spyOn(Math, "random").mockReturnValue(0);
+    mockReducedMotion(false);
+
+    render(<App />);
+
+    act(() => {
+      vi.advanceTimersByTime(3000);
+    });
+    fireEvent.click(screen.getByText("상담을 받고 싶어요"));
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(9000);
+    });
+    fireEvent.click(screen.getByRole("button", { name: "상담 신청하기" }));
+
+    expect(screen.getByLabelText(/병원명/u)).not.toBeNull();
+    expect(screen.getByLabelText(/관심 분야/u)).not.toBeNull();
+    expect(screen.getByText("상담 신청 보내기")).toHaveProperty(
+      "disabled",
+      true
     );
   });
 

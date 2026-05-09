@@ -1,5 +1,5 @@
 import type { JSX } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import type { ScenarioLeadForm } from "@conciergeai/shared";
 
 export type LeadFormCardProps = {
@@ -17,17 +17,25 @@ export type LeadFormCardProps = {
   readonly onSubmit: () => void;
   readonly placeholderNotice?: string;
   readonly summaryHint?: string;
+  readonly errorMessage?: string | null;
   readonly onBack?: () => void;
 };
 
 export function LeadFormCard(props: LeadFormCardProps): JSX.Element {
+  const reduced = useReducedMotion() === true;
+
   return (
     <motion.section
       aria-label="Concierge Lead Form"
+      data-concierge-hitbox="true"
       className="pointer-events-auto fixed bottom-7 left-1/2 z-[95] w-[min(440px,calc(100vw-28px))] rounded-[28px] border border-white/70 bg-white/95 p-5 shadow-[0_28px_90px_rgba(7,20,39,0.25)] backdrop-blur"
-      initial={{ x: "-50%", y: 24, opacity: 0 }}
+      initial={reduced ? { x: "-50%", opacity: 0 } : { x: "-50%", y: 18, opacity: 0 }}
       animate={{ x: "-50%", y: 0, opacity: 1 }}
-      transition={{ type: "spring", stiffness: 260, damping: 24 }}
+      transition={
+        reduced
+          ? { duration: 0 }
+          : { type: "spring", stiffness: 210, damping: 28, mass: 0.95 }
+      }
     >
       <header className="mb-3 flex items-start justify-between gap-3">
         <div>
@@ -62,9 +70,17 @@ export function LeadFormCard(props: LeadFormCardProps): JSX.Element {
         </p>
       ) : null}
 
-      <form
+      <div
+        role="form"
         className="flex flex-col gap-3"
-        onSubmit={(event) => {
+        onKeyDown={(event) => {
+          if (
+            event.key !== "Enter" ||
+            event.target instanceof HTMLTextAreaElement ||
+            !props.canSubmit
+          ) {
+            return;
+          }
           event.preventDefault();
           props.onSubmit();
         }}
@@ -92,6 +108,34 @@ export function LeadFormCard(props: LeadFormCardProps): JSX.Element {
               </label>
             );
           }
+          if (field.type === "select") {
+            return (
+              <label
+                key={field.id}
+                className="flex flex-col gap-1 text-xs font-semibold text-ink"
+              >
+                {field.label}
+                {field.required ? <span className="text-red-500"> *</span> : null}
+                <select
+                  className="rounded-md border border-black/10 bg-white px-2 py-2 text-sm font-normal"
+                  required={field.required}
+                  value={value}
+                  onChange={(event) =>
+                    props.onChangeField(field.id, event.currentTarget.value)
+                  }
+                >
+                  <option value="">
+                    {placeholder ?? "선택해주세요"}
+                  </option>
+                  {(field.options ?? []).map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            );
+          }
           return (
             <label
               key={field.id}
@@ -112,6 +156,12 @@ export function LeadFormCard(props: LeadFormCardProps): JSX.Element {
             </label>
           );
         })}
+
+        {props.errorMessage !== undefined && props.errorMessage !== null ? (
+          <p className="rounded-md bg-red-50 px-2 py-1 text-[11px] font-semibold leading-snug text-red-700">
+            {props.errorMessage}
+          </p>
+        ) : null}
 
         <fieldset className="flex flex-col gap-2 rounded-md border border-black/10 p-3 text-xs">
           <legend className="px-1 text-[11px] font-bold uppercase tracking-wide text-mist">
@@ -139,8 +189,9 @@ export function LeadFormCard(props: LeadFormCardProps): JSX.Element {
         </fieldset>
 
         <button
-          type="submit"
+          type="button"
           disabled={!props.canSubmit}
+          onClick={props.onSubmit}
           className={
             props.canSubmit
               ? "min-h-[40px] rounded-full bg-ink text-sm font-extrabold text-white hover:bg-ink/90"
@@ -149,7 +200,7 @@ export function LeadFormCard(props: LeadFormCardProps): JSX.Element {
         >
           {props.form.submitLabel}
         </button>
-      </form>
+      </div>
     </motion.section>
   );
 }

@@ -15,6 +15,8 @@ export const POST_MESSAGE_HOST_RECT_RESPONSE_TYPE =
   "concierge:rect_response" as const;
 export const POST_MESSAGE_HOST_SECTION_NOT_FOUND_TYPE =
   "concierge:section_not_found" as const;
+export const POST_MESSAGE_IFRAME_HITBOX_TYPE =
+  "concierge:iframe_hitbox" as const;
 
 export const POST_MESSAGE_EMBED_SOURCE = "concierge.embed" as const;
 export const POST_MESSAGE_PARENT_SOURCE = "concierge.parent" as const;
@@ -52,7 +54,8 @@ export type PostMessageKnownType =
   | typeof POST_MESSAGE_HOST_DRIVER_CLEAR_TYPE
   | typeof POST_MESSAGE_HOST_RECT_QUERY_TYPE
   | typeof POST_MESSAGE_HOST_RECT_RESPONSE_TYPE
-  | typeof POST_MESSAGE_HOST_SECTION_NOT_FOUND_TYPE;
+  | typeof POST_MESSAGE_HOST_SECTION_NOT_FOUND_TYPE
+  | typeof POST_MESSAGE_IFRAME_HITBOX_TYPE;
 
 export type ReadyMessagePayload = {
   readonly sandbox: string;
@@ -109,6 +112,15 @@ export type HostSectionNotFoundPayload = {
   readonly selector: string;
 };
 
+export type IframeHitboxPayload = {
+  readonly rect: HostRectPayload | null;
+  readonly viewport: {
+    readonly w: number;
+    readonly h: number;
+  };
+  readonly padding: number;
+};
+
 export type ReadyMessageEnvelope = PostMessageEnvelope<
   ReadyMessagePayload,
   typeof POST_MESSAGE_READY_TYPE
@@ -145,6 +157,10 @@ export type HostSectionNotFoundEnvelope = PostMessageEnvelope<
   HostSectionNotFoundPayload,
   typeof POST_MESSAGE_HOST_SECTION_NOT_FOUND_TYPE
 >;
+export type IframeHitboxMessageEnvelope = PostMessageEnvelope<
+  IframeHitboxPayload,
+  typeof POST_MESSAGE_IFRAME_HITBOX_TYPE
+>;
 
 export type KnownPostMessageEnvelope =
   | ReadyMessageEnvelope
@@ -155,7 +171,8 @@ export type KnownPostMessageEnvelope =
   | HostDriverClearMessageEnvelope
   | HostRectQueryMessageEnvelope
   | HostRectResponseEnvelope
-  | HostSectionNotFoundEnvelope;
+  | HostSectionNotFoundEnvelope
+  | IframeHitboxMessageEnvelope;
 
 export type PostMessageValidationContext = {
   readonly origin: string;
@@ -296,6 +313,14 @@ export function validateKnownPostMessageEnvelope(
         throw new Error("Invalid Concierge host-driver postMessage");
       }
       return envelope as HostRectQueryMessageEnvelope;
+    case POST_MESSAGE_IFRAME_HITBOX_TYPE:
+      if (
+        envelope.source !== POST_MESSAGE_WIDGET_SOURCE ||
+        !isIframeHitboxPayload(envelope.payload)
+      ) {
+        throw new Error("Invalid Concierge host-driver postMessage");
+      }
+      return envelope as IframeHitboxMessageEnvelope;
     case POST_MESSAGE_HOST_RECT_RESPONSE_TYPE:
       if (
         envelope.source !== POST_MESSAGE_PARENT_SOURCE ||
@@ -449,6 +474,17 @@ function isHostSectionNotFoundPayload(
   value: unknown
 ): value is HostSectionNotFoundPayload {
   return isRecord(value) && isNonEmptyString(value.selector);
+}
+
+function isIframeHitboxPayload(value: unknown): value is IframeHitboxPayload {
+  return (
+    isRecord(value) &&
+    (value.rect === null || isHostRectPayload(value.rect)) &&
+    isRecord(value.viewport) &&
+    isPositiveFiniteNumber(value.viewport.w) &&
+    isPositiveFiniteNumber(value.viewport.h) &&
+    isNonNegativeFiniteNumber(value.padding)
+  );
 }
 
 function isEmptyRecord(value: unknown): value is Record<string, never> {

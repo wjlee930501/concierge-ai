@@ -100,7 +100,7 @@ function createIframe(input: {
   iframe.title = options.title ?? "MotionLabs Concierge AI";
   iframe.src = options.widgetSrc;
   iframe.setAttribute("sandbox", runtime.iframePolicy.sandbox);
-  iframe.setAttribute("loading", "lazy");
+  iframe.setAttribute("loading", "eager");
   iframe.style.position = "fixed";
   iframe.style.inset = "0";
   iframe.style.width = options.width ?? "100%";
@@ -108,7 +108,8 @@ function createIframe(input: {
   iframe.style.border = "0";
   iframe.style.background = "transparent";
   iframe.style.zIndex = "2147483640";
-  iframe.style.pointerEvents = "auto";
+  iframe.style.pointerEvents = "none";
+  iframe.style.clipPath = "inset(100% 0px 0px 0px)";
   return iframe;
 }
 

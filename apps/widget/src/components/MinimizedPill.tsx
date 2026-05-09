@@ -12,6 +12,7 @@ export function MinimizedPill(props: MinimizedPillProps): JSX.Element {
       type="button"
       onClick={props.onReopen}
       aria-label="Concierge AI 안내 다시 받기"
+      data-concierge-hitbox="true"
       className="pointer-events-auto fixed bottom-5 right-5 z-[90] flex items-center gap-2 rounded-full border border-black/10 bg-white/95 px-3 py-2 text-[12px] font-bold text-ink shadow-[0_12px_30px_rgba(7,20,39,0.18)] backdrop-blur hover:border-accent/40"
       initial={{ opacity: 0, y: 12, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}

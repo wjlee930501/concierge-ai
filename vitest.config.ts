@@ -14,6 +14,7 @@ export default defineConfig({
       "**/dist/**",
       "**/build/**",
       "**/.next/**",
+      "tests/e2e/**",
       "hosts/**"
     ]
   }

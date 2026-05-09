@@ -18,7 +18,9 @@ const DEFAULT_DEV_CONFIG: ConciergeRuntimeConfig = Object.freeze({
   environment: "development",
   allowedOrigins: Object.freeze([
     "http://127.0.0.1:5173",
-    "http://localhost:5173"
+    "http://localhost:5173",
+    "http://127.0.0.1:5181",
+    "http://localhost:5181"
   ]) as readonly string[],
   embedBase: "http://127.0.0.1:5173"
 });
