@@ -16,7 +16,15 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    strictPort: true
+    strictPort: true,
+    headers: {
+      "Access-Control-Allow-Origin": "*"
+    }
+  },
+  preview: {
+    headers: {
+      "Access-Control-Allow-Origin": "*"
+    }
   },
   build: {
     outDir: "dist",

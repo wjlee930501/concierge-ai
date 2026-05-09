@@ -243,3 +243,8 @@
 - 갱신: `packages/shared/src/index.ts` (choreographer / pr-evidence export 제거), `packages/kb/src/index.ts` (banned-vocab export 제거), `apps/widget/src/index.ts` (shell re-export → workspace boundary marker), `CLAUDE.md` (primary source list 6개로 축소), `docs/alignment/FINAL_ALIGNMENT.md` (round 1~2·UNRESOLVED tracker 참조 제거), `.claude/`(stale session shortcuts 제거).
 - 검증: typecheck 4 tsconfig PASS, `npm test` 28 files / 228 passed (354 → 228, 메타-테스트 126 감소), security:scan PASS, pr:evidence:validate PASS.
 - 결과: 5700 deletions / 11 insertions / 38 files changed. PoC 핵심(widget UI / scenario engine / AI 7 tools / security 3-layer / choreography Sprint 1 / embed.js / admin skeleton / Vercel build) + PRD v1.2 + SPEC + FINAL_ALIGNMENT만 남김.
+
+## [Host integration / 2026-05-10]
+
+- W2 2026-05-10 KST host integration 시작: motionlabs GitHub repo URL 1개 입력으로 `hosts/motionlabs-kr/` 로컬 clone, gitignore + codexignore 격리, framework Case 감지, 라벨링 report, host-preview workspace, local embed inject, contract test 검증을 진행한다. motionlabs-website production push/attribute PR/staging 배포/Computer-Use는 본 작업에서 제외하고, motionlabs-website 본문 콘텐츠를 concierge-ai 본 repo에 hard-code하지 않는다.
+- W2 2026-05-10 KST host integration 종료: motionlabs-landing Case B(Next.js App Router) 감지, 19개 `data-mc-*` 계약 로컬 적용, `host-preview` dev workspace와 자동 `embed.js` inject 보강, sandbox opaque-origin host-driver bridge 수정, InteractLabs 벤치마크 기준 자체평가 9.5/10 및 기본 세일즈 질의 11/11 navigate routing 통과. 검증: `npm test` 34 files / 294 passed, typecheck/lint/security/PR evidence/build gates PASS, host `yarn type-check` PASS, host `yarn build` exit 0(Notion DB ID 경고는 graceful fallback). Computer-Use staging 자동화/production host PR/staging deploy/real LLM은 다음 sprint.

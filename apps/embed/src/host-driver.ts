@@ -50,9 +50,10 @@ export function attachConciergeHostDriver(input: {
 
     for (const expectedType of HOST_DRIVER_TYPES) {
       try {
-        const envelope = validateKnownPostMessageEnvelope(event.data, {
-          origin: event.origin,
-          allowedOrigins: [input.widgetOrigin],
+        const envelope = validateWidgetMessage({
+          event,
+          iframe: input.iframe,
+          widgetOrigin: input.widgetOrigin,
           expectedType
         });
 
@@ -170,8 +171,44 @@ function postToWidget(
       source: POST_MESSAGE_PARENT_SOURCE,
       payload: input.payload
     }),
-    widgetOrigin
+    targetOriginForWidget(iframe, widgetOrigin)
   );
+}
+
+function validateWidgetMessage(input: {
+  readonly event: MessageEvent;
+  readonly iframe: HTMLIFrameElement;
+  readonly widgetOrigin: string;
+  readonly expectedType: PostMessageKnownType;
+}) {
+  return validateKnownPostMessageEnvelope(input.event.data, {
+    origin: isSandboxOpaqueWidgetMessage(input.event, input.iframe)
+      ? input.widgetOrigin
+      : input.event.origin,
+    allowedOrigins: [input.widgetOrigin],
+    expectedType: input.expectedType
+  });
+}
+
+function isSandboxOpaqueWidgetMessage(
+  event: MessageEvent,
+  iframe: HTMLIFrameElement
+): boolean {
+  return event.origin === "null" && usesOpaqueSandbox(iframe);
+}
+
+function targetOriginForWidget(
+  iframe: HTMLIFrameElement,
+  widgetOrigin: string
+): string {
+  return usesOpaqueSandbox(iframe) ? "*" : widgetOrigin;
+}
+
+function usesOpaqueSandbox(iframe: HTMLIFrameElement): boolean {
+  const sandbox = iframe.getAttribute("sandbox");
+  if (sandbox === null) return false;
+  const tokens = sandbox.split(/\s+/u).filter((token) => token.length > 0);
+  return !tokens.includes("allow-same-origin");
 }
 
 function ensureDriverStyle(doc: Document): void {

@@ -1,0 +1,14 @@
+{
+  "name": "@conciergeai/host-preview",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev:static": "vite ../../hosts/motionlabs-kr --port 5180 --strictPort",
+    "dev:next": "node ./scripts/dev-next.mjs",
+    "dev:vite": "node ./scripts/dev-vite.mjs",
+    "dev:auto": "node ./scripts/auto-dev.mjs",
+    "dev:with-widget": "node ./scripts/with-widget.mjs",
+    "build": "node ./scripts/build-placeholder.mjs"
+  }
+}

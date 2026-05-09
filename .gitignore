@@ -11,3 +11,6 @@ coverage/
 
 # Local agent/orchestration state
 .omc/
+
+# motionlabs-website local clone (concierge PoC only, never push)
+hosts/motionlabs-kr/
