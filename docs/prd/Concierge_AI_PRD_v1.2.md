@@ -8,7 +8,7 @@ v1.1 대비 변경 핵심:
 3. AI tool 7종 schema를 실제 구현 코드와 정렬 (navigate_to_section / show_kb_doc / ask_lead_info / submit_lead / escalate_to_human / safety_response / noop)
 4. 큐레이션 인터랙션이 PoC 단일 차별점임을 §4에 명문화. 정밀 spec은 docs/interaction/CURATION_CHOREOGRAPHY_SPEC.md를 참조
 5. 5개 visitor view 유지 명시 (진료과 분류는 큐레이션 차원이지 환자 의료정보 아님)
-6. 시나리오 1순위는 모션랩스 4개 제품 (Re:Visit / New:Visit / 체크업AI / 핸닥) 큐레이션
+6. 시나리오는 모션랩스 2개 제품 (Re:Visit / New:Visit) 큐레이션으로 축소 (2026-05-09 후반 §25 결정 반영). 체크업AI / 핸닥 / Re:lay / investor 시나리오는 본 PoC 범위에서 제외 — 해당 visitor view는 가장 가까운 Re:Visit / New:Visit 흐름으로 라우팅하거나 escalate_to_human으로 담당자 연결.
 7. v1.1 §1~§22의 나머지 항목은 그대로 유지
 
 ---
@@ -85,13 +85,13 @@ Avatar가 직접 끌고 다니는 형태가 아니면 본 PoC가 아니다.
 
 ### 3.1 v1.1과 동일하게 유지
 
-| View ID | 진입 키워드 | 큐레이션 대상 제품 |
+| View ID | 진입 키워드 | 큐레이션 대상 시나리오 (본 PoC) |
 |---------|-------------|-------------------|
-| orthopedics_owner | 정형외과, 도수치료, 충격파, 주사치료 | Re:Visit + 정형외과 사례 |
-| internal_medicine_owner | 내과, 검진, 대장내시경, 위내시경 | Re:Visit + 체크업AI |
-| opening_doctor | 개원, 개원 준비, 신규 개원 | New:Visit + Re:lay |
-| clinic_manager | 실장, 운영, 노쇼, 자동 발송 | Re:Visit |
-| investor_partner | 투자, IR, 시리즈, 제휴 | 회사 정보 + 담당자 연결 |
+| orthopedics_owner | 정형외과, 도수치료, 충격파, 주사치료 | revisit_curation_v1 (Re:Visit 정형외과 사례) |
+| internal_medicine_owner | 내과, 검진, 대장내시경, 위내시경 | revisit_curation_v1 (Re:Visit) — 체크업AI는 본 PoC 범위 외이며 향후 별도 scenario로 추가 |
+| opening_doctor | 개원, 개원 준비, 신규 개원 | newvisit_curation_v1 (New:Visit) — Re:lay는 본 PoC 범위 외 |
+| clinic_manager | 실장, 운영, 노쇼, 자동 발송 | revisit_curation_v1 (Re:Visit) |
+| investor_partner | 투자, IR, 시리즈, 제휴 | escalate_to_human 즉시 — 본 PoC scenario 없음, 담당자 연결만 |
 
 ### 3.2 정정 사항
 
@@ -415,21 +415,23 @@ v1.1 §8.1 PIPA, §8.3 Cost circuit breaker, §8.4 Bot 차단, §8.5 Hot lead Sl
 
 ---
 
-## 7. 시나리오 — 모션랩스 4개 제품 큐레이션
+## 7. 시나리오 — Re:Visit / New:Visit 2개 제품 큐레이션
 
-### 7.1 시나리오 우선순위
+### 7.1 시나리오 우선순위 (2026-05-09 후반 결정)
 
-PoC Phase 5~6에서 작성할 시나리오 5종:
+PoC Phase 5~6에서 작성할 시나리오 2종:
 
 | 시나리오 ID | 큐레이션 대상 | 진입 의도 | 우선 |
 |------------|-------------|----------|------|
 | revisit_curation_v1 | Re:Visit | 환자 안내 자동화, 재방문 늘리기 | 1 |
 | newvisit_curation_v1 | New:Visit | 신환 유입, 브랜드 콘텐츠 | 2 |
-| checkup_curation_v1 | 체크업AI | 검진 결과 안내 자동화 | 3 |
-| handdoc_curation_v1 | 핸닥 | 진료 외 학습, 교육 프로그램 | 4 |
-| investor_v1 | 회사 정보 | 투자/제휴 문의 | 5 |
 
-각 시나리오는 §3의 5개 visitor view 중 하나를 1차 매핑한다.
+폐기된 시나리오 (본 PoC 범위 외):
+- ~~checkup_curation_v1 (체크업AI)~~
+- ~~handdoc_curation_v1 (핸닥, BrainLabs 별도 법인)~~
+- ~~investor_v1 (회사 정보)~~ → 본 흐름은 `escalate_to_human`으로 즉시 담당자 연결
+
+§3의 5개 visitor view는 그대로 유지하되, 본 PoC에서는 모두 위 2개 시나리오 또는 escalate_to_human으로 라우팅된다.
 
 ### 7.2 revisit_curation_v1 (Sprint 1 산출물)
 
@@ -453,17 +455,14 @@ step 구조:
 
 ### 7.4 motionlabs.kr DOM 사전 작업
 
-v1.0 §5.4의 19개 section_id 매핑을 본 PRD에서도 유지. 큐레이션 대상 selector를 본 시나리오 5종 기준으로 재정렬:
+큐레이션 대상 selector를 본 PoC 2개 시나리오 기준으로 정렬:
 
 | section_id | 사용 시나리오 |
 |-----------|--------------|
 | revisit-intro / revisit-case-1 / revisit-features | revisit_curation_v1 |
 | newvisit-intro / newvisit-portfolio | newvisit_curation_v1 |
-| checkup-intro / checkup-flow | checkup_curation_v1 |
-| handdoc-intro / handdoc-courses | handdoc_curation_v1 |
-| company-info / press | investor_v1 |
 
-motionlabs.kr 사전 작업: `data-mc-section` / `data-mc-card` 속성 부여 (1~2시간).
+motionlabs.kr 사전 작업: 위 5개 section에 `data-mc-section` / `data-mc-card` 속성 부여 (1시간 이내). 체크업AI / 핸닥 / 회사 정보 섹션은 본 PoC range 외이므로 attribute 부여 불필요.
 
 ---
 
@@ -564,15 +563,15 @@ SPEC §9 Sprint 1 범위:
 
 ---
 
-## 25. 다음 결정 (대표님)
+## 25. 다음 결정 (2026-05-09 후반 확정)
 
-본 v1.2 발행 전 다음 3가지 확인이 필요합니다:
+대표님 확정:
 
-1. PR 1의 브랜드 어휘 분리 — Re:putation / NMOS의 차단 유지 여부 (외부 비공개 코드네임인지 확인 필요).
-2. §3 5개 visitor view 유지 OK — 진료과 분류 관점에서 그대로 가는 것 맞으십니까?
-3. §7 시나리오 5종 우선순위 — Re:Visit 1순위, 핸닥 4순위가 사업 우선순위와 일치합니까? 핸닥(BrainLabs)이 별도 법인이라 우선순위 변경 가능.
+1. **Re:putation / NMOS 외부 코드네임 차단 폐기.** 별도 secret-codename guard 두지 않는다. 본 commit에서 banned-vocab 모듈 전체와 함께 차단 해제됨.
+2. **§3 5개 visitor view 유지.** 진료과 분류는 큐레이션 차원이며 의료정보가 아니므로 그대로 유지.
+3. **시나리오는 Re:Visit / New:Visit 2개로 축소.** 체크업AI / 핸닥 / investor 시나리오는 본 PoC 범위에서 제외. 해당 visitor view는 가장 가까운 시나리오로 fallback 또는 `escalate_to_human` 담당자 연결.
 
-이 3가지 확인 후 v1.2 정식 발행 + PR 1~5 순차 진행.
+본 결정 이후 v1.2는 정식. PR 1~5는 단일 commit으로 적용 완료, PR 6 (해당 시나리오 폐기 정렬)은 본 §25 update commit.
 
 ---
 
