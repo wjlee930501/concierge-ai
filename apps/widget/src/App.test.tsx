@@ -11,6 +11,77 @@ afterEach(() => {
 });
 
 describe("App choreography wiring", () => {
+  it("maps free-input and choreography states to avatar expressions", async () => {
+    vi.useFakeTimers();
+    vi.spyOn(Math, "random").mockReturnValue(0);
+    mockReducedMotion(false);
+
+    render(<App />);
+
+    act(() => {
+      vi.advanceTimersByTime(3000);
+    });
+
+    fireEvent.click(screen.getByText("직접 물어보기"));
+    expect(
+      screen
+        .getByTestId("concierge-avatar")
+        .getAttribute("data-avatar-expression")
+    ).toBe("listening");
+
+    fireEvent.change(screen.getByPlaceholderText("무엇이 궁금하세요?"), {
+      target: { value: "가격이 궁금해요" }
+    });
+    fireEvent.click(screen.getByText("보내기"));
+    expect(
+      screen
+        .getByTestId("concierge-avatar")
+        .getAttribute("data-avatar-expression")
+    ).toBe("thinking");
+  });
+
+  it("uses a smile expression once choreography points at a host section", async () => {
+    vi.useFakeTimers();
+    vi.spyOn(Math, "random").mockReturnValue(0);
+    mockReducedMotion(false);
+
+    render(<App />);
+
+    act(() => {
+      vi.advanceTimersByTime(3000);
+    });
+    fireEvent.click(screen.getByText("핵심 기능 보기"));
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(6000);
+    });
+
+    expect(
+      screen
+        .getByTestId("concierge-avatar")
+        .getAttribute("data-avatar-expression")
+    ).toBe("smile");
+  });
+
+  it("exposes the breathing bubble and 50ms chip feedback polish contract", () => {
+    vi.useFakeTimers();
+    vi.spyOn(Math, "random").mockReturnValue(0);
+    mockReducedMotion(false);
+
+    render(<App />);
+
+    act(() => {
+      vi.advanceTimersByTime(3000);
+    });
+
+    expect(
+      screen.getByTestId("speech-pill").getAttribute("data-polish-breathing")
+    ).toBe("true");
+    expect(
+      screen.getByText("핵심 기능 보기").getAttribute("data-feedback-window-ms")
+    ).toBe("50");
+  });
+
   it("hides step choices until executeStep reveals them and exposes the current anchor", async () => {
     vi.useFakeTimers();
     vi.spyOn(Math, "random").mockReturnValue(0);
@@ -26,7 +97,7 @@ describe("App choreography wiring", () => {
     expect(screen.queryByText("다음: 성과 보기")).toBeNull();
 
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(6000);
+      await vi.advanceTimersByTimeAsync(48000);
     });
 
     expect(screen.queryByText("다음: 성과 보기")).not.toBeNull();

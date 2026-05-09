@@ -5,9 +5,11 @@ import {
   isOriginAllowed,
   type AnchorName,
   type AnchorPoint,
+  type AvatarExpressionName,
   type AvatarStateName
 } from "@conciergeai/shared";
 import { HeroBubble } from "./components/HeroBubble";
+import type { AvatarExpression } from "./components/Avatar";
 import { LeadFormCard } from "./components/LeadFormCard";
 import { MinimizedPill } from "./components/MinimizedPill";
 import { Spotlight } from "./components/Spotlight";
@@ -33,6 +35,7 @@ type ChoreographyUiState = {
   readonly avatarState: AvatarStateName;
   readonly anchor: AnchorName;
   readonly tilt: number;
+  readonly expressionOverride: AvatarExpressionName | null;
   readonly bubbleMessage: string | null;
   readonly bubbleVisible: boolean;
   readonly choicesVisible: boolean;
@@ -43,6 +46,7 @@ const INITIAL_CHOREOGRAPHY_UI: ChoreographyUiState = Object.freeze({
   avatarState: "idle",
   anchor: "hero_center",
   tilt: 0,
+  expressionOverride: null,
   bubbleMessage: null,
   bubbleVisible: true,
   choicesVisible: false
@@ -75,6 +79,14 @@ export function App(): JSX.Element {
     freeInputMode: state.freeInput.mode,
     avatarState: choreographyUi.avatarState,
     isStep
+  });
+  const avatarExpression = resolveAvatarExpression({
+    freeInputMode: state.freeInput.mode,
+    avatarState: choreographyUi.avatarState,
+    expressionOverride: choreographyUi.expressionOverride,
+    isStep,
+    isSubmitted,
+    isDismissed
   });
   const anchorPoint = anchorToPoint(choreographyUi.anchor, viewport);
   const safeAnchorPoint = clampBubbleAnchorPoint(anchorPoint, viewport);
@@ -136,6 +148,7 @@ export function App(): JSX.Element {
         stepId: null,
         avatarState: "idle",
         tilt: 0,
+        expressionOverride: null,
         bubbleMessage: null,
         bubbleVisible: true,
         choicesVisible: false
@@ -191,12 +204,13 @@ export function App(): JSX.Element {
       stepId: stepNode.id,
       avatarState: "talking",
       tilt: 0,
+      expressionOverride: null,
       bubbleMessage: stepNode.popover.title,
       bubbleVisible: true,
       choicesVisible: false
     }));
 
-    void executeStep(scenarioStepToChoreographyStep(stepNode), {
+    void executeStep(scenarioStepToChoreographyStep(stepNode, scenario), {
       viewport,
       currentAnchor: currentAnchorRef.current,
       reducedMotion: state.reducedMotion,
@@ -221,6 +235,13 @@ export function App(): JSX.Element {
         setTilt: (deg) => {
           if (!isActive()) return;
           setChoreographyUi((prev) => ({ ...prev, tilt: deg }));
+        },
+        setAvatarExpression: (expression) => {
+          if (!isActive()) return;
+          setChoreographyUi((prev) => ({
+            ...prev,
+            expressionOverride: expression
+          }));
         },
         setChoices: () => {
           if (!isActive()) return;
@@ -275,6 +296,7 @@ export function App(): JSX.Element {
         visible={showHero}
         avatarPoint={heroPoint}
         avatarMood={avatarMood}
+        avatarExpression={avatarExpression}
         anchorPosition={safeAnchorPoint}
         currentAnchor={choreographyUi.anchor}
         avatarTilt={choreographyUi.tilt}
@@ -353,12 +375,31 @@ export function App(): JSX.Element {
 function resolveAvatarMood(input: {
   readonly freeInputMode: "closed" | "open" | "thinking" | "replying";
   readonly avatarState: AvatarStateName;
+  readonly expressionOverride: AvatarExpressionName | null;
   readonly isStep: boolean;
 }): "idle" | "thinking" | "replying" | "pointing" {
   if (input.freeInputMode === "thinking") return "thinking";
   if (input.freeInputMode === "replying") return "replying";
   if (input.avatarState === "pointing" || input.isStep) return "pointing";
   return "idle";
+}
+
+function resolveAvatarExpression(input: {
+  readonly freeInputMode: "closed" | "open" | "thinking" | "replying";
+  readonly avatarState: AvatarStateName;
+  readonly isStep: boolean;
+  readonly isSubmitted: boolean;
+  readonly isDismissed: boolean;
+}): AvatarExpression {
+  if (input.isSubmitted) return "celebrate";
+  if (input.isDismissed) return "farewell";
+  if (input.freeInputMode === "open") return "listening";
+  if (input.freeInputMode === "thinking") return "thinking";
+  if (input.freeInputMode === "replying") return "smile";
+  if (input.expressionOverride !== null) return input.expressionOverride;
+  if (input.avatarState === "pointing" || input.isStep) return "smile";
+  if (input.avatarState === "moving") return "neutral";
+  return "smile";
 }
 
 function useViewport(): {

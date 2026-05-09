@@ -5,7 +5,9 @@
 import type {
   AnchorName,
   AnchorViewport,
+  AvatarExpressionName,
   ChoreographyChoice,
+  ChoreographyBeat,
   ChoreographyStep,
   ChoreographyTargetRect,
   AvatarStateName
@@ -54,6 +56,7 @@ export type ExecuteStepHooks = {
   readonly setBubbleVisible: (visible: boolean) => void;
   readonly setCurrentAnchor: (anchor: AnchorName) => void;
   readonly setTilt: (deg: number) => void;
+  readonly setAvatarExpression?: (expression: AvatarExpressionName | null) => void;
   readonly setChoices: (choices: readonly ChoreographyChoice[]) => void;
   readonly postToHost: (payload: PostMessagePayload) => void;
   readonly queryHostRect: (
@@ -88,6 +91,7 @@ export async function executeStep(
   const { hooks } = env;
   const reducedMotion = env.reducedMotion === true;
   const waitFor = (ms: number): Promise<void> => wait(reducedMotion ? 0 : ms);
+  const microBeats = step.beats ?? [];
 
   // T+0ms — bouncing/talking + transition hint
   hooks.postToHost({
@@ -158,6 +162,23 @@ export async function executeStep(
   });
   await waitFor(EXECUTE_STEP_TIMINGS.spotlightFadeIn);
 
+  if (microBeats.length > 0) {
+    let beatAnchor = newAnchor;
+    for (const beat of microBeats) {
+      const result = await executeBeat(beat, {
+        currentAnchor: beatAnchor,
+        reducedMotion,
+        viewport: env.viewport,
+        waitFor,
+        hooks
+      });
+      if (result.outcome === "conversation-fallback") {
+        return { outcome: result.outcome };
+      }
+      beatAnchor = result.currentAnchor;
+    }
+  }
+
   // T+1500~1800ms — talking
   hooks.setAvatarState("talking");
   hooks.setBubbleMessage(step.popover.message);
@@ -169,4 +190,111 @@ export async function executeStep(
   // After typewriter — choices
   hooks.setChoices(step.popover.choices);
   return { outcome: "completed" };
+}
+
+async function executeBeat(
+  beat: ChoreographyBeat,
+  env: {
+    readonly currentAnchor: AnchorName;
+    readonly reducedMotion: boolean;
+    readonly viewport: AnchorViewport;
+    readonly hooks: ExecuteStepHooks;
+    readonly waitFor: (ms: number) => Promise<void>;
+  }
+): Promise<
+  | { readonly outcome: "completed"; readonly currentAnchor: AnchorName }
+  | {
+      readonly outcome: "conversation-fallback";
+      readonly currentAnchor: AnchorName;
+    }
+> {
+  const selector = beat.selector;
+  const hooks = env.hooks;
+  let targetRect: ChoreographyTargetRect | null = null;
+  let elapsedMs = 0;
+
+  if (beat.expression !== undefined) {
+    hooks.setAvatarExpression?.(beat.expression);
+  }
+
+  if (selector !== undefined) {
+    targetRect = await hooks.queryHostRect(selector);
+    if (targetRect === null) {
+      hooks.enterConversationMode();
+      return {
+        outcome: "conversation-fallback",
+        currentAnchor: env.currentAnchor
+      };
+    }
+    if (beat.scroll !== false) {
+      hooks.postToHost({
+        type: "concierge:scroll_to",
+        payload: {
+          selector,
+          behavior: env.reducedMotion ? "instant" : "smooth",
+          block: "center"
+        }
+      });
+    }
+  }
+
+  if (beat.anchor !== undefined) {
+    hooks.setAvatarState("moving");
+    hooks.setCurrentAnchor(beat.anchor);
+    const moveDuration = computeMoveDuration(
+      computeAnchorDistance(env.currentAnchor, beat.anchor, env.viewport)
+    );
+    await env.waitFor(moveDuration);
+    elapsedMs += moveDuration;
+  }
+
+  if (selector !== undefined && beat.highlight !== false) {
+    hooks.setAvatarState("pointing");
+    const anchor = beat.anchor ?? env.currentAnchor;
+    const avatarPoint = anchorToPoint(anchor, env.viewport);
+    const targetCenter =
+      targetRect === null
+        ? avatarPoint
+        : {
+            x: targetRect.left + targetRect.width / 2,
+            y: targetRect.top + targetRect.height / 2
+          };
+    hooks.setTilt(
+      env.reducedMotion
+        ? 0
+        : beat.tilt === undefined || beat.tilt === "auto"
+          ? computeTilt(avatarPoint, targetCenter)
+          : beat.tilt
+    );
+    hooks.postToHost({
+      type: "concierge:driver_highlight",
+      payload: {
+        selector,
+        padding: 12,
+        radius: 8,
+        color: "rgba(26, 86, 219, 0.25)"
+      }
+    });
+    await env.waitFor(EXECUTE_STEP_TIMINGS.spotlightFadeIn);
+    elapsedMs += EXECUTE_STEP_TIMINGS.spotlightFadeIn;
+  }
+
+  if (beat.message !== undefined) {
+    hooks.setAvatarState("talking");
+    hooks.setBubbleMessage(beat.message);
+    hooks.setBubbleVisible(true);
+    const speed = beat.typewriter_speed_ms ?? EXECUTE_STEP_TIMINGS.typewriterPerChar;
+    const typewriterMs = beat.message.length * speed;
+    await env.waitFor(typewriterMs);
+    elapsedMs += typewriterMs;
+  }
+
+  await env.waitFor(Math.max(0, (beat.duration_ms ?? 3000) - elapsedMs));
+  if (beat.pause_after_ms !== undefined) {
+    await env.waitFor(beat.pause_after_ms);
+  }
+  return {
+    outcome: "completed",
+    currentAnchor: beat.anchor ?? env.currentAnchor
+  };
 }
