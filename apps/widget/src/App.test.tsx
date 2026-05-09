@@ -63,7 +63,7 @@ describe("App choreography wiring", () => {
     ).toBe("smile");
   });
 
-  it("exposes the breathing bubble and 50ms chip feedback polish contract", () => {
+  it("exposes the breathing bubble and 120ms chip feedback polish contract", () => {
     vi.useFakeTimers();
     vi.spyOn(Math, "random").mockReturnValue(0);
     mockReducedMotion(false);
@@ -77,6 +77,14 @@ describe("App choreography wiring", () => {
     expect(
       screen.getByTestId("speech-pill").getAttribute("data-polish-breathing")
     ).toBe("true");
+    expect(
+      screen.getByTestId("speech-pill").getAttribute("data-floating-loop")
+    ).toBe("mirror");
+    expect(
+      screen.getByTestId("speech-pill").getAttribute(
+        "data-floating-amplitude-px"
+      )
+    ).toBe("1.6");
     expect(
       screen.getByTestId("concierge-avatar").getAttribute("data-avatar-asset")
     ).toBe("smile");

@@ -17,6 +17,11 @@ import { Avatar, type AvatarExpression } from "./Avatar";
 import { QuickChips, type ChipChoice } from "./QuickChips";
 import { FreeInputBar } from "./FreeInputBar";
 import { AiSpeechBubble } from "./AiSpeechBubble";
+import {
+  SPEECH_FLOAT_AMPLITUDE_PX,
+  SPEECH_FLOAT_ANIMATE,
+  SPEECH_FLOAT_TRANSITION
+} from "./floatingMotion";
 import type { FreeInputSlice } from "../state/types";
 
 export type HeroBubbleProps = {
@@ -329,14 +334,13 @@ function SpeechPill(props: {
       layout
       data-testid="speech-pill"
       data-polish-breathing={breathing ? "true" : "false"}
+      data-floating-loop={breathing ? SPEECH_FLOAT_TRANSITION.repeatType : "off"}
+      data-floating-amplitude-px={SPEECH_FLOAT_AMPLITUDE_PX}
       data-tail-anchor={props.currentAnchor}
       className={`relative max-w-[460px] ${radius} bg-ink/95 px-4 py-3 text-white shadow-[0_18px_40px_rgba(7,20,39,0.35)] backdrop-blur`}
-      animate={breathing ? { scale: [1, 1.005, 1] } : undefined}
-      transition={
-        breathing
-          ? { duration: 4, repeat: Infinity, ease: "easeInOut" }
-          : { duration: 0 }
-      }
+      initial={breathing ? { y: 0, scale: 1 } : false}
+      animate={breathing ? SPEECH_FLOAT_ANIMATE : undefined}
+      transition={breathing ? SPEECH_FLOAT_TRANSITION : { duration: 0 }}
     >
       <motion.span
         aria-hidden="true"
