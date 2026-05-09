@@ -13,6 +13,7 @@
     "build:widget": "npm run build --workspace=@conciergeai/widget",
     "build:admin": "npm run build --workspace=@conciergeai/admin",
     "build:vercel:widget": "node scripts/build-widget-with-embed.mjs",
+    "design-polish:verify": "node scripts/verify-design-polish-contract.mjs",
     "dev:widget": "npm run dev --workspace=@conciergeai/widget",
     "dev:admin": "npm run dev --workspace=@conciergeai/admin",
     "lint": "tsc --noEmit -p tsconfig.json --pretty false",

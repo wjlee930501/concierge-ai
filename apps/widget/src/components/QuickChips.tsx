@@ -32,28 +32,28 @@ export function QuickChips({
               key={chip.id}
               type="button"
               data-chip-id={chip.id}
-              data-feedback-window-ms="50"
+              data-feedback-window-ms="120"
               aria-pressed={pressed}
               onClick={() => onSelect(chip.id)}
               layout
-              initial={{ opacity: 0, y: 8, scale: 0.96 }}
+              initial={{ opacity: 0, y: 6, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -6, scale: 0.94 }}
+              exit={{ opacity: 0, y: -4, scale: 0.98 }}
               transition={{
                 opacity: {
-                  duration: 0.22,
-                  delay: index * 0.04,
-                  ease: [0.2, 0.8, 0.2, 1]
+                  duration: 0.3,
+                  delay: index * 0.03,
+                  ease: [0.16, 1, 0.3, 1]
                 },
                 y: {
-                  duration: 0.22,
-                  delay: index * 0.04,
-                  ease: [0.2, 0.8, 0.2, 1]
+                  duration: 0.3,
+                  delay: index * 0.03,
+                  ease: [0.16, 1, 0.3, 1]
                 },
-                scale: { duration: 0.05 }
+                scale: { duration: 0.12, ease: [0.16, 1, 0.3, 1] }
               }}
               whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.95 }}
+              whileTap={{ y: 1, scale: 0.98 }}
               whileFocus={{ y: -1 }}
               className={
                 pressed
