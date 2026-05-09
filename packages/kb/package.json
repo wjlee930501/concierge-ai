@@ -5,5 +5,9 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@conciergeai/shared": "*",
+    "zod": "^3.24.1"
   }
 }

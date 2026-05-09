@@ -1,0 +1,90 @@
+{
+  "id": "placeholder_v0",
+  "version": "0.0.1",
+  "isPlaceholder": true,
+  "heroBubble": {
+    "message": "처음 오셨다면 30초 안에 핵심부터 짚어 드릴게요. 보고 싶은 흐름을 골라 주세요.",
+    "quickChips": [
+      { "id": "chip_core", "label": "서비스 핵심 보기", "nextStepId": "step_core" },
+      { "id": "chip_proof", "label": "성과부터 보기", "nextStepId": "step_proof" },
+      { "id": "chip_demo", "label": "데모로 이동", "nextStepId": "step_demo" },
+      { "id": "chip_contact", "label": "도입 상담", "nextStepId": "step_contact" }
+    ]
+  },
+  "steps": [
+    {
+      "id": "step_core",
+      "popover": {
+        "label": "Core",
+        "title": "핵심부터 짚겠습니다.",
+        "body": "이 섹션은 서비스의 존재 이유를 가장 빠르게 보여 드리는 시작점입니다."
+      },
+      "spotlightTarget": "#section-core",
+      "avatarPoint": "up",
+      "choices": [
+        { "id": "to_proof", "label": "다음: 성과 보기", "nextStepId": "step_proof" },
+        { "id": "to_contact", "label": "바로 상담하기", "nextStepId": "step_contact" }
+      ],
+      "isClosing": false
+    },
+    {
+      "id": "step_proof",
+      "popover": {
+        "label": "Proof",
+        "title": "관심이 생기면 근거를 보여드립니다.",
+        "body": "사례·근거 섹션은 추상적인 설명보다 빠르게 신뢰를 쌓아 줍니다."
+      },
+      "spotlightTarget": "#section-proof",
+      "avatarPoint": "right",
+      "choices": [
+        { "id": "to_demo", "label": "다음: 데모 보기", "nextStepId": "step_demo" },
+        { "id": "to_contact", "label": "바로 상담하기", "nextStepId": "step_contact" }
+      ],
+      "isClosing": false
+    },
+    {
+      "id": "step_demo",
+      "popover": {
+        "label": "Demo",
+        "title": "직접 보는 행동으로 연결합니다.",
+        "body": "데모 CTA로 바로 안내해 페이지 탐색 부담을 줄여 드립니다."
+      },
+      "spotlightTarget": "#section-demo",
+      "avatarPoint": "left",
+      "choices": [
+        { "id": "to_contact", "label": "다음: 상담 신청", "nextStepId": "step_contact" }
+      ],
+      "isClosing": false
+    },
+    {
+      "id": "step_contact",
+      "popover": {
+        "label": "Conversion",
+        "title": "상담으로 마무리합니다.",
+        "body": "도입 의향이 있는 방문자를 입력 폼으로 연결해 전환을 닫습니다."
+      },
+      "spotlightTarget": "#section-contact",
+      "avatarPoint": "left",
+      "choices": [],
+      "isClosing": true
+    }
+  ],
+  "leadForm": {
+    "title": "도입 상담 신청",
+    "subtitle": "입력해 주신 정보는 안내 목적으로만 사용됩니다.",
+    "fields": [
+      { "id": "name", "label": "이름", "type": "text", "required": true, "placeholder": "홍길동" },
+      { "id": "email", "label": "이메일", "type": "email", "required": true, "placeholder": "you@example.com" },
+      { "id": "phone", "label": "연락처", "type": "tel", "required": false, "placeholder": "010-0000-0000" },
+      { "id": "message", "label": "메시지", "type": "textarea", "required": false, "placeholder": "어떤 도움이 필요하신가요?" }
+    ],
+    "pipaConsents": [
+      { "id": "required", "label": "(필수) 개인정보 수집·이용에 동의합니다.", "required": true },
+      { "id": "marketing", "label": "(선택) 마케팅 정보 수신에 동의합니다.", "required": false },
+      { "id": "expanded", "label": "(선택) 상세 안내 펼침 동의에 동의합니다.", "required": false }
+    ],
+    "retentionDescription": "보관 기간 등 PIPA 최종 카피는 source data 도착 후 확정됩니다.",
+    "submitLabel": "상담 신청 보내기",
+    "thanksMessage": "신청이 접수되었습니다. 곧 연락드리겠습니다."
+  }
+}
