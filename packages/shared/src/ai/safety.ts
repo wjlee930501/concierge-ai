@@ -1,3 +1,5 @@
+// PRD v1.2 §5.2 + §5.3 — safety_response payload schema.
+
 import { z } from "zod";
 
 export const SAFETY_RESPONSE_REASONS = [
@@ -15,38 +17,35 @@ export const safetyResponseReasonSchema = z.enum(SAFETY_RESPONSE_REASONS);
 export const safetyResponsePayloadSchema = z
   .object({
     reason: safetyResponseReasonSchema,
-    message: z.string().min(1),
-    isPlaceholderCopy: z.boolean()
+    message: z.string().min(1).max(200),
+    offer_handoff: z.boolean()
   })
   .strict();
 
 export type SafetyResponsePayload = z.infer<typeof safetyResponsePayloadSchema>;
 
-// Placeholder copy is FINAL_ALIGNMENT §3 placeholder — final 한국어 카피는 source data
-// 도착 후 확정한다. `isPlaceholderCopy: true` 플래그가 boundary 표식 역할을 한다.
-export const SAFETY_RESPONSE_PLACEHOLDER_COPY: Record<
-  SafetyResponseReason,
-  string
-> = {
+// PRD v1.2 §5.3 placeholder copy. source data 도착 후 한국어 카피 확정.
+export const SAFETY_RESPONSE_DEFAULT_COPY: Record<SafetyResponseReason, string> = {
   out_of_scope:
-    "죄송하지만 이 주제는 안내 범위에 포함되어 있지 않아요. 도움드릴 수 있는 다른 주제를 골라 주세요.",
+    "그 부분은 담당자가 직접 안내드리는 게 가장 빨라요. 1영업일 안에 연락드릴 수 있도록 정보 남겨주시겠어요?",
   kb_unavailable:
-    "지금 기준 자료를 불러올 수 없어 정확한 답변을 드리기 어려워요. 잠시 후 다시 시도해 주세요.",
+    "정확한 정보를 위해 담당자가 직접 안내드리는 게 좋겠어요.",
   pii_request:
-    "개인정보를 묻는 질문에는 답변드릴 수 없어요. 필요한 절차로 안내해 드릴게요.",
+    "개인정보 관련 요청은 처리할 수 없어요. 담당자에게 직접 연락 부탁드려요.",
   prompt_injection_detected:
-    "이 입력은 안내 시스템의 정책을 우회하려는 패턴으로 감지됐어요. 다른 질문을 부탁드려요.",
+    "답변하기 어려운 영역이에요. 모션랩스 도구나 도입 관련해서 도와드릴 게 있을까요?",
   policy_violation:
-    "이 답변은 정책상 제공할 수 없어요. 가능한 다른 도움을 드릴게요."
+    "그 부분은 답변드리기 어려워요. 다른 부분 도와드릴게요."
 };
 
-export function buildPlaceholderSafetyResponse(
-  reason: SafetyResponseReason
+export function buildDefaultSafetyResponse(
+  reason: SafetyResponseReason,
+  override?: { readonly message?: string; readonly offer_handoff?: boolean }
 ): SafetyResponsePayload {
   return {
     reason,
-    message: SAFETY_RESPONSE_PLACEHOLDER_COPY[reason],
-    isPlaceholderCopy: true
+    message: override?.message ?? SAFETY_RESPONSE_DEFAULT_COPY[reason],
+    offer_handoff: override?.offer_handoff ?? true
   };
 }
 

@@ -1,23 +1,25 @@
 import { describe, expect, it } from "vitest";
 import {
   buildRetrievalGate,
-  isApprovedKnowledgeBodySafe,
   isToolBranchAllowed,
-  sealSystemPrompt
+  type ApprovedKnowledgeDocument
 } from "./approved-knowledge";
 
-const okDoc = {
+const okDoc: ApprovedKnowledgeDocument = {
   id: "kb1",
   version: "v1",
-  title: "[PLACEHOLDER] doc",
-  body: "[PLACEHOLDER] safe content",
-  isPlaceholder: true,
-  bannedVocabClean: true
+  title: "Re:Visit 소개",
+  body: "환자 안내 자동화로 재방문 비율을 높입니다.",
+  isPlaceholder: false,
+  approved: true
 };
 
 describe("buildRetrievalGate", () => {
   it("returns docs when query and docs are valid", () => {
-    const result = buildRetrievalGate({ query: "hello", availableDocs: [okDoc] });
+    const result = buildRetrievalGate({
+      query: "Re:Visit 도입 절차",
+      availableDocs: [okDoc]
+    });
     expect(result.ok).toBe(true);
   });
 
@@ -31,24 +33,26 @@ describe("buildRetrievalGate", () => {
     expect(result.ok).toBe(false);
   });
 
-  it("blocks docs with banned vocabulary", () => {
-    const banned = { ...okDoc, body: "병원 안내", bannedVocabClean: false };
-    const result = buildRetrievalGate({ query: "hi", availableDocs: [banned] });
-    expect(result.ok).toBe(false);
-  });
-});
-
-describe("sealSystemPrompt", () => {
-  it("sanitizes external URLs and banned vocab", () => {
-    const result = sealSystemPrompt({
-      basePrompt: "base",
-      approvedDocs: [
-        { ...okDoc, body: "see https://example.com about 병원" }
-      ]
+  it("blocks docs that are not yet approved", () => {
+    const pending = { ...okDoc, approved: false };
+    const result = buildRetrievalGate({
+      query: "hi",
+      availableDocs: [pending]
     });
-    expect(result.prompt).toContain("[REDACTED-URL]");
-    expect(result.prompt).toContain("[REDACTED-BANNED]");
-    expect(result.seal.startsWith("kb-seal:")).toBe(true);
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.reason).toBe("not-approved");
+  });
+
+  it("does NOT reject medical-domain content (banned-vocab guard removed in v1.2)", () => {
+    const medical = {
+      ...okDoc,
+      body: "정형외과 / 내과 / 환자 / 진료 안내 자동화"
+    };
+    const result = buildRetrievalGate({
+      query: "정형외과 사례",
+      availableDocs: [medical]
+    });
+    expect(result.ok).toBe(true);
   });
 });
 
@@ -59,11 +63,10 @@ describe("isToolBranchAllowed", () => {
     expect(isToolBranchAllowed("noop", bad)).toBe(true);
     expect(isToolBranchAllowed("submit_lead", bad)).toBe(false);
   });
-});
 
-describe("isApprovedKnowledgeBodySafe", () => {
-  it("flags banned vocab", () => {
-    expect(isApprovedKnowledgeBodySafe("safe text")).toBe(true);
-    expect(isApprovedKnowledgeBodySafe("clinic info")).toBe(false);
+  it("allows business tools when retrieval is ok", () => {
+    const good = { ok: true as const, docs: [okDoc] };
+    expect(isToolBranchAllowed("navigate_to_section", good)).toBe(true);
+    expect(isToolBranchAllowed("submit_lead", good)).toBe(true);
   });
 });

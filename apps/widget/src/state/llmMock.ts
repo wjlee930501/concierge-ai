@@ -1,12 +1,17 @@
-// Mock LLM streaming for free-input mode.
+// Mock LLM streaming for free-input mode (PRD v1.2 §5).
 // Real Anthropic provider wiring happens in Phase 5 via /api/concierge proxy.
+// Layer 1 prompt injection detection (PRD v1.2 §6.3) is delegated to
+// `@conciergeai/shared/security/injection-patterns`.
 
 import type {
   Scenario,
   ScenarioQuickChip,
   SafetyResponseReason
 } from "@conciergeai/shared";
-import { SAFETY_RESPONSE_PLACEHOLDER_COPY } from "@conciergeai/shared";
+import {
+  detectInjection,
+  SAFETY_RESPONSE_DEFAULT_COPY
+} from "@conciergeai/shared";
 
 export type AiSuggestion =
   | { readonly kind: "navigate"; readonly chipId: string; readonly label: string }
@@ -33,25 +38,25 @@ const KEYWORD_INTENT_TABLE: ReadonlyArray<{
     keywords: ["데모", "보여", "직접", "demo"],
     chipMatch: ["chip_demo", "chip_core"],
     response:
-      "[PLACEHOLDER] 데모 흐름부터 짚어 드릴게요. 핵심 동작이 동영상이 아니라 직접 클릭으로 보이도록 안내합니다."
+      "데모 흐름부터 짚어 드릴게요. 핵심 동작이 동영상이 아니라 직접 클릭으로 보이도록 안내합니다."
   },
   {
     keywords: ["사례", "근거", "성과", "레퍼런스", "reference", "case"],
     chipMatch: ["chip_proof"],
     response:
-      "[PLACEHOLDER] 사례·근거 섹션부터 짚어 드릴게요. 설명보다 신뢰 근거를 먼저 보면 도입 의사 결정 시간이 짧아집니다."
+      "사례·근거 섹션부터 짚어 드릴게요. 설명보다 신뢰 근거를 먼저 보면 도입 의사 결정 시간이 짧아집니다."
   },
   {
     keywords: ["상담", "문의", "도입", "contact", "consult"],
     chipMatch: ["chip_contact"],
     response:
-      "[PLACEHOLDER] 상담 단계로 안내드릴게요. 입력해 주신 내용을 정리해 담당자에게 전달합니다."
+      "상담 단계로 안내드릴게요. 입력해 주신 내용을 정리해 담당자에게 전달합니다."
   },
   {
     keywords: ["핵심", "뭐", "무엇", "어떤", "core"],
     chipMatch: ["chip_core"],
     response:
-      "[PLACEHOLDER] 서비스 핵심부터 짚어 드릴게요. 30초 안에 무엇을 만드는지 보여 드립니다."
+      "서비스 핵심부터 짚어 드릴게요. 30초 안에 무엇을 만드는지 보여 드립니다."
   }
 ];
 
@@ -76,13 +81,23 @@ function matchIntent(
   query: string,
   scenario: Scenario
 ): { readonly response: string; readonly suggestion: AiSuggestion } {
-  const trimmed = query.trim().toLowerCase();
-  if (trimmed.length === 0) {
-    return safetyMatch("out_of_scope");
+  const trimmed = query.trim();
+  if (trimmed.length === 0) return safetyMatch("out_of_scope");
+
+  // Layer 1 — prompt injection detection (PRD v1.2 §6.3)
+  if (detectInjection(trimmed).hit) {
+    return safetyMatch("prompt_injection_detected");
   }
 
+  if (looksLikePiiRequest(trimmed)) {
+    return safetyMatch("pii_request");
+  }
+
+  const lowered = trimmed.toLowerCase();
   for (const row of KEYWORD_INTENT_TABLE) {
-    const hit = row.keywords.some((keyword) => trimmed.includes(keyword.toLowerCase()));
+    const hit = row.keywords.some((keyword) =>
+      lowered.includes(keyword.toLowerCase())
+    );
     if (!hit) continue;
     const chip = pickFirstChip(scenario.heroBubble.quickChips, row.chipMatch);
     if (chip === null) continue;
@@ -92,12 +107,6 @@ function matchIntent(
     };
   }
 
-  if (looksLikePiiRequest(trimmed)) {
-    return safetyMatch("pii_request");
-  }
-  if (looksLikePromptInjection(trimmed)) {
-    return safetyMatch("prompt_injection_detected");
-  }
   return safetyMatch("out_of_scope");
 }
 
@@ -106,7 +115,7 @@ function safetyMatch(reason: SafetyResponseReason): {
   readonly suggestion: AiSuggestion;
 } {
   return {
-    response: SAFETY_RESPONSE_PLACEHOLDER_COPY[reason],
+    response: SAFETY_RESPONSE_DEFAULT_COPY[reason],
     suggestion: { kind: "safety", reason }
   };
 }
@@ -123,11 +132,9 @@ function pickFirstChip(
 }
 
 function looksLikePiiRequest(text: string): boolean {
-  return /개인정보|주민|연락처|이메일|전화/.test(text);
-}
-
-function looksLikePromptInjection(text: string): boolean {
-  return /ignore previous|시스템\s*프롬프트|jailbreak|시스템 명령/.test(text);
+  return /개인정보|주민|환자\s*(?:연락처|전화|이메일|진단|처방)|연락처\s*(?:알려|보여)|이메일\s*(?:알려|보여)|전화번호\s*(?:알려|목록)/.test(
+    text
+  );
 }
 
 async function streamText(
@@ -147,10 +154,6 @@ async function streamText(
     }
     onEvent({ type: "chunk", text: token });
   }
-}
-
-function isAborted(signal: AbortSignal | null | undefined): boolean {
-  return signal !== null && signal !== undefined && signal.aborted;
 }
 
 function chunkText(text: string): readonly string[] {
@@ -184,4 +187,8 @@ function delay(ms: number, signal: AbortSignal | null): Promise<void> {
       );
     }
   });
+}
+
+function isAborted(signal: AbortSignal | null | undefined): boolean {
+  return signal !== null && signal !== undefined && signal.aborted;
 }

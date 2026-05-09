@@ -1,13 +1,7 @@
-import type {
-  AiToolCall,
-  AiToolName
-} from "./tools";
+import type { AiToolCall, AiToolName } from "./tools";
+import { aiToolCallSchema, aiToolSchemas } from "./tools";
 import {
-  aiToolCallSchema,
-  aiToolSchemas
-} from "./tools";
-import {
-  buildPlaceholderSafetyResponse,
+  buildDefaultSafetyResponse,
   type SafetyResponseReason
 } from "./safety";
 
@@ -46,7 +40,7 @@ export function createMockAiProvider(options?: {
     options?.handler ??
     (() => ({
       tool: "noop",
-      input: { note: "[PLACEHOLDER] mock provider default no-op response" },
+      input: {},
       nonce: `${DEFAULT_NONCE_PREFIX}${Math.random().toString(36).slice(2)}`,
       timestamp: Date.now()
     }));
@@ -55,14 +49,14 @@ export function createMockAiProvider(options?: {
     id,
     async generate(request: AiProviderRequest): Promise<AiProviderResponse> {
       const result = handler(request);
-      const toolCall = "safety" in result
-        ? buildSafetyToolCall(result.safety)
-        : result;
+      const toolCall =
+        "safety" in result ? buildSafetyToolCall(result.safety) : result;
       const validated = aiToolCallSchema.parse(toolCall);
       enforceEnabledTool(validated.tool as AiToolName, request.enabledTools);
       return {
         toolCall: validated as AiToolCall,
-        inputTokens: estimateTokens(request.systemPrompt) +
+        inputTokens:
+          estimateTokens(request.systemPrompt) +
           estimateTokens(request.userMessage),
         outputTokens: 64,
         cacheHit: request.promptCache
@@ -72,7 +66,7 @@ export function createMockAiProvider(options?: {
 }
 
 function buildSafetyToolCall(reason: SafetyResponseReason): AiToolCall {
-  const payload = buildPlaceholderSafetyResponse(reason);
+  const payload = buildDefaultSafetyResponse(reason);
   const schema = aiToolSchemas.safety_response;
   schema.parse(payload);
   return {

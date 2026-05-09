@@ -47,18 +47,21 @@ npm run security:scan:history
 
 ## 주요 문서
 
-- `docs/prd/Concierge_AI_PRD_v1.1.md` — PRD canonical.
-- `docs/alignment/FINAL_ALIGNMENT.md` — 운영 override + 35-item checklist.
+- `docs/prd/Concierge_AI_PRD_v1.2.md` — **PRD canonical** (v1.1 supersedes).
+- `docs/interaction/CURATION_CHOREOGRAPHY_SPEC.md` — Avatar 큐레이션 인터랙션 정밀 spec (PoC 단일 차별점).
+- `docs/alignment/FINAL_ALIGNMENT.md` — 운영 override + 35-item checklist (v1.2 §1이 정식 승격).
 - `AGENTS.md` / `CLAUDE.md` / `REVIEW.md` — 에이전트 역할 계약.
 - `ROADMAP.md` — Phase 0~6 제품화 로드맵.
+- `DEPLOY.md` — Vercel 배포 가이드.
 
 ## 원칙 요약
 
-1. PRD §2.2 / FINAL_ALIGNMENT §1로 고정된 UX 플로우: Hero Bubble → Quick Chips → Avatar choreography → Spotlight + Popover → Lead Form.
-2. FINAL_ALIGNMENT §3에 따라 source data 미도착 카피는 모두 `[PLACEHOLDER]` 라벨 + `tests/fixtures/**`에만 둔다.
-3. clinic/병원/환자/진료/예약/HandDoc/Re:putation/NMOS 등 금지 어휘는 `@conciergeai/kb`의 banned-vocab 가드가 자동 차단한다.
-4. iframe 보안 경계: postMessage envelope 6필드, sandbox `allow-same-origin` 기본 OFF, CSP `frame-ancestors` 상시. `embed.js`는 parent DOM/cookie/storage scrape 금지.
-5. PR 본문은 cost ledger 5필드(`pr_number`, `computer_use_minutes`, `claude_review_tokens_estimate`, `llm_calls_estimate`, `running_total_week`) 필수.
+1. **PoC 단일 가치 명제 (PRD v1.2 §0)**: Avatar가 motionlabs.kr 위에서 직접 이동하며 방문자에게 적합한 모션랩스 제품을 손짓으로 안내하고, 그 큐레이션의 결과로 세일즈 리드를 수집한다.
+2. **UX 플로우 (canonical)**: Hero Bubble → Quick Chips → Avatar choreography → Spotlight + Popover → Lead Form. 정밀 spec은 `CURATION_CHOREOGRAPHY_SPEC.md`.
+3. **FINAL_ALIGNMENT §3**: source data 미도착 카피는 `tests/fixtures/**` + `isPlaceholder: true` boundary로 분리.
+4. **보안 2축 (PRD v1.2 §6)**: PIPA (M0/M1 secret scanner) + prompt injection 3-layer (`packages/shared/src/security/`). v1.1의 banned-vocab 가드는 폐기.
+5. **iframe 경계**: postMessage envelope 6필드, sandbox `allow-same-origin` 기본 OFF, CSP `frame-ancestors` 상시. `embed.js`는 parent DOM/cookie/storage scrape 금지.
+6. **PR 본문**: cost ledger 5필드(`pr_number`, `computer_use_minutes`, `claude_review_tokens_estimate`, `llm_calls_estimate`, `running_total_week`) 필수.
 
 ## 라이선스
 

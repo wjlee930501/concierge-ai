@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createMockAiProvider } from "./provider";
 import type { AiToolName } from "./tools";
 
-describe("mock AI provider", () => {
+describe("mock AI provider (PRD v1.2)", () => {
   const enabled: readonly AiToolName[] = [
     "navigate_to_section",
     "safety_response",
@@ -27,9 +27,12 @@ describe("mock AI provider", () => {
       handler: () => ({
         tool: "submit_lead",
         input: {
-          leadFingerprint: "fp",
-          fieldsCollected: ["name"],
-          consentVersion: "v0"
+          name: "n",
+          phone: "p",
+          specialty: "정형외과",
+          consent_privacy: true,
+          consent_marketing: false,
+          conversation_summary: "summary"
         },
         nonce: "n",
         timestamp: 1
@@ -46,7 +49,7 @@ describe("mock AI provider", () => {
     ).rejects.toThrow(/disabled tool/);
   });
 
-  it("falls back to safety response when handler asks", async () => {
+  it("falls back to safety response with offer_handoff=true when handler asks", async () => {
     const provider = createMockAiProvider({
       handler: () => ({ safety: "out_of_scope" })
     });
@@ -58,5 +61,8 @@ describe("mock AI provider", () => {
       promptCache: false
     });
     expect(response.toolCall.tool).toBe("safety_response");
+    if (response.toolCall.tool === "safety_response") {
+      expect(response.toolCall.input.offer_handoff).toBe(true);
+    }
   });
 });

@@ -10,12 +10,12 @@
 
 ## Primary source of truth (read in this order)
 
-1. `docs/prd/Concierge_AI_PRD_v1.1.md` — canonical PRD.
-2. `docs/alignment/FINAL_ALIGNMENT.md` — operating override + 35-item checklist.
-3. `AGENTS.md` — agent role contract.
-4. `.claude/context/current-focus.md` — current focus snapshot.
-5. `docs/interaction/CONCIERGE_AVATAR_INTERACTION_SPEC.md` — interaction spec (PRD-shaped).
-6. `apps/widget/prototype-avatar-interaction.html` — standalone prototype (placeholder copy).
+1. `docs/prd/Concierge_AI_PRD_v1.2.md` — canonical PRD (supersedes v1.1).
+2. `docs/interaction/CURATION_CHOREOGRAPHY_SPEC.md` — Avatar 큐레이션 인터랙션 정밀 spec (PRD v1.2 §4의 single source).
+3. `docs/alignment/FINAL_ALIGNMENT.md` — operating override + 35-item checklist (v1.2 §1이 §1을 정식 승격).
+4. `AGENTS.md` — agent role contract.
+5. `.claude/context/current-focus.md` — current focus snapshot.
+6. `docs/prd/Concierge_AI_PRD_v1.1.md` — historical reference (v1.2 §23 변경 요약 참조).
 7. `docs/alignment/CODEX_ROUND1.md`, `CLAUDE_ROUND1.md`, `CODEX_ROUND2.md`, `CLAUDE_ROUND2.md`, `CLAUDE_FINAL_REVIEW.md` — alignment history.
 
 ## Role override (current operation, 2026-05-08~)
@@ -57,9 +57,10 @@ This flow is the same on desktop and mobile (mobile = bottom-sheet variant). `pr
 - No generic empty chatbot ("무엇을 도와드릴까요?" 자유입력만 던지는 형태) — Concierge is choice-led, not chat-led.
 - No long free-input-first chat log UX.
 - No source-data-less production scenario steps, anchor selectors, popover messages, choice copy, lead-form transition conditions, or final 한국어 carbon copy. Test-only fixtures are allowed, but must be physically separated from production scenario JSON.
-- No HandDoc / Re:putation / NMOS / clinic / hospital / patient / medical / appointment / 의료 / 병원 / 환자 / 진료 / 예약 framing or copy. The prior contamination has been cleared; do not reintroduce it.
 - No production secrets, webhook URLs, or service keys committed. `.env.example` is placeholder-only.
 - No production motionlabs.kr access from Computer-Use; staging / preview only.
+
+> v1.2 §6.1 — clinic / hospital / patient / medical / 병원 / 환자 / 진료 / 의료 / HandDoc 등 banned-vocab 가드는 폐기됐다. 이 어휘들은 모션랩스 정상 비즈니스 도메인이며 큐레이션 시나리오 작성에 필수다. 보안은 PIPA + prompt injection 2축으로 재정의되어 `packages/shared/src/security/`에 구현됐다.
 
 ## Source-data discipline (FINAL_ALIGNMENT §3)
 

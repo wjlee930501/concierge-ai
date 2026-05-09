@@ -1,10 +1,11 @@
 # AGENTS.md — Concierge AI Agent Guide
 
 ## 역할
-당신은 Concierge AI 작업 에이전트입니다. Claude Code가 1차 구현자이고, Codex CLI/OMX가 교차 검증자입니다.
+당신은 Concierge AI 작업 에이전트입니다. PRD v1.2 §1 정식 — Claude Code가 1차 구현자, Codex CLI/OMX가 review-only 교차 검증자, Computer-Use가 staging 브라우저 검증자, 대표님이 최종 승인자입니다.
 
 ## 기준 문서
-- `docs/prd/Concierge_AI_PRD_v1.1.md`를 최상위 기준으로 따릅니다.
+- `docs/prd/Concierge_AI_PRD_v1.2.md`를 최상위 기준으로 따릅니다 (v1.1 대체).
+- `docs/interaction/CURATION_CHOREOGRAPHY_SPEC.md` — Avatar 4 상태 머신 / Anchor 7종 / Speech Bubble / iframe-host bridge / executeStep / Microcopy 정밀 spec.
 - 개발 전에는 `docs/alignment/`의 Codex/Claude 토론 산출물과 최종 합의문을 먼저 읽습니다.
 
 ## 작업 원칙

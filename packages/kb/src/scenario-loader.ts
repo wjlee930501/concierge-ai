@@ -1,9 +1,7 @@
 import {
-  parseScenario,
   safeParseScenario,
   type Scenario
 } from "@conciergeai/shared";
-import { assertNoBannedVocab, findBannedVocabHits } from "./banned-vocab";
 
 export type LoadScenarioResult =
   | { readonly ok: true; readonly scenario: Scenario }
@@ -47,15 +45,6 @@ export function loadScenarioFromJson(
     );
   }
 
-  for (const text of collectScenarioCopy(scenario)) {
-    const hits = findBannedVocabHits(text);
-    if (hits.length > 0) {
-      errors.push(
-        `Banned vocabulary in ${options.sourcePath}: ${hits.map((hit) => hit.pattern).join(", ")}`
-      );
-    }
-  }
-
   if (errors.length > 0) {
     return { ok: false, errors };
   }
@@ -75,45 +64,8 @@ export function loadScenarioStrict(
   return result.scenario;
 }
 
-export function ensureScenarioPlaceholderClean(scenario: Scenario): void {
-  for (const text of collectScenarioCopy(scenario)) {
-    assertNoBannedVocab(text, `scenario ${scenario.id}`);
-  }
-}
-
 export function expectsPlaceholder(scenario: Scenario): boolean {
   return scenario.isPlaceholder === true;
-}
-
-function* collectScenarioCopy(scenario: Scenario): Iterable<string> {
-  yield scenario.heroBubble.message;
-  for (const chip of scenario.heroBubble.quickChips) {
-    yield chip.label;
-  }
-  for (const step of scenario.steps) {
-    yield step.popover.label;
-    yield step.popover.title;
-    yield step.popover.body;
-    for (const choice of step.choices) {
-      yield choice.label;
-    }
-  }
-  yield scenario.leadForm.title;
-  yield scenario.leadForm.subtitle;
-  yield scenario.leadForm.thanksMessage;
-  yield scenario.leadForm.retentionDescription;
-  for (const field of scenario.leadForm.fields) {
-    yield field.label;
-    if (field.placeholder !== undefined) {
-      yield field.placeholder;
-    }
-  }
-  for (const consent of scenario.leadForm.pipaConsents) {
-    yield consent.label;
-  }
-  if (scenario.placeholderNotice !== undefined) {
-    yield scenario.placeholderNotice;
-  }
 }
 
 export const SCENARIO_PRODUCTION_PATH_PREFIX = "packages/kb/scenarios/";
