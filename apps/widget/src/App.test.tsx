@@ -1,5 +1,11 @@
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen
+} from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { App } from "./App";
 
@@ -81,9 +87,9 @@ describe("App choreography wiring", () => {
       screen.getByTestId("speech-pill").getAttribute("data-floating-loop")
     ).toBe("loop");
     expect(
-      screen.getByTestId("speech-pill").getAttribute(
-        "data-floating-amplitude-px"
-      )
+      screen
+        .getByTestId("speech-pill")
+        .getAttribute("data-floating-amplitude-px")
     ).toBe("1.6");
     expect(
       screen.getByTestId("concierge-avatar").getAttribute("data-avatar-asset")
@@ -111,9 +117,7 @@ describe("App choreography wiring", () => {
     });
     fireEvent.click(screen.getByText("기존 환자 재방문을 높이고 싶어요"));
 
-    expect(
-      screen.queryByRole("button", { name: "상담 신청하기" })
-    ).toBeNull();
+    expect(screen.queryByRole("button", { name: "상담 신청하기" })).toBeNull();
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(9000);

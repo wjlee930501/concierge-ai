@@ -72,14 +72,14 @@ Week 1에서 source data 전에는 금지되는 범위:
 
 ## 4. 주차별 blocker vs non-blocking 가정
 
-| Week | Blocker | Non-blocking 가정 |
-|---|---|---|
+| Week   | Blocker                                                                                                                                                                                                                                            | Non-blocking 가정                                                                                                                                                               |
+| ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Week 1 | postMessage envelope 6필드, origin allowlist 형식/env 분기, iframe sandbox 기본 정책, reduced-motion 분기, choreographer race test 5종, secret hygiene. `ortho_revisit_v1` hard-code merge 전에는 5-step source data와 Quick Chip final copy 필요. | v1.0 원문 물리적 부재는 FINAL_ALIGNMENT로 보강. 시나리오는 섹션 번호가 아니라 scenario ID로 참조. production origin 실값은 후속 확정. cost 자동 차단은 아직 수동 ledger로 시작. |
-| Week 2 | AI tool 7종 schema/실패 동작/prompt cache, safety_response 5종 enum/한국어 카피/owner, Approved Knowledge 3겹 차단, KB ingestion sanitization. | provider 세부 구현은 contract가 고정되면 후속 교체 가능. Admin UI는 blocker 아님. |
-| Week 3 | PIPA 동의 3종 final copy, 보관 기간, 삭제/열람 경로, Slack staging/mock 분리, Supabase schema/RLS/retention/audit log. | Week 4 Admin 세부 RBAC는 Lead Form merge blocker가 아니나 Admin 착수 전 필요. |
-| Week 4 | Admin RBAC, CSRF, idle timeout, API auth, SQL injection 방어, audit log, runtime staging/prod 접근 차단. | Golden screenshot 1% 기준과 위험 답변 30건 suite는 Week 5 blocker. |
-| Week 5 | Golden screenshot mask/threshold, 위험 답변 30건 expected reason, mobile bottom sheet/safe-area, A/B 이벤트 PII 제거, production-readiness checklist. | 최종 KPI/sunset 수치는 Week 6 전 확정 가능하나 측정 인프라는 유지해야 한다. |
-| Week 6 | nightly 회귀 7일 green, KPI raw data, sunset 판단 정량 임계, 인수인계 산출물 정합성. | 없음. 미해결이면 PoC 종료/merge 판단을 보류한다. |
+| Week 2 | AI tool 7종 schema/실패 동작/prompt cache, safety_response 5종 enum/한국어 카피/owner, Approved Knowledge 3겹 차단, KB ingestion sanitization.                                                                                                     | provider 세부 구현은 contract가 고정되면 후속 교체 가능. Admin UI는 blocker 아님.                                                                                               |
+| Week 3 | PIPA 동의 3종 final copy, 보관 기간, 삭제/열람 경로, Slack staging/mock 분리, Supabase schema/RLS/retention/audit log.                                                                                                                             | Week 4 Admin 세부 RBAC는 Lead Form merge blocker가 아니나 Admin 착수 전 필요.                                                                                                   |
+| Week 4 | Admin RBAC, CSRF, idle timeout, API auth, SQL injection 방어, audit log, runtime staging/prod 접근 차단.                                                                                                                                           | Golden screenshot 1% 기준과 위험 답변 30건 suite는 Week 5 blocker.                                                                                                              |
+| Week 5 | Golden screenshot mask/threshold, 위험 답변 30건 expected reason, mobile bottom sheet/safe-area, A/B 이벤트 PII 제거, production-readiness checklist.                                                                                              | 최종 KPI/sunset 수치는 Week 6 전 확정 가능하나 측정 인프라는 유지해야 한다.                                                                                                     |
+| Week 6 | nightly 회귀 7일 green, KPI raw data, sunset 판단 정량 임계, 인수인계 산출물 정합성.                                                                                                                                                               | 없음. 미해결이면 PoC 종료/merge 판단을 보류한다.                                                                                                                                |
 
 ---
 
@@ -180,23 +180,23 @@ Week 1에서 source data 전에는 금지되는 범위:
 
 아래 표는 합의문 원본의 blocker 목록이며, 최종 날짜나 승인 여부는 source data 없이 확정하지 않는다. v1.2 §25에서 정식 확정된 결정 (Re:putation/NMOS guard 폐기 / 5 visitor view 유지 / 시나리오 Re:Visit·New:Visit 2종) 은 PRD v1.2 본문에 반영됐다.
 
-| 항목 | 상태 | Owner | Deadline |
-|---|---|---|---|
-| PRD v1.0 원문 통합 또는 v1.2 흡수본 작성 여부 | 미정 | [Woojin/TBD] | [YYYY-MM-DD] |
-| `ortho_revisit_v1` 5-step source data와 Quick Chip final copy | Week 1 Reviewable blocker | [Woojin/TBD] | [YYYY-MM-DD] |
-| 나머지 4개 시나리오와 5번째 미정 시나리오 catalog | Week 3 Reviewable blocker | [Woojin/TBD] | [YYYY-MM-DD] |
-| AI tool 7종 schema/실패 동작/prompt cache 정책 | Week 2 Reviewable blocker | [Claude Code draft / Woojin approve / Codex CLI·OMX review] | [YYYY-MM-DD] |
-| safety_response 5종 enum/한국어 카피/owner | Week 2 Reviewable blocker | [Woojin/TBD] | [YYYY-MM-DD] |
-| Approved Knowledge 원본, 승인 workflow, KB 외 답변 차단 기준 | Week 2 Reviewable blocker | [Woojin/TBD] | [YYYY-MM-DD] |
-| PIPA 동의 3종 final copy, 보관 기간, 삭제/열람 경로 | Week 3 Reviewable blocker | [Woojin/TBD] | [YYYY-MM-DD] |
-| Supabase schema, RLS, retention job, audit log | Week 3 Reviewable blocker | [Claude Code draft / Woojin approve / Codex CLI·OMX review] | [YYYY-MM-DD] |
-| Admin RBAC role, CSRF, idle timeout 값 | Week 4 Reviewable blocker | [Woojin/TBD] | [YYYY-MM-DD] |
-| Hero Bubble handshake payload의 식별자 포함 여부 | Week 1 scaffold review 확인 | [Codex draft / Claude review] | [YYYY-MM-DD] |
-| Golden screenshot mask/threshold 정책 | Week 5 Reviewable blocker | [Codex draft / Claude review / Woojin approve] | [YYYY-MM-DD] |
-| 위험 답변 30건 suite와 expected reason 매핑 | Week 5 Reviewable blocker | [Woojin/TBD] | [YYYY-MM-DD] |
-| Cost cap 자동 차단 위치(workflow/dashboard/alert) | Computer-Use workflow 도입 전 결정 | [Codex draft / Woojin approve] | [YYYY-MM-DD] |
-| CHANGELOG 운영 문구를 AGENTS.md에 명문화할지 여부 | 별도 docs PR | [Woojin/TBD] | [YYYY-MM-DD] |
-| lead conversion, unsafe rate, latency, cost ceiling, sunset 정량 임계 | Week 6 Mergeable blocker | [Woojin/TBD] | [YYYY-MM-DD] |
+| 항목                                                                  | 상태                               | Owner                                                       | Deadline     |
+| --------------------------------------------------------------------- | ---------------------------------- | ----------------------------------------------------------- | ------------ |
+| PRD v1.0 원문 통합 또는 v1.2 흡수본 작성 여부                         | 미정                               | [Woojin/TBD]                                                | [YYYY-MM-DD] |
+| `ortho_revisit_v1` 5-step source data와 Quick Chip final copy         | Week 1 Reviewable blocker          | [Woojin/TBD]                                                | [YYYY-MM-DD] |
+| 나머지 4개 시나리오와 5번째 미정 시나리오 catalog                     | Week 3 Reviewable blocker          | [Woojin/TBD]                                                | [YYYY-MM-DD] |
+| AI tool 7종 schema/실패 동작/prompt cache 정책                        | Week 2 Reviewable blocker          | [Claude Code draft / Woojin approve / Codex CLI·OMX review] | [YYYY-MM-DD] |
+| safety_response 5종 enum/한국어 카피/owner                            | Week 2 Reviewable blocker          | [Woojin/TBD]                                                | [YYYY-MM-DD] |
+| Approved Knowledge 원본, 승인 workflow, KB 외 답변 차단 기준          | Week 2 Reviewable blocker          | [Woojin/TBD]                                                | [YYYY-MM-DD] |
+| PIPA 동의 3종 final copy, 보관 기간, 삭제/열람 경로                   | Week 3 Reviewable blocker          | [Woojin/TBD]                                                | [YYYY-MM-DD] |
+| Supabase schema, RLS, retention job, audit log                        | Week 3 Reviewable blocker          | [Claude Code draft / Woojin approve / Codex CLI·OMX review] | [YYYY-MM-DD] |
+| Admin RBAC role, CSRF, idle timeout 값                                | Week 4 Reviewable blocker          | [Woojin/TBD]                                                | [YYYY-MM-DD] |
+| Hero Bubble handshake payload의 식별자 포함 여부                      | Week 1 scaffold review 확인        | [Codex draft / Claude review]                               | [YYYY-MM-DD] |
+| Golden screenshot mask/threshold 정책                                 | Week 5 Reviewable blocker          | [Codex draft / Claude review / Woojin approve]              | [YYYY-MM-DD] |
+| 위험 답변 30건 suite와 expected reason 매핑                           | Week 5 Reviewable blocker          | [Woojin/TBD]                                                | [YYYY-MM-DD] |
+| Cost cap 자동 차단 위치(workflow/dashboard/alert)                     | Computer-Use workflow 도입 전 결정 | [Codex draft / Woojin approve]                              | [YYYY-MM-DD] |
+| CHANGELOG 운영 문구를 AGENTS.md에 명문화할지 여부                     | 별도 docs PR                       | [Woojin/TBD]                                                | [YYYY-MM-DD] |
+| lead conversion, unsafe rate, latency, cost ceiling, sunset 정량 임계 | Week 6 Mergeable blocker           | [Woojin/TBD]                                                | [YYYY-MM-DD] |
 
 ---
 

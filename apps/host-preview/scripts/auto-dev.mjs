@@ -17,7 +17,10 @@ function detectCase() {
     return "next";
   }
 
-  if (existsSync(resolve(hostDir, "vite.config.js")) || existsSync(resolve(hostDir, "vite.config.ts"))) {
+  if (
+    existsSync(resolve(hostDir, "vite.config.js")) ||
+    existsSync(resolve(hostDir, "vite.config.ts"))
+  ) {
     return "vite";
   }
 
@@ -35,14 +38,20 @@ const scriptMap = { static: "dev:static", next: "dev:next", vite: "dev:vite" };
 const script = scriptMap[detected];
 
 if (script === undefined) {
-  console.error("[host-preview] unsupported host case. Use dev:static / dev:next / dev:vite manually.");
+  console.error(
+    "[host-preview] unsupported host case. Use dev:static / dev:next / dev:vite manually."
+  );
   process.exit(1);
 }
 
-const child = spawn("npm", ["run", script, "--workspace=@conciergeai/host-preview"], {
-  cwd: repoRoot,
-  stdio: "inherit"
-});
+const child = spawn(
+  "npm",
+  ["run", script, "--workspace=@conciergeai/host-preview"],
+  {
+    cwd: repoRoot,
+    stdio: "inherit"
+  }
+);
 
 child.on("exit", (code, signal) => {
   if (signal !== null) {

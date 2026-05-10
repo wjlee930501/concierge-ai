@@ -28,12 +28,10 @@ export default defineConfig({
       reuseExistingServer: false
     },
     {
-      command:
-        "npx vite tests/e2e/fixtures --host 127.0.0.1 --port 5181 --strictPort",
-      url: "http://127.0.0.1:5181/",
+      command: "npx vite apps/embed --host 127.0.0.1 --port 5181 --strictPort",
+      url: "http://127.0.0.1:5181/host-fixture.html",
       timeout: 120_000,
       reuseExistingServer: false
     }
   ]
 });
-

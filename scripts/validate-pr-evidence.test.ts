@@ -58,9 +58,7 @@ describe("validate-pr-evidence CLI", () => {
   });
 
   it("fails on a markdown file missing required sections and cost ledger keys", async () => {
-    const fixtureDir = await mkdtemp(
-      path.join(repoRoot, ".tmp-pr-evidence-")
-    );
+    const fixtureDir = await mkdtemp(path.join(repoRoot, ".tmp-pr-evidence-"));
     const fixturePath = path.join(fixtureDir, "invalid_pr_template.md");
     const invalidMarkdown = [
       "## Scope",
@@ -98,9 +96,7 @@ describe("validate-pr-evidence CLI", () => {
   });
 
   it("fails when PRD, test, or Computer-Use evidence field labels are missing", async () => {
-    const fixtureDir = await mkdtemp(
-      path.join(repoRoot, ".tmp-pr-evidence-")
-    );
+    const fixtureDir = await mkdtemp(path.join(repoRoot, ".tmp-pr-evidence-"));
     const fixturePath = path.join(fixtureDir, "missing_evidence_fields.md");
     const markdown = [
       "## Scope",
@@ -165,13 +161,13 @@ describe("validate-pr-evidence CLI", () => {
 
     const nonMarkdownResult = await runValidator(["package.json"]);
     expect(nonMarkdownResult.exitCode).toBe(2);
-    expect(nonMarkdownResult.stderr).toContain("target path must be a markdown file");
+    expect(nonMarkdownResult.stderr).toContain(
+      "target path must be a markdown file"
+    );
   });
 
   it("rejects workspace-local markdown symlinks before reading", async () => {
-    const fixtureDir = await mkdtemp(
-      path.join(repoRoot, ".tmp-pr-evidence-")
-    );
+    const fixtureDir = await mkdtemp(path.join(repoRoot, ".tmp-pr-evidence-"));
     const symlinkPath = path.join(fixtureDir, "linked-template.md");
 
     try {
@@ -186,9 +182,7 @@ describe("validate-pr-evidence CLI", () => {
   });
 
   it("rejects paths that traverse through a symlinked directory outside the workspace", async () => {
-    const fixtureDir = await mkdtemp(
-      path.join(repoRoot, ".tmp-pr-evidence-")
-    );
+    const fixtureDir = await mkdtemp(path.join(repoRoot, ".tmp-pr-evidence-"));
     const outsideDir = await mkdtemp(
       path.join(tmpdir(), "conciergeai-pr-evidence-outside-")
     );
@@ -198,7 +192,9 @@ describe("validate-pr-evidence CLI", () => {
     try {
       await writeFile(outsideMarkdown, "## Scope\n", "utf8");
       await symlink(outsideDir, symlinkedDir);
-      const result = await runValidator([path.join(symlinkedDir, "outside-template.md")]);
+      const result = await runValidator([
+        path.join(symlinkedDir, "outside-template.md")
+      ]);
 
       expect(result.exitCode).toBe(2);
       expect(result.stderr).toContain(
@@ -211,9 +207,7 @@ describe("validate-pr-evidence CLI", () => {
   });
 
   it("rejects paths that traverse through a symlinked directory into an in-workspace .env* directory", async () => {
-    const fixtureDir = await mkdtemp(
-      path.join(repoRoot, ".tmp-pr-evidence-")
-    );
+    const fixtureDir = await mkdtemp(path.join(repoRoot, ".tmp-pr-evidence-"));
     const envLikeDir = path.join(fixtureDir, ".env.fixture");
     const symlinkedDir = path.join(fixtureDir, "safe-looking-dir");
 
@@ -224,16 +218,16 @@ describe("validate-pr-evidence CLI", () => {
       const result = await runValidator([path.join(symlinkedDir, "body.md")]);
 
       expect(result.exitCode).toBe(2);
-      expect(result.stderr).toContain("target real path must not reference .env*");
+      expect(result.stderr).toContain(
+        "target real path must not reference .env*"
+      );
     } finally {
       await rm(fixtureDir, { force: true, recursive: true });
     }
   });
 
   it("fails when a required H2 heading appears more than once", async () => {
-    const fixtureDir = await mkdtemp(
-      path.join(repoRoot, ".tmp-pr-evidence-")
-    );
+    const fixtureDir = await mkdtemp(path.join(repoRoot, ".tmp-pr-evidence-"));
     const fixturePath = path.join(fixtureDir, "duplicate_heading.md");
     const markdown = [
       "## Scope",
@@ -274,9 +268,7 @@ describe("validate-pr-evidence CLI", () => {
   });
 
   it("does not count required headings or cost ledger keys that appear only inside fenced code blocks", async () => {
-    const fixtureDir = await mkdtemp(
-      path.join(repoRoot, ".tmp-pr-evidence-")
-    );
+    const fixtureDir = await mkdtemp(path.join(repoRoot, ".tmp-pr-evidence-"));
     const fixturePath = path.join(fixtureDir, "fenced_only.md");
     const markdown = [
       "## Scope",
@@ -320,9 +312,7 @@ describe("validate-pr-evidence CLI", () => {
   });
 
   it("ignores cost ledger key labels that appear only inside fenced code blocks within the section", async () => {
-    const fixtureDir = await mkdtemp(
-      path.join(repoRoot, ".tmp-pr-evidence-")
-    );
+    const fixtureDir = await mkdtemp(path.join(repoRoot, ".tmp-pr-evidence-"));
     const fixturePath = path.join(fixtureDir, "fenced_keys.md");
     const markdown = [
       "## Scope",
@@ -372,9 +362,7 @@ describe("validate-pr-evidence CLI", () => {
   });
 
   it("accepts CRLF line endings without altering structural detection", async () => {
-    const fixtureDir = await mkdtemp(
-      path.join(repoRoot, ".tmp-pr-evidence-")
-    );
+    const fixtureDir = await mkdtemp(path.join(repoRoot, ".tmp-pr-evidence-"));
     const fixturePath = path.join(fixtureDir, "crlf_template.md");
     const markdown = [
       "## Scope",
@@ -418,9 +406,7 @@ describe("validate-pr-evidence CLI", () => {
   });
 
   it("redacts markdown body and non-required inline tokens from failure output", async () => {
-    const fixtureDir = await mkdtemp(
-      path.join(repoRoot, ".tmp-pr-evidence-")
-    );
+    const fixtureDir = await mkdtemp(path.join(repoRoot, ".tmp-pr-evidence-"));
     const fixturePath = path.join(fixtureDir, "malicious_body.md");
     const secretShapedToken = "secret-shaped-test-only-output-boundary-token";
     const bodyLine = "DO_NOT_ECHO_MARKDOWN_BODY_CONTENT";
@@ -458,7 +444,9 @@ describe("validate-pr-evidence CLI", () => {
 
     const unknownArgResult = await runValidator(["--bad\npath.md"]);
     expect(unknownArgResult.exitCode).toBe(2);
-    expect(unknownArgResult.stderr).toContain("unknown argument: --bad?path.md");
+    expect(unknownArgResult.stderr).toContain(
+      "unknown argument: --bad?path.md"
+    );
     expect(unknownArgResult.stderr).not.toContain("--bad\npath.md");
   });
 });

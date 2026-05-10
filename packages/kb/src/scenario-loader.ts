@@ -1,7 +1,4 @@
-import {
-  safeParseScenario,
-  type Scenario
-} from "@conciergeai/shared";
+import { safeParseScenario, type Scenario } from "@conciergeai/shared";
 
 export type LoadScenarioResult =
   | { readonly ok: true; readonly scenario: Scenario }

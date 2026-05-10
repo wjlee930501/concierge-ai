@@ -12,18 +12,23 @@ import {
   detectInjection,
   SAFETY_RESPONSE_DEFAULT_COPY
 } from "@conciergeai/shared";
-import {
-  conciergeIntentToChipId,
-  routeConciergeIntent
-} from "./intentRouter";
+import { conciergeIntentToChipId, routeConciergeIntent } from "./intentRouter";
 
 export type AiSuggestion =
-  | { readonly kind: "navigate"; readonly chipId: string; readonly label: string }
+  | {
+      readonly kind: "navigate";
+      readonly chipId: string;
+      readonly label: string;
+    }
   | { readonly kind: "safety"; readonly reason: SafetyResponseReason };
 
 export type AiStreamEvent =
   | { readonly type: "chunk"; readonly text: string }
-  | { readonly type: "done"; readonly fullText: string; readonly suggestion: AiSuggestion };
+  | {
+      readonly type: "done";
+      readonly fullText: string;
+      readonly suggestion: AiSuggestion;
+    };
 
 export type StreamMockAiInput = {
   readonly query: string;

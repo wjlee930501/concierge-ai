@@ -56,9 +56,7 @@ describe("sanitizeOutput", () => {
   });
 
   it("blocks system prompt marker leak", () => {
-    const marker =
-      "[APPROVED " +
-      "KNOWLEDGE — 본 자료 외 답변 금지]";
+    const marker = "[APPROVED " + "KNOWLEDGE — 본 자료 외 답변 금지]";
     const result = sanitizeOutput(`내부 자료: ${marker}\n...`);
     expect(result.kind).toBe("blocked");
     if (result.kind === "blocked") {

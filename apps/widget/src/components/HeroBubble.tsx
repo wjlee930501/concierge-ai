@@ -158,110 +158,110 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
                     }
               }
             >
-            {/* AI streaming response (only during free-input thinking/replying) */}
-            {showAiBubble ? (
-              <div className="w-full max-w-[440px]">
-                <AiSpeechBubble
-                  text={aiText}
-                  isStreaming={props.freeInput.mode === "thinking"}
-                  {...(props.freeInput.suggestion?.kind === "navigate"
-                    ? { suggestionLabel: props.freeInput.suggestion.label }
-                    : {})}
-                  {...(props.freeInput.mode === "replying" &&
-                  props.freeInput.suggestion?.kind === "navigate"
-                    ? { onAcceptSuggestion: props.onAcceptSuggestion }
-                    : {})}
-                  onDismiss={props.onDismissSuggestion}
-                />
-              </div>
-            ) : null}
+              {/* AI streaming response (only during free-input thinking/replying) */}
+              {showAiBubble ? (
+                <div className="w-full max-w-[440px]">
+                  <AiSpeechBubble
+                    text={aiText}
+                    isStreaming={props.freeInput.mode === "thinking"}
+                    {...(props.freeInput.suggestion?.kind === "navigate"
+                      ? { suggestionLabel: props.freeInput.suggestion.label }
+                      : {})}
+                    {...(props.freeInput.mode === "replying" &&
+                    props.freeInput.suggestion?.kind === "navigate"
+                      ? { onAcceptSuggestion: props.onAcceptSuggestion }
+                      : {})}
+                    onDismiss={props.onDismissSuggestion}
+                  />
+                </div>
+              ) : null}
 
-            {/* Choice chips (above the speech pill) */}
-            {props.bubbleVisible &&
-            props.choices.length > 0 &&
-            !showFreeInput ? (
-              <QuickChips
-                chips={props.choices}
-                onSelect={props.onSelectChoice}
-                {...(props.activeChoiceId !== undefined
-                  ? { activeChipId: props.activeChoiceId }
-                  : {})}
-              />
-            ) : null}
-
-            {/* Free input (replaces chips when open) */}
-            {props.bubbleVisible && showFreeInput ? (
-              <div className="w-full max-w-[440px]">
-                <FreeInputBar
-                  disabled={freeInputDisabled}
-                  placeholder="무엇이 궁금하세요?"
-                  draft={props.freeInput.draft}
-                  onChangeDraft={props.onChangeDraft}
-                  onSubmit={props.onSubmitFreeInput}
-                />
-              </div>
-            ) : null}
-
-            {/* Main speech pill: avatar + dark bubble */}
-            <div className="flex items-center gap-2.5">
-              <Avatar
-                point={props.avatarPoint}
-                mood={props.avatarMood}
-                expression={props.avatarExpression}
-                tilt={props.avatarTilt}
-              />
-              {props.bubbleVisible ? (
-                <SpeechPill
-                  stacked={stackedBubble}
-                  reduced={reduced}
-                  currentAnchor={props.currentAnchor}
-                  section={props.section}
-                  message={props.message}
-                  {...(props.variantSuffix !== undefined &&
-                  props.variantSuffix !== null
-                    ? { variantSuffix: props.variantSuffix }
+              {/* Choice chips (above the speech pill) */}
+              {props.bubbleVisible &&
+              props.choices.length > 0 &&
+              !showFreeInput ? (
+                <QuickChips
+                  chips={props.choices}
+                  onSelect={props.onSelectChoice}
+                  {...(props.activeChoiceId !== undefined
+                    ? { activeChipId: props.activeChoiceId }
                     : {})}
-                  isPlaceholderScenario={props.isPlaceholderScenario}
                 />
               ) : null}
-            </div>
 
-            {/* Toggle row: back + free input toggle */}
-            {props.bubbleVisible ? (
-              <div className="flex items-center justify-center gap-2">
-                {props.canGoBack ? (
-                  <button
-                    type="button"
-                    className="rounded-full bg-white/80 px-3 py-1 text-[11px] font-bold text-mist shadow-[0_4px_12px_rgba(7,20,39,0.08)] hover:text-ink"
-                    onClick={props.onBack}
-                    aria-label="이전 단계로"
-                  >
-                    ← 이전
-                  </button>
-                ) : null}
-                <button
-                  type="button"
-                  className="rounded-full bg-white/80 px-3 py-1 text-[11px] font-bold text-mist shadow-[0_4px_12px_rgba(7,20,39,0.08)] hover:text-ink"
-                  onClick={
-                    showFreeInput
-                      ? props.onCloseFreeInput
-                      : props.onOpenFreeInput
-                  }
-                >
-                  {showFreeInput ? "선택지로 돌아가기" : "직접 물어보기"}
-                </button>
-                {props.canDismiss ? (
-                  <button
-                    type="button"
-                    className="rounded-full bg-white/80 px-3 py-1 text-[11px] font-bold text-mist shadow-[0_4px_12px_rgba(7,20,39,0.08)] hover:text-ink"
-                    onClick={props.onDismiss}
-                    aria-label="안내 없이 그냥 둘러보기"
-                  >
-                    그냥 둘러보기
-                  </button>
+              {/* Free input (replaces chips when open) */}
+              {props.bubbleVisible && showFreeInput ? (
+                <div className="w-full max-w-[440px]">
+                  <FreeInputBar
+                    disabled={freeInputDisabled}
+                    placeholder="무엇이 궁금하세요?"
+                    draft={props.freeInput.draft}
+                    onChangeDraft={props.onChangeDraft}
+                    onSubmit={props.onSubmitFreeInput}
+                  />
+                </div>
+              ) : null}
+
+              {/* Main speech pill: avatar + dark bubble */}
+              <div className="flex items-center gap-2.5">
+                <Avatar
+                  point={props.avatarPoint}
+                  mood={props.avatarMood}
+                  expression={props.avatarExpression}
+                  tilt={props.avatarTilt}
+                />
+                {props.bubbleVisible ? (
+                  <SpeechPill
+                    stacked={stackedBubble}
+                    reduced={reduced}
+                    currentAnchor={props.currentAnchor}
+                    section={props.section}
+                    message={props.message}
+                    {...(props.variantSuffix !== undefined &&
+                    props.variantSuffix !== null
+                      ? { variantSuffix: props.variantSuffix }
+                      : {})}
+                    isPlaceholderScenario={props.isPlaceholderScenario}
+                  />
                 ) : null}
               </div>
-            ) : null}
+
+              {/* Toggle row: back + free input toggle */}
+              {props.bubbleVisible ? (
+                <div className="flex items-center justify-center gap-2">
+                  {props.canGoBack ? (
+                    <button
+                      type="button"
+                      className="rounded-full bg-white/80 px-3 py-1 text-[11px] font-bold text-mist shadow-[0_4px_12px_rgba(7,20,39,0.08)] hover:text-ink"
+                      onClick={props.onBack}
+                      aria-label="이전 단계로"
+                    >
+                      ← 이전
+                    </button>
+                  ) : null}
+                  <button
+                    type="button"
+                    className="rounded-full bg-white/80 px-3 py-1 text-[11px] font-bold text-mist shadow-[0_4px_12px_rgba(7,20,39,0.08)] hover:text-ink"
+                    onClick={
+                      showFreeInput
+                        ? props.onCloseFreeInput
+                        : props.onOpenFreeInput
+                    }
+                  >
+                    {showFreeInput ? "선택지로 돌아가기" : "직접 물어보기"}
+                  </button>
+                  {props.canDismiss ? (
+                    <button
+                      type="button"
+                      className="rounded-full bg-white/80 px-3 py-1 text-[11px] font-bold text-mist shadow-[0_4px_12px_rgba(7,20,39,0.08)] hover:text-ink"
+                      onClick={props.onDismiss}
+                      aria-label="안내 없이 그냥 둘러보기"
+                    >
+                      그냥 둘러보기
+                    </button>
+                  ) : null}
+                </div>
+              ) : null}
             </motion.div>
           </div>
         </motion.section>
@@ -335,7 +335,9 @@ function SpeechPill(props: {
       layout
       data-testid="speech-pill"
       data-polish-breathing={breathing ? "true" : "false"}
-      data-floating-loop={breathing ? SPEECH_FLOAT_TRANSITION.repeatType : "off"}
+      data-floating-loop={
+        breathing ? SPEECH_FLOAT_TRANSITION.repeatType : "off"
+      }
       data-floating-amplitude-px={SPEECH_FLOAT_AMPLITUDE_PX}
       data-tail-anchor={props.currentAnchor}
       className={`relative max-w-[460px] ${radius} bg-ink/95 px-4 py-3 text-white shadow-[0_18px_40px_rgba(7,20,39,0.35)] backdrop-blur`}

@@ -29,12 +29,7 @@ describe("design polish contract verifier", () => {
       ])
     );
     expect(evidence.leadFieldIds).toEqual(
-      expect.arrayContaining([
-        "hospitalName",
-        "name",
-        "phone",
-        "interestArea"
-      ])
+      expect.arrayContaining(["hospitalName", "name", "phone", "interestArea"])
     );
     expect(evidence.stagingChecklistItems).toBeGreaterThanOrEqual(10);
 

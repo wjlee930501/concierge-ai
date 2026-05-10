@@ -182,7 +182,10 @@
         "options": [
           { "value": "revisit", "label": "Re:Visit - 기존 환자 재방문" },
           { "value": "newvisit", "label": "New:Visit / Re:Solve - 신환 유치" },
-          { "value": "px_intelligence", "label": "PX Intelligence - 데이터 기반 경영" },
+          {
+            "value": "px_intelligence",
+            "label": "PX Intelligence - 데이터 기반 경영"
+          },
           { "value": "pricing", "label": "가격 / 도입 범위" },
           { "value": "partnership", "label": "파트너십" },
           { "value": "other", "label": "기타" }

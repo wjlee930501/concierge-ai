@@ -3,6 +3,7 @@ import {
   anchorToPoint,
   executeStep,
   isOriginAllowed,
+  POST_MESSAGE_LEAD_SUBMITTED_TYPE,
   type AnchorName,
   type AnchorPoint,
   type AvatarExpressionName,
@@ -21,6 +22,7 @@ import { isLeadDraftSubmittable } from "./state/scenarioRunner";
 import { useScenarioRunner } from "./state/useScenarioRunner";
 import { useIframeHitbox } from "./state/useIframeHitbox";
 import { buildVariantGreetingSuffix } from "./state/pageContext";
+import { postWidgetMessageToParent } from "./state/widgetPostMessage";
 import { readConciergeRuntimeConfig } from "./config/runtime";
 import {
   createHostDriverBridge,
@@ -112,7 +114,15 @@ export function App(): JSX.Element {
     if (payload === undefined) return;
     window.__CONCIERGE_LAST_MOCK_LEAD__ = payload;
     console.info("[concierge-ai] mock lead submit", payload);
-  }, [state.submission?.payload]);
+    if (typeof window !== "undefined" && window.parent !== window) {
+      postWidgetMessageToParent({
+        targetWindow: window.parent,
+        parentOrigin,
+        type: POST_MESSAGE_LEAD_SUBMITTED_TYPE,
+        payload: { lead: payload }
+      });
+    }
+  }, [parentOrigin, state.submission?.payload]);
 
   const usedChipIds = useMemo(() => {
     const ids = new Set<string>();
@@ -130,7 +140,7 @@ export function App(): JSX.Element {
   const message =
     stepNode !== null
       ? isCurrentStepChoreography
-        ? choreographyUi.bubbleMessage ?? stepNode.popover.body
+        ? (choreographyUi.bubbleMessage ?? stepNode.popover.body)
         : stepNode.popover.title
       : scenario.heroBubble.message;
   const section =
@@ -163,7 +173,7 @@ export function App(): JSX.Element {
   const hitboxSignal = `${state.phase.kind}:${choreographyUi.anchor}:${choreographyUi.bubbleVisible}:${choices.map((choice) => choice.id).join(",")}:${message}:${state.submitError ?? ""}`;
 
   useIframeHitbox({
-    enabled: parentOrigin !== null,
+    enabled: true,
     targetOrigin: parentOrigin,
     signal: hitboxSignal
   });
@@ -215,7 +225,7 @@ export function App(): JSX.Element {
         targetWindow: window.parent,
         listenWindow: window,
         sourceWindow: window.parent,
-        targetOrigin: "*",
+        targetOrigin,
         allowedOrigins: [targetOrigin],
         onSectionNotFound: (payload) => {
           if (payload.selector === stepNode.spotlightTarget) {

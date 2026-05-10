@@ -1,9 +1,6 @@
 import { useEffect } from "react";
-import {
-  POST_MESSAGE_IFRAME_HITBOX_TYPE,
-  POST_MESSAGE_WIDGET_SOURCE,
-  createPostMessageEnvelope
-} from "@conciergeai/shared";
+import { POST_MESSAGE_IFRAME_HITBOX_TYPE } from "@conciergeai/shared";
+import { postWidgetMessageToParent } from "./widgetPostMessage";
 
 export type UseIframeHitboxInput = {
   readonly enabled: boolean;
@@ -18,7 +15,6 @@ export function useIframeHitbox(input: UseIframeHitboxInput): void {
   useEffect(() => {
     if (
       !input.enabled ||
-      input.targetOrigin === null ||
       typeof window === "undefined" ||
       window.parent === window ||
       typeof window.parent.postMessage !== "function"
@@ -40,15 +36,12 @@ export function useIframeHitbox(input: UseIframeHitboxInput): void {
         },
         padding: HITBOX_PADDING_PX
       };
-      window.parent.postMessage(
-        createPostMessageEnvelope({
-          type: POST_MESSAGE_IFRAME_HITBOX_TYPE,
-          nonce: generateNonce(),
-          source: POST_MESSAGE_WIDGET_SOURCE,
-          payload
-        }),
-        "*"
-      );
+      postWidgetMessageToParent({
+        targetWindow: window.parent,
+        parentOrigin: input.targetOrigin,
+        type: POST_MESSAGE_IFRAME_HITBOX_TYPE,
+        payload
+      });
     };
 
     const schedule = () => {
@@ -89,7 +82,9 @@ function readHitboxRect(): {
   readonly width: number;
   readonly height: number;
 } | null {
-  const rects = Array.from(document.querySelectorAll<HTMLElement>(HITBOX_SELECTOR))
+  const rects = Array.from(
+    document.querySelectorAll<HTMLElement>(HITBOX_SELECTOR)
+  )
     .filter((node) => isVisible(node))
     .map((node) => node.getBoundingClientRect())
     .filter((rect) => rect.width > 0 && rect.height > 0);
@@ -115,14 +110,4 @@ function isVisible(node: HTMLElement): boolean {
     style.visibility !== "hidden" &&
     style.opacity !== "0"
   );
-}
-
-function generateNonce(): string {
-  if (
-    typeof globalThis.crypto !== "undefined" &&
-    typeof globalThis.crypto.randomUUID === "function"
-  ) {
-    return globalThis.crypto.randomUUID();
-  }
-  return `iframe-hitbox-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }

@@ -37,33 +37,34 @@ export const TIER1_AVATAR_EXPRESSIONS: readonly AvatarTier1Expression[] = [
   "thinking"
 ];
 
-const TIER1_ASSETS: Readonly<Record<AvatarTier1Expression, AvatarExpressionAsset>> =
-  Object.freeze({
-    neutral: {
-      id: "neutral",
-      avif: neutralAvif,
-      webp: neutralWebp,
-      objectPosition: "center center"
-    },
-    smile: {
-      id: "smile",
-      avif: smileAvif,
-      webp: smileWebp,
-      objectPosition: "center center"
-    },
-    surprise: {
-      id: "surprise",
-      avif: surpriseAvif,
-      webp: surpriseWebp,
-      objectPosition: "center center"
-    },
-    thinking: {
-      id: "thinking",
-      avif: thinkingAvif,
-      webp: thinkingWebp,
-      objectPosition: "center center"
-    }
-  });
+const TIER1_ASSETS: Readonly<
+  Record<AvatarTier1Expression, AvatarExpressionAsset>
+> = Object.freeze({
+  neutral: {
+    id: "neutral",
+    avif: neutralAvif,
+    webp: neutralWebp,
+    objectPosition: "center center"
+  },
+  smile: {
+    id: "smile",
+    avif: smileAvif,
+    webp: smileWebp,
+    objectPosition: "center center"
+  },
+  surprise: {
+    id: "surprise",
+    avif: surpriseAvif,
+    webp: surpriseWebp,
+    objectPosition: "center center"
+  },
+  thinking: {
+    id: "thinking",
+    avif: thinkingAvif,
+    webp: thinkingWebp,
+    objectPosition: "center center"
+  }
+});
 
 export const AVATAR_EXPRESSION_ASSETS: Readonly<
   Record<AvatarExpression, AvatarExpressionAsset>

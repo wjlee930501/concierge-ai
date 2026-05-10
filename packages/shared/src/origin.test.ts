@@ -41,15 +41,14 @@ describe("origin allowlist", () => {
     expect(() => toSafeTargetOrigin("https://*.example.test")).toThrow(
       OriginPolicyError
     );
-    expect(() => parseOriginAllowlist("https://staging.example.test,*")).toThrow(
-      OriginPolicyError
-    );
+    expect(() =>
+      parseOriginAllowlist("https://staging.example.test,*")
+    ).toThrow(OriginPolicyError);
   });
 
   it("returns a safe targetOrigin only when the origin is allowlisted", () => {
     const policy = createOriginPolicy({
-      allowedOrigins:
-        "https://staging.example.test http://localhost:5173"
+      allowedOrigins: "https://staging.example.test http://localhost:5173"
     });
 
     expect(policy.targetOriginFor("https://staging.example.test/page")).toBe(
@@ -73,9 +72,7 @@ describe("origin allowlist", () => {
     );
     expect(isOriginAllowed("null", allowedOrigins)).toBe(false);
     expect(() => toSafeTargetOrigin("null")).toThrow(OriginPolicyError);
-    expect(() => toSafeTargetOrigin("about:blank")).toThrow(
-      /Null\/opaque/u
-    );
+    expect(() => toSafeTargetOrigin("about:blank")).toThrow(/Null\/opaque/u);
   });
 
   it("requires https for staging, preview, and production origin policies", () => {
@@ -125,7 +122,10 @@ describe("origin allowlist", () => {
       ).not.toThrow();
 
       expect(() =>
-        assertOriginAllowedForEnvironment("https://staging.motion.test", environment)
+        assertOriginAllowedForEnvironment(
+          "https://staging.motion.test",
+          environment
+        )
       ).toThrow(/localhost, loopback, or \.example\.test/u);
     }
   });

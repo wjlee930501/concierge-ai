@@ -1,38 +1,416 @@
 <!doctype html>
 <html lang="ko">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Concierge AI — Host Page Fixture</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MotionLabs Embed PoC Fixture</title>
     <style>
-      body { margin: 0; font-family: -apple-system, "Apple SD Gothic Neo", Pretendard, sans-serif; }
-      .info { padding: 20px; max-width: 720px; margin: 40px auto; }
-      .info code { background: #f6f9ff; padding: 2px 6px; border-radius: 4px; }
+      :root {
+        color: #071427;
+        background: #f7fafc;
+        font-family:
+          Inter,
+          Pretendard,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+      }
+
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid rgba(7, 20, 39, 0.08);
+        background: rgba(255, 255, 255, 0.92);
+        padding: 18px clamp(20px, 6vw, 72px);
+        backdrop-filter: blur(12px);
+      }
+
+      header strong {
+        font-size: 16px;
+      }
+
+      header nav {
+        display: flex;
+        gap: 18px;
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      a,
+      button {
+        font: inherit;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      section {
+        min-height: 86vh;
+        padding: 90px clamp(20px, 7vw, 96px);
+      }
+
+      section:nth-child(even) {
+        background: #ffffff;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(280px, 0.8fr);
+        gap: 44px;
+        align-items: center;
+        max-width: 1120px;
+        margin: 0 auto;
+      }
+
+      .stack {
+        max-width: 1120px;
+        margin: 0 auto;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        border: 1px solid rgba(26, 86, 219, 0.18);
+        border-radius: 999px;
+        background: #ffffff;
+        padding: 6px 10px;
+        color: #1a56db;
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2 {
+        margin: 14px 0 0;
+        letter-spacing: -0.03em;
+        line-height: 1.08;
+      }
+
+      h1 {
+        max-width: 780px;
+        font-size: clamp(38px, 7vw, 76px);
+      }
+
+      h2 {
+        font-size: clamp(30px, 4vw, 48px);
+      }
+
+      p {
+        color: #3b4d68;
+        font-size: 16px;
+        line-height: 1.7;
+      }
+
+      .panel {
+        border: 1px solid rgba(7, 20, 39, 0.08);
+        border-radius: 20px;
+        background: #ffffff;
+        padding: 24px;
+        box-shadow: 0 18px 50px rgba(7, 20, 39, 0.08);
+      }
+
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+        margin-top: 34px;
+      }
+
+      .card {
+        border: 1px solid rgba(7, 20, 39, 0.08);
+        border-radius: 16px;
+        background: #ffffff;
+        padding: 20px;
+      }
+
+      .button {
+        display: inline-flex;
+        min-height: 42px;
+        align-items: center;
+        justify-content: center;
+        border: 0;
+        border-radius: 999px;
+        background: #071427;
+        color: #ffffff;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 900;
+        padding: 0 18px;
+      }
+
+      .button.secondary {
+        border: 1px solid rgba(7, 20, 39, 0.14);
+        background: #ffffff;
+        color: #071427;
+      }
+
+      .metric {
+        border-radius: 14px;
+        background: #f2f7fb;
+        padding: 16px;
+      }
+
+      .metric strong {
+        display: block;
+        color: #1a56db;
+        font-size: 30px;
+      }
+
+      .status {
+        position: fixed;
+        right: 16px;
+        bottom: 16px;
+        z-index: 4;
+        border: 1px solid rgba(7, 20, 39, 0.1);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.92);
+        padding: 8px 12px;
+        color: #40506a;
+        font-size: 12px;
+        font-weight: 800;
+        backdrop-filter: blur(8px);
+      }
+
+      #host-click-count,
+      #revisit-click-count {
+        margin-left: 10px;
+        color: #1a56db;
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      @media (max-width: 700px) {
+        header nav {
+          display: none;
+        }
+
+        section {
+          min-height: 78vh;
+          padding-block: 72px;
+        }
+
+        .grid,
+        .cards {
+          grid-template-columns: 1fr;
+        }
+      }
     </style>
   </head>
   <body>
-    <div class="info">
-      <h1>Concierge AI — Host Page Fixture</h1>
-      <p>이 페이지는 <code>embed.js</code>가 iframe을 정확히 주입하는지 확인하는 로컬 검증용 fixture입니다.</p>
-      <p>실행: <code>npm run build --workspace=@conciergeai/embed</code> 후 <code>apps/embed/dist/embed.js</code>가 만들어지면 별도 정적 서버로 본 fixture를 띄워 확인합니다.</p>
-      <p>Production motionlabs.kr 호스트는 staging 까지만 접근하고, 실 production URL은 source data 도착 후 결정됩니다 (FINAL_ALIGNMENT §3 / §8).</p>
+    <header>
+      <strong>MotionLabs</strong>
+      <nav aria-label="fixture navigation">
+        <a href="#hero">Hero</a>
+        <a href="#revisit">Re:Visit</a>
+        <a href="#newvisit">New:Visit</a>
+        <a href="#px-intelligence">PX Intelligence</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </header>
+
+    <main>
+      <section id="hero" data-concierge-section="hero">
+        <div class="grid">
+          <div>
+            <span class="eyebrow">MotionLabs</span>
+            <h1>환자 경험 관리가 곧 병원 경영입니다</h1>
+            <p>
+              컨시어지 위젯이 방문자의 관심사를 읽고 Re:Visit, New:Visit, PX
+              Intelligence, 상담 신청으로 이어지는 흐름을 안내합니다.
+            </p>
+            <button
+              type="button"
+              class="button"
+              data-testid="host-cta"
+              onclick="
+                incrementCounter('__HOST_CTA_CLICKS__', 'host-click-count')
+              "
+            >
+              호스트 CTA 클릭
+            </button>
+            <span id="host-click-count">0</span>
+          </div>
+          <div class="panel">
+            <h2>Guided Conversion Layer</h2>
+            <p>
+              iframe은 전체 화면이어도 실제 위젯 hitbox만 클릭을 받습니다. 이
+              CTA는 위젯이 열린 상태에서도 host click-through를 검증합니다.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="revisit" data-concierge-section="revisit">
+        <div class="grid">
+          <div>
+            <span class="eyebrow">Re:Visit</span>
+            <h2>기존 환자의 다음 방문을 설계합니다</h2>
+            <p>
+              진료 후 메시지, 리마인드, 재방문 타이밍을 병원별 환자 여정에 맞춰
+              자동화합니다.
+            </p>
+            <button
+              type="button"
+              class="button secondary"
+              data-testid="revisit-host-cta"
+              onclick="
+                incrementCounter(
+                  '__REVISIT_HOST_CTA_CLICKS__',
+                  'revisit-click-count'
+                )
+              "
+            >
+              Re:Visit CTA 클릭
+            </button>
+            <span id="revisit-click-count">0</span>
+          </div>
+          <div class="cards">
+            <div class="metric">
+              <strong>+18%</strong>
+              <span>재방문 캠페인 반응</span>
+            </div>
+            <div class="metric">
+              <strong>3단계</strong>
+              <span>진료 후 케어 플로우</span>
+            </div>
+            <div class="metric">
+              <strong>자동</strong>
+              <span>환자군별 메시지 분기</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="newvisit" data-concierge-section="newvisit">
+        <div class="stack">
+          <span class="eyebrow">New:Visit</span>
+          <h2>신환 유입과 예약 전환을 함께 봅니다</h2>
+          <p>
+            검색, 광고, 콘텐츠 유입에서 예약까지 이어지는 퍼널을 분석하고 병원
+            성장 과제에 맞는 액션을 큐레이션합니다.
+          </p>
+          <div class="cards">
+            <article class="card">
+              <h3>유입 진단</h3>
+              <p>채널별 신환 유입 품질과 이탈 지점을 확인합니다.</p>
+            </article>
+            <article class="card">
+              <h3>콘텐츠 연결</h3>
+              <p>방문자의 관심 증상과 진료 과목을 다음 행동으로 연결합니다.</p>
+            </article>
+            <article class="card">
+              <h3>예약 유도</h3>
+              <p>문의 직전의 망설임을 줄이는 CTA를 배치합니다.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="px-intelligence" data-concierge-section="px-intelligence">
+        <div class="grid">
+          <div>
+            <span class="eyebrow">PX Intelligence</span>
+            <h2>환자 경험 데이터를 경영 언어로 바꿉니다</h2>
+            <p>
+              리뷰, 문의, 재방문, 예약 데이터를 통합해 병원 운영자가 다음 개선
+              방향을 선택할 수 있도록 돕습니다.
+            </p>
+          </div>
+          <div class="panel">
+            <h3>Fixture 검증 포인트</h3>
+            <p>
+              위젯은 이 섹션으로 scroll/highlight 메시지를 보내고, host는
+              selector 기반으로 실제 DOM을 조작합니다.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact" data-concierge-section="contact">
+        <div class="stack">
+          <span class="eyebrow">Contact</span>
+          <h2>병원 상황을 남기면 상담 흐름으로 전환합니다</h2>
+          <p>
+            이번 PoC에서는 실제 CRM, Slack, Supabase로 전송하지 않고 mock lead
+            payload를 parent window가 수신했는지만 확인합니다.
+          </p>
+          <div class="panel">
+            <strong>마지막 lead payload</strong>
+            <pre id="lead-payload-preview">{}</pre>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div class="status">
+      Embed fixture:
+      <span data-testid="embed-host-ready">booting</span>
     </div>
+
+    <script>
+      window.__HOST_CTA_CLICKS__ = 0;
+      window.__REVISIT_HOST_CTA_CLICKS__ = 0;
+      window.__HOST_LAST_LEAD_PAYLOAD__ = null;
+
+      function incrementCounter(globalKey, elementId) {
+        window[globalKey] = (window[globalKey] || 0) + 1;
+        document.getElementById(elementId).textContent = String(
+          window[globalKey]
+        );
+      }
+    </script>
     <script src="./dist/embed.js"></script>
     <script>
       window.addEventListener("DOMContentLoaded", function () {
-        if (!window.Concierge || typeof window.Concierge.inject !== "function") {
-          console.error("[host-fixture] window.Concierge.inject is not available");
+        var ready = document.querySelector('[data-testid="embed-host-ready"]');
+        var injectConciergeWidget =
+          window.Concierge && window.Concierge.injectConciergeWidget;
+
+        if (typeof injectConciergeWidget !== "function") {
+          ready.textContent = "missing";
+          console.error(
+            "[host-fixture] injectConciergeWidget is not available"
+          );
           return;
         }
-        window.Concierge.inject({
+
+        var hostOrigin = window.location.origin;
+        window.__CONCIERGE_HOST_HANDLE__ = injectConciergeWidget({
           widgetSrc: "http://127.0.0.1:5173/",
-          allowedParentOrigins: ["http://127.0.0.1:5500", "http://localhost:5500"],
-          frameAncestors: ["http://127.0.0.1:5500", "http://localhost:5500"],
+          allowedParentOrigins: [hostOrigin],
+          frameAncestors: [hostOrigin],
           environment: "test",
           onReady: function (payload) {
-            console.log("[host-fixture] embed ready", payload);
+            console.log("[host-fixture] widget ready", payload);
+          },
+          onLeadSubmit: function (payload) {
+            window.__HOST_LAST_LEAD_PAYLOAD__ = payload;
+            document.getElementById("lead-payload-preview").textContent =
+              JSON.stringify(payload, null, 2);
           }
         });
+
+        ready.textContent = "ready";
       });
     </script>
   </body>

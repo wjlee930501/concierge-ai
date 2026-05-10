@@ -11,24 +11,26 @@
 
 ## 2. Parent-Page Access Matrix
 
-| Surface | Default | Week 1 policy | Review requirement |
-|---|---:|---|---|
-| Parent DOM scrape | Denied | parent 문서의 텍스트, selector 결과, form value, href 목록을 수집하지 않는다. | `parentDomScrape: false` 유지. |
-| Cookie access | Denied | `document.cookie` read/write를 하지 않는다. | `parentCookieRead: false` 유지. |
-| localStorage access | Denied | parent `localStorage` read/write를 하지 않는다. | `parentLocalStorageRead: false` 유지. |
-| sessionStorage access | Denied | parent `sessionStorage` read/write를 하지 않는다. | `parentSessionStorageRead: false` 유지. |
-| Parent DOM write | Denied in scaffold | 현재 scaffold에서는 parent DOM write가 없다. iframe mount 구현 시 mount-only 예외를 별도 review한다. | `parentDomWrite: false` 유지 또는 별도 승인. |
+| Surface               |            Default | Week 1 policy                                                                                        | Review requirement                           |
+| --------------------- | -----------------: | ---------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| Parent DOM scrape     |             Denied | parent 문서의 텍스트, selector 결과, form value, href 목록을 수집하지 않는다.                        | `parentDomScrape: false` 유지.               |
+| Cookie access         |             Denied | `document.cookie` read/write를 하지 않는다.                                                          | `parentCookieRead: false` 유지.              |
+| localStorage access   |             Denied | parent `localStorage` read/write를 하지 않는다.                                                      | `parentLocalStorageRead: false` 유지.        |
+| sessionStorage access |             Denied | parent `sessionStorage` read/write를 하지 않는다.                                                    | `parentSessionStorageRead: false` 유지.      |
+| Parent DOM write      | Denied in scaffold | 현재 scaffold에서는 parent DOM write가 없다. iframe mount 구현 시 mount-only 예외를 별도 review한다. | `parentDomWrite: false` 유지 또는 별도 승인. |
 
 ## 3. Ready / Handshake Payload
 
 Hero Bubble ready/handshake payload는 식별자를 포함하지 않는다.
 
 허용 payload:
+
 - iframe sandbox policy
 - CSP `frame-ancestors`
 - parent access policy flags
 
 금지 payload:
+
 - visitor/client/session/account identifiers
 - user agent, referrer, IP address, URL path/query
 - cookie, localStorage, sessionStorage values

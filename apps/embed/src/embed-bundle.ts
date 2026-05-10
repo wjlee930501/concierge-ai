@@ -5,13 +5,17 @@ declare global {
   interface Window {
     Concierge?: {
       readonly inject: typeof injectConciergeWidget;
+      readonly injectConciergeWidget: typeof injectConciergeWidget;
       readonly handle?: ConciergeInjectionHandle;
     };
   }
 }
 
 if (typeof window !== "undefined") {
-  window.Concierge = Object.freeze({ inject: injectConciergeWidget });
+  window.Concierge = Object.freeze({
+    inject: injectConciergeWidget,
+    injectConciergeWidget
+  });
   autoInjectFromCurrentScript();
 }
 
@@ -37,6 +41,7 @@ function autoInjectFromCurrentScript(): void {
 
     window.Concierge = Object.freeze({
       inject: injectConciergeWidget,
+      injectConciergeWidget,
       handle
     });
   };

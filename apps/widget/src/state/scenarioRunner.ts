@@ -173,7 +173,10 @@ export function reduceRunner(
       return {
         ...state,
         phase: { kind: "dismissed" },
-        freeInput: { ...FREE_INPUT_INITIAL, streamSeq: state.freeInput.streamSeq }
+        freeInput: {
+          ...FREE_INPUT_INITIAL,
+          streamSeq: state.freeInput.streamSeq
+        }
       };
     }
 
@@ -264,7 +267,10 @@ export function reduceRunner(
     case "close-free-input":
       return {
         ...state,
-        freeInput: { ...FREE_INPUT_INITIAL, streamSeq: state.freeInput.streamSeq }
+        freeInput: {
+          ...FREE_INPUT_INITIAL,
+          streamSeq: state.freeInput.streamSeq
+        }
       };
 
     case "update-free-input-draft":
@@ -275,7 +281,10 @@ export function reduceRunner(
 
     case "submit-free-input": {
       if (state.freeInput.draft.trim().length === 0) return state;
-      if (state.freeInput.mode === "thinking" || state.freeInput.mode === "replying") {
+      if (
+        state.freeInput.mode === "thinking" ||
+        state.freeInput.mode === "replying"
+      ) {
         return state;
       }
       const tracked = trackInteraction(state, {
@@ -382,7 +391,9 @@ function advanceToStep(state: RunnerState, step: ScenarioStep): RunnerState {
 
 function enterLeadForm(state: RunnerState, step?: ScenarioStep): RunnerState {
   const historyStepIds =
-    step !== undefined ? appendUnique(state.historyStepIds, step.id) : state.historyStepIds;
+    step !== undefined
+      ? appendUnique(state.historyStepIds, step.id)
+      : state.historyStepIds;
   const draft = state.leadDraft.messagePrefilled
     ? state.leadDraft
     : applyMessagePrefill(state);
@@ -397,8 +408,8 @@ function enterLeadForm(state: RunnerState, step?: ScenarioStep): RunnerState {
 }
 
 function applyMessagePrefill(state: RunnerState): LeadFormDraft {
-  const messageField = state.scenario.leadForm.fields.find((field) =>
-    field.id === "painPoint" || field.id === "message"
+  const messageField = state.scenario.leadForm.fields.find(
+    (field) => field.id === "painPoint" || field.id === "message"
   );
   if (messageField === undefined) {
     return state.leadDraft;
@@ -424,7 +435,10 @@ function trackInteraction(
 ): RunnerState {
   return {
     ...state,
-    interactions: Object.freeze([...state.interactions, interaction]) as readonly SessionInteraction[]
+    interactions: Object.freeze([
+      ...state.interactions,
+      interaction
+    ]) as readonly SessionInteraction[]
   };
 }
 
@@ -446,10 +460,7 @@ function appendUnique(
   return Object.freeze([...existing, candidate]) as readonly string[];
 }
 
-function stepById(
-  scenario: Scenario,
-  id: string
-): ScenarioStep | undefined {
+function stepById(scenario: Scenario, id: string): ScenarioStep | undefined {
   return scenario.steps.find((step) => step.id === id);
 }
 

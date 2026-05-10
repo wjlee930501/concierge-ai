@@ -42,18 +42,25 @@ export function readConciergeRuntimeConfig(
 
   return Object.freeze({
     environment,
-    allowedOrigins: origins.length > 0 ? Object.freeze(origins) : DEFAULT_DEV_CONFIG.allowedOrigins,
+    allowedOrigins:
+      origins.length > 0
+        ? Object.freeze(origins)
+        : DEFAULT_DEV_CONFIG.allowedOrigins,
     embedBase
   });
 }
 
 function readImportMetaEnv(): Readonly<Record<string, string | undefined>> {
   if (typeof import.meta === "undefined") return {};
-  const env = (import.meta as { readonly env?: Record<string, string | undefined> }).env;
+  const env = (
+    import.meta as { readonly env?: Record<string, string | undefined> }
+  ).env;
   return env ?? {};
 }
 
-function parseEnvironment(value: string | undefined): ConciergeEnvironment | undefined {
+function parseEnvironment(
+  value: string | undefined
+): ConciergeEnvironment | undefined {
   switch (value) {
     case "development":
     case "test":

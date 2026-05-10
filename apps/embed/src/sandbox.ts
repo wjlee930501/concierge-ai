@@ -14,9 +14,11 @@ export type EmbedIframePolicy = {
   readonly sandbox: string;
 };
 
-export function createEmbedIframePolicy(input: {
-  readonly sandboxTokens?: readonly string[];
-} = {}): EmbedIframePolicy {
+export function createEmbedIframePolicy(
+  input: {
+    readonly sandboxTokens?: readonly string[];
+  } = {}
+): EmbedIframePolicy {
   return {
     sandbox: buildIframeSandbox(input.sandboxTokens)
   };

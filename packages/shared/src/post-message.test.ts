@@ -11,6 +11,9 @@ import {
   POST_MESSAGE_HOST_SECTION_NOT_FOUND_TYPE,
   POST_MESSAGE_HOST_SCROLL_TO_TYPE,
   POST_MESSAGE_PARENT_SOURCE,
+  POST_MESSAGE_LEAD_SUBMITTED_TYPE,
+  POST_MESSAGE_HOST_CONTROL_TYPES,
+  POST_MESSAGE_LEAD_PAYLOAD_TYPES,
   POST_MESSAGE_READY_TYPE,
   POST_MESSAGE_RESIZE_TYPE,
   POST_MESSAGE_WIDGET_SOURCE,
@@ -231,6 +234,68 @@ describe("message-specific postMessage validation", () => {
         allowedOrigins: ALLOWED_ORIGINS
       })
     ).toThrow(/Invalid Concierge host-driver postMessage/u);
+  });
+
+  it("keeps host control messages separate from lead payload messages", () => {
+    expect(POST_MESSAGE_HOST_CONTROL_TYPES).toContain(
+      POST_MESSAGE_HOST_SCROLL_TO_TYPE
+    );
+    expect(POST_MESSAGE_HOST_CONTROL_TYPES).toContain(
+      POST_MESSAGE_HOST_DRIVER_HIGHLIGHT_TYPE
+    );
+    expect(POST_MESSAGE_HOST_CONTROL_TYPES).toContain(
+      POST_MESSAGE_IFRAME_HITBOX_TYPE
+    );
+    expect(POST_MESSAGE_HOST_CONTROL_TYPES).not.toContain(
+      POST_MESSAGE_LEAD_SUBMITTED_TYPE
+    );
+    expect(POST_MESSAGE_LEAD_PAYLOAD_TYPES).toEqual([
+      POST_MESSAGE_LEAD_SUBMITTED_TYPE
+    ]);
+  });
+
+  it("accepts lead submitted messages only as widget lead payload messages", () => {
+    const envelope = createPostMessageEnvelope({
+      type: POST_MESSAGE_LEAD_SUBMITTED_TYPE,
+      nonce: "nonce-lead",
+      timestamp: 1_714_000_000_000,
+      source: POST_MESSAGE_WIDGET_SOURCE,
+      payload: {
+        lead: {
+          source: "concierge_ai",
+          host: "motionlabs",
+          intent: "revisit",
+          hospitalName: "서울OO의원",
+          name: "홍길동",
+          phone: "010-0000-0000",
+          interestArea: "revisit",
+          consent: true
+        }
+      }
+    });
+
+    expect(
+      validateKnownPostMessageEnvelope(envelope, {
+        origin: "https://host.example.test",
+        allowedOrigins: ALLOWED_ORIGINS,
+        expectedType: POST_MESSAGE_LEAD_SUBMITTED_TYPE,
+        expectedNonce: "nonce-lead"
+      })
+    ).toBe(envelope);
+
+    expect(() =>
+      validateKnownPostMessageEnvelope(
+        {
+          ...envelope,
+          source: POST_MESSAGE_PARENT_SOURCE
+        },
+        {
+          origin: "https://host.example.test",
+          allowedOrigins: ALLOWED_ORIGINS,
+          expectedType: POST_MESSAGE_LEAD_SUBMITTED_TYPE
+        }
+      )
+    ).toThrow(/Invalid Concierge lead payload postMessage/u);
   });
 
   it.each([

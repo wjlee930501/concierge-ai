@@ -184,9 +184,8 @@ export const scenarioLeadFormSchema = z
       .refine(
         (consents) => {
           const ids = consents.map((consent) => consent.id);
-          const expected: ReadonlyArray<
-            "required" | "marketing" | "expanded"
-          > = ["required", "marketing", "expanded"];
+          const expected: ReadonlyArray<"required" | "marketing" | "expanded"> =
+            ["required", "marketing", "expanded"];
           return expected.every((id) => ids.includes(id));
         },
         { message: "PIPA consent must include required, marketing, expanded" }
@@ -296,7 +295,9 @@ export function parseScenario(input: unknown): Scenario {
   return scenarioSchema.parse(input) as Scenario;
 }
 
-export function safeParseScenario(input: unknown):
+export function safeParseScenario(
+  input: unknown
+):
   | { readonly ok: true; readonly value: Scenario }
   | { readonly ok: false; readonly error: z.ZodError } {
   const result = scenarioSchema.safeParse(input);
@@ -306,7 +307,9 @@ export function safeParseScenario(input: unknown):
   return { ok: false, error: result.error };
 }
 
-export function buildScenarioStepLookup(scenario: Scenario): ScenarioStepLookup {
+export function buildScenarioStepLookup(
+  scenario: Scenario
+): ScenarioStepLookup {
   const byId = new Map<string, (typeof scenario.steps)[number]>();
   for (const step of scenario.steps) {
     byId.set(step.id, step);

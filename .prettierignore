@@ -1,0 +1,12 @@
+node_modules
+hosts/**/node_modules
+hosts/**/.next
+coverage
+dist
+apps/*/dist
+apps/widget/public/embed.js
+apps/widget/public/embed.js.map
+test-results
+playwright-report
+.omx
+.git

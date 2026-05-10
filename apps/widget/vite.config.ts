@@ -10,7 +10,10 @@ export default defineConfig({
   root,
   resolve: {
     alias: {
-      "@conciergeai/shared": resolve(root, "../../packages/shared/src/index.ts"),
+      "@conciergeai/shared": resolve(
+        root,
+        "../../packages/shared/src/index.ts"
+      ),
       "@conciergeai/kb": resolve(root, "../../packages/kb/src/index.ts")
     }
   },

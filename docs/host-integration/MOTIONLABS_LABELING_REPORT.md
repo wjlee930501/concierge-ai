@@ -19,38 +19,38 @@ component 수: TSX 451개
 
 ### 강한 매칭 (16/19)
 
-| # | attribute | 대상 element | 파일 / 위치 | 신뢰도 |
-|---|-----------|-------------|------------|--------|
-| 1 | `data-mc-section="hero"` | hero root | `src/components/pages/revisit/desktop/intro/RevisitHeroStatic.tsx` | 95% |
-| 2 | `data-mc-section="social-proof"` | adoption/client section | `src/components/pages/revisit/RevisitPageResponsiveMainTemplate.tsx` | 90% |
-| 3 | `data-mc-section="customer-review"` | success story section | `src/components/pages/revisit/RevisitPageResponsiveMainTemplate.tsx` | 90% |
-| 4 | `data-mc-section="auto-reminder"` | auto reminder feature section | `src/components/pages/revisit/RevisitPageResponsiveMainTemplate.tsx` | 95% |
-| 5 | `data-mc-section="reminder-content"` | custom content / specialty content section | `src/components/pages/revisit/RevisitPageResponsiveMainTemplate.tsx` | 90% |
-| 6 | `data-mc-section="specialty-tabs"` | specialty tab section wrapper | `src/components/pages/revisit/RevisitPageResponsiveMainTemplate.tsx` | 90% |
-| 7 | `data-mc-section="data-analysis"` | data analysis feature section | `src/components/pages/revisit/RevisitPageResponsiveMainTemplate.tsx` | 95% |
-| 8 | `data-mc-section="crm-demo"` | prototype section | `src/components/pages/revisit/RevisitPageResponsiveMainTemplate.tsx` | 95% |
-| 9 | `data-mc-section="feature-summary"` | keyword / feature summary section | `src/components/pages/revisit/RevisitPageResponsiveMainTemplate.tsx` | 85% |
-| 10 | `data-mc-section="case-data"` | overview outcome-data section | `src/components/pages/revisit/RevisitPageResponsiveMainTemplate.tsx` | 90% |
-| 11 | `data-mc-section="advisors"` | advisory doctors section | `src/components/pages/revisit/RevisitPageResponsiveMainTemplate.tsx` | 95% |
-| 12 | `data-mc-section="security"` | security section | `src/components/pages/revisit/RevisitPageResponsiveMainTemplate.tsx` | 95% |
-| 13 | `data-mc-section="faq"` | FAQ section | `src/components/pages/revisit/RevisitPageResponsiveMainTemplate.tsx` | 95% |
-| 14 | `data-mc-section="footer-cta"` | final CTA banner section | `src/components/pages/revisit/RevisitPageResponsiveMainTemplate.tsx` | 95% |
-| 15 | `data-mc-group="ortho-advisors"` | advisory doctors slider wrapper | `src/components/pages/revisit/desktop/doctor/list/RevisitDoctorListBox.tsx`, `src/components/pages/revisit/mobile/doctors/RevisitPageMobileDoctorListBox.tsx` | 85% |
-| 16 | local embed script | root layout body tail | `src/app/layout.tsx` | 95% |
+| #   | attribute                            | 대상 element                               | 파일 / 위치                                                                                                                                                   | 신뢰도 |
+| --- | ------------------------------------ | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| 1   | `data-mc-section="hero"`             | hero root                                  | `src/components/pages/revisit/desktop/intro/RevisitHeroStatic.tsx`                                                                                            | 95%    |
+| 2   | `data-mc-section="social-proof"`     | adoption/client section                    | `src/components/pages/revisit/RevisitPageResponsiveMainTemplate.tsx`                                                                                          | 90%    |
+| 3   | `data-mc-section="customer-review"`  | success story section                      | `src/components/pages/revisit/RevisitPageResponsiveMainTemplate.tsx`                                                                                          | 90%    |
+| 4   | `data-mc-section="auto-reminder"`    | auto reminder feature section              | `src/components/pages/revisit/RevisitPageResponsiveMainTemplate.tsx`                                                                                          | 95%    |
+| 5   | `data-mc-section="reminder-content"` | custom content / specialty content section | `src/components/pages/revisit/RevisitPageResponsiveMainTemplate.tsx`                                                                                          | 90%    |
+| 6   | `data-mc-section="specialty-tabs"`   | specialty tab section wrapper              | `src/components/pages/revisit/RevisitPageResponsiveMainTemplate.tsx`                                                                                          | 90%    |
+| 7   | `data-mc-section="data-analysis"`    | data analysis feature section              | `src/components/pages/revisit/RevisitPageResponsiveMainTemplate.tsx`                                                                                          | 95%    |
+| 8   | `data-mc-section="crm-demo"`         | prototype section                          | `src/components/pages/revisit/RevisitPageResponsiveMainTemplate.tsx`                                                                                          | 95%    |
+| 9   | `data-mc-section="feature-summary"`  | keyword / feature summary section          | `src/components/pages/revisit/RevisitPageResponsiveMainTemplate.tsx`                                                                                          | 85%    |
+| 10  | `data-mc-section="case-data"`        | overview outcome-data section              | `src/components/pages/revisit/RevisitPageResponsiveMainTemplate.tsx`                                                                                          | 90%    |
+| 11  | `data-mc-section="advisors"`         | advisory doctors section                   | `src/components/pages/revisit/RevisitPageResponsiveMainTemplate.tsx`                                                                                          | 95%    |
+| 12  | `data-mc-section="security"`         | security section                           | `src/components/pages/revisit/RevisitPageResponsiveMainTemplate.tsx`                                                                                          | 95%    |
+| 13  | `data-mc-section="faq"`              | FAQ section                                | `src/components/pages/revisit/RevisitPageResponsiveMainTemplate.tsx`                                                                                          | 95%    |
+| 14  | `data-mc-section="footer-cta"`       | final CTA banner section                   | `src/components/pages/revisit/RevisitPageResponsiveMainTemplate.tsx`                                                                                          | 95%    |
+| 15  | `data-mc-group="ortho-advisors"`     | advisory doctors slider wrapper            | `src/components/pages/revisit/desktop/doctor/list/RevisitDoctorListBox.tsx`, `src/components/pages/revisit/mobile/doctors/RevisitPageMobileDoctorListBox.tsx` | 85%    |
+| 16  | local embed script                   | root layout body tail                      | `src/app/layout.tsx`                                                                                                                                          | 95%    |
 
 ### 약한 매칭 (3/19)
 
-| # | attribute | 대상 element 후보 | 후보 1 | 후보 2 | 의문점 |
-|---|-----------|-----------------|-------|-------|--------|
-| 17 | `data-mc-tab="orthopedics"` | specialty tab item | `RevisitSystemV2ListTab`의 정형외과 tab | request modal radio item | landing 본문 tab이 우선 |
-| 18 | `data-mc-tab="internal-medicine"` | specialty tab item | `RevisitSystemV2ListTab`의 내과 tab | request modal radio item | landing 본문 tab이 우선 |
-| 19 | `data-mc-card="ortho-revisit-12"`, `data-mc-card="im-revenue-19"` | outcome image cards | `RevisitOverviewBox`의 outcome image elements | parent `case-data` section ascend | viewport별 duplicate DOM이 있으므로 scenario selector는 section ascend 권장 |
+| #   | attribute                                                         | 대상 element 후보   | 후보 1                                        | 후보 2                            | 의문점                                                                      |
+| --- | ----------------------------------------------------------------- | ------------------- | --------------------------------------------- | --------------------------------- | --------------------------------------------------------------------------- |
+| 17  | `data-mc-tab="orthopedics"`                                       | specialty tab item  | `RevisitSystemV2ListTab`의 정형외과 tab       | request modal radio item          | landing 본문 tab이 우선                                                     |
+| 18  | `data-mc-tab="internal-medicine"`                                 | specialty tab item  | `RevisitSystemV2ListTab`의 내과 tab           | request modal radio item          | landing 본문 tab이 우선                                                     |
+| 19  | `data-mc-card="ortho-revisit-12"`, `data-mc-card="im-revenue-19"` | outcome image cards | `RevisitOverviewBox`의 outcome image elements | parent `case-data` section ascend | viewport별 duplicate DOM이 있으므로 scenario selector는 section ascend 권장 |
 
 ### 매칭 불가 (0/19)
 
-| # | attribute | 사유 | fallback 옵션 |
-|---|-----------|------|--------------|
-| - | - | 19개 attribute 모두 host DOM 후보가 있음 | 카드 정밀 spotlight은 `case-data` section ascend 유지 |
+| #   | attribute | 사유                                     | fallback 옵션                                         |
+| --- | --------- | ---------------------------------------- | ----------------------------------------------------- |
+| -   | -         | 19개 attribute 모두 host DOM 후보가 있음 | 카드 정밀 spotlight은 `case-data` section ascend 유지 |
 
 ## §3. 시나리오 영향 분석
 

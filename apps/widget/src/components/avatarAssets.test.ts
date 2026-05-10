@@ -16,8 +16,12 @@ describe("avatar expression assets", () => {
     for (const expression of TIER1_AVATAR_EXPRESSIONS) {
       const asset = AVATAR_EXPRESSION_ASSETS[expression];
       expect(asset.id).toBe(expression);
-      expect(asset.webp).toMatch(/concierge-(neutral|smile|surprise|thinking)-256\.webp$/);
-      expect(asset.avif).toMatch(/concierge-(neutral|smile|surprise|thinking)-256\.avif$/);
+      expect(asset.webp).toMatch(
+        /concierge-(neutral|smile|surprise|thinking)-256\.webp$/
+      );
+      expect(asset.avif).toMatch(
+        /concierge-(neutral|smile|surprise|thinking)-256\.avif$/
+      );
       expect(asset.objectPosition).toMatch(/center/);
     }
   });

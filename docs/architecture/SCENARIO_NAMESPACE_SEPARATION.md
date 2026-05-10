@@ -12,17 +12,17 @@ imported by `apps/` or `packages/` runtime code.
 
 ## Directory contract
 
-| Path | Purpose | May contain production content |
-|---|---|---|
-| `packages/kb/` | Approved Knowledge markdown and ingestion | Yes, after Week 2 blocker approval |
-| `apps/widget/` | Widget runtime | Yes, after source data per scenario |
-| `apps/embed/` | Embed injection runtime | No user-facing content |
-| `apps/admin/` | Admin UI and API | Yes, after Week 4 blocker approval |
-| `tests/fixtures/scenarios/` | Synthetic test-only scenario stubs | **No** |
-| `tests/fixtures/widget/` | Structural shell test fixtures | **No** |
-| `tests/fixtures/security/` | Secret scan test markers | **No** |
-| `tests/fixtures/pr-evidence/` | PR evidence diff path fixtures | **No** |
-| `tests/fixtures/cost-ledger/` | Cost ledger example fixtures | **No** |
+| Path                          | Purpose                                   | May contain production content      |
+| ----------------------------- | ----------------------------------------- | ----------------------------------- |
+| `packages/kb/`                | Approved Knowledge markdown and ingestion | Yes, after Week 2 blocker approval  |
+| `apps/widget/`                | Widget runtime                            | Yes, after source data per scenario |
+| `apps/embed/`                 | Embed injection runtime                   | No user-facing content              |
+| `apps/admin/`                 | Admin UI and API                          | Yes, after Week 4 blocker approval  |
+| `tests/fixtures/scenarios/`   | Synthetic test-only scenario stubs        | **No**                              |
+| `tests/fixtures/widget/`      | Structural shell test fixtures            | **No**                              |
+| `tests/fixtures/security/`    | Secret scan test markers                  | **No**                              |
+| `tests/fixtures/pr-evidence/` | PR evidence diff path fixtures            | **No**                              |
+| `tests/fixtures/cost-ledger/` | Cost ledger example fixtures              | **No**                              |
 
 ## Rules
 

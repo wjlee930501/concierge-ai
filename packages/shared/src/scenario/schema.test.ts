@@ -137,9 +137,7 @@ describe("scenarioSchema", () => {
     ];
 
     const scenario = parseScenario(scenarioWithChapters);
-    expect(scenario.chapters?.[0]?.sections[0]?.beats[0]?.id).toBe(
-      "beat_move"
-    );
+    expect(scenario.chapters?.[0]?.sections[0]?.beats[0]?.id).toBe("beat_move");
   });
 
   it("parses the guided conversion placeholder fixture", () => {

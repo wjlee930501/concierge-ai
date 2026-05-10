@@ -20,9 +20,7 @@ export function buildLeadSummary(input: LeadSummaryInput): string {
   );
 
   const intentClause =
-    labels.length === 0
-      ? "핵심 흐름 안내"
-      : labels.join(", ");
+    labels.length === 0 ? "핵심 흐름 안내" : labels.join(", ");
 
   const baseBody = `방문자께서 ${intentClause}에 관심을 보이셨고, 도입 가능 여부를 확인하고자 상담을 신청하셨습니다.`;
   const curationBody =
@@ -30,9 +28,7 @@ export function buildLeadSummary(input: LeadSummaryInput): string {
       ? `\n큐레이션 맥락: ${curationContext.join(" / ")}`
       : "";
   const suffix =
-    input.variantSuffix !== undefined
-      ? `\n${input.variantSuffix}`
-      : "";
+    input.variantSuffix !== undefined ? `\n${input.variantSuffix}` : "";
 
   return `${baseBody}${curationBody}${suffix}`.trim();
 }
@@ -53,7 +49,10 @@ function collectIntentLabels(
     ordered.push(cleaned);
   }
 
-  if (ordered.length === 0 && interactions.some((i) => i.kind === "free-input")) {
+  if (
+    ordered.length === 0 &&
+    interactions.some((i) => i.kind === "free-input")
+  ) {
     ordered.push("자유 입력으로 직접 문의");
   }
 
@@ -79,7 +78,9 @@ function collectCurationContext(
 
         const beatMessages = section.beats
           .map((beat) => beat.bubbleMessage?.text.trim())
-          .filter((text): text is string => text !== undefined && text.length > 0)
+          .filter(
+            (text): text is string => text !== undefined && text.length > 0
+          )
           .slice(0, 2);
         const beatClause =
           beatMessages.length > 0 ? ` (${beatMessages.join(" / ")})` : "";

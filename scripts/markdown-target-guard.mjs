@@ -10,7 +10,10 @@ import path from "node:path";
 
 export const TARGET_PATH_ECHO_MAX_LENGTH = 240;
 
-export function sanitizeForReport(value, maxLength = TARGET_PATH_ECHO_MAX_LENGTH) {
+export function sanitizeForReport(
+  value,
+  maxLength = TARGET_PATH_ECHO_MAX_LENGTH
+) {
   if (typeof value !== "string") {
     return "<non-string>";
   }
@@ -47,8 +50,12 @@ export function assertSafeMarkdownTargetPath(targetPath, cwd = process.cwd()) {
   }
 
   const segments = relativeTarget.split(path.sep);
-  if (segments.some((segment) => segment === ".." || segment.startsWith(".env"))) {
-    throw new Error("target path must not reference .env* or traversal segments");
+  if (
+    segments.some((segment) => segment === ".." || segment.startsWith(".env"))
+  ) {
+    throw new Error(
+      "target path must not reference .env* or traversal segments"
+    );
   }
 
   if (path.extname(relativeTarget) !== ".md") {
@@ -69,7 +76,13 @@ export function assertPathStaysInsideWorkspace(resolvedTarget, resolvedCwd) {
   }
 
   const realSegments = realRelativeTarget.split(path.sep);
-  if (realSegments.some((segment) => segment === ".." || segment.startsWith(".env"))) {
-    throw new Error("target real path must not reference .env* or traversal segments");
+  if (
+    realSegments.some(
+      (segment) => segment === ".." || segment.startsWith(".env")
+    )
+  ) {
+    throw new Error(
+      "target real path must not reference .env* or traversal segments"
+    );
   }
 }

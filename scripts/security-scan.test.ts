@@ -28,7 +28,11 @@ describe("safe secret scan scaffold", () => {
 
     const findings = scanTextForSecrets(text);
     const report = formatFindings([
-      { path: "tests/fixtures/security/dummy", ruleId: "generic_api_key_assignment", count: 1 }
+      {
+        path: "tests/fixtures/security/dummy",
+        ruleId: "generic_api_key_assignment",
+        count: 1
+      }
     ]);
 
     expect(findings.map((finding) => finding.ruleId)).toContain(
@@ -61,13 +65,20 @@ describe("safe secret scan scaffold", () => {
       ["xoxb", "testonlymarkerwithenoughlength"].join("-"),
       ["whsec", "testonlymarkerwithenoughlength"].join("_"),
       ["ghp", "testonlymarkerwithenoughlength"].join("_"),
-      ["eyJtestonlyheaderpart", "testonlypayloadpart", "testonlysignaturepart"].join(".")
+      [
+        "eyJtestonlyheaderpart",
+        "testonlypayloadpart",
+        "testonlysignaturepart"
+      ].join(".")
     ];
     const text = markers.join("\n");
 
     const findings = scanTextForSecrets(text);
     const report = formatFindings(
-      findings.map((finding) => ({ path: "tests/fixtures/security/m1", ...finding }))
+      findings.map((finding) => ({
+        path: "tests/fixtures/security/m1",
+        ...finding
+      }))
     );
 
     expect(findings.map((finding) => finding.ruleId).sort()).toEqual([
@@ -100,8 +111,16 @@ describe("safe secret scan scaffold", () => {
     ];
 
     try {
-      await writeFixtureFile(projectRoot, "apps/widget/src/allowed.ts", markerContent);
-      await writeFixtureFile(projectRoot, "scripts/security/source-like.mjs", markerContent);
+      await writeFixtureFile(
+        projectRoot,
+        "apps/widget/src/allowed.ts",
+        markerContent
+      );
+      await writeFixtureFile(
+        projectRoot,
+        "scripts/security/source-like.mjs",
+        markerContent
+      );
       await Promise.all(
         excludedFixturePaths.map((fixturePath) =>
           writeFixtureFile(projectRoot, fixturePath, markerContent)
@@ -114,9 +133,11 @@ describe("safe secret scan scaffold", () => {
         "apps/widget/src/allowed.ts",
         "scripts/security/source-like.mjs"
       ]);
-      expect(findings.every((finding) => finding.ruleId === "generic_api_key_assignment")).toBe(
-        true
-      );
+      expect(
+        findings.every(
+          (finding) => finding.ruleId === "generic_api_key_assignment"
+        )
+      ).toBe(true);
     } finally {
       await rm(projectRoot, { force: true, recursive: true });
     }
@@ -144,7 +165,9 @@ describe("CLI argument parsing", () => {
   it("requires --commits to be a positive integer", () => {
     expect(() => parseCliArgs(["--commits", "0"])).toThrow(/positive integer/);
     expect(() => parseCliArgs(["--commits", "-3"])).toThrow(/positive integer/);
-    expect(() => parseCliArgs(["--commits", "abc"])).toThrow(/positive integer/);
+    expect(() => parseCliArgs(["--commits", "abc"])).toThrow(
+      /positive integer/
+    );
     expect(parseCliArgs(["--commits", "7"]).commits).toBe(7);
   });
 });
@@ -165,14 +188,20 @@ describe("diff mode", () => {
     ];
 
     try {
-      for (const relativePath of [...includedRelativePaths, ...excludedRelativePaths]) {
+      for (const relativePath of [
+        ...includedRelativePaths,
+        ...excludedRelativePaths
+      ]) {
         await writeFixtureFile(projectRoot, relativePath, markerContent);
       }
 
-      const allRelativePaths = [...includedRelativePaths, ...excludedRelativePaths];
-      const fakePorcelain = allRelativePaths
-        .map((relativePath) => `?? ${relativePath}`)
-        .join(NUL) + NUL;
+      const allRelativePaths = [
+        ...includedRelativePaths,
+        ...excludedRelativePaths
+      ];
+      const fakePorcelain =
+        allRelativePaths.map((relativePath) => `?? ${relativePath}`).join(NUL) +
+        NUL;
 
       const findings = await scanDiff({
         cwd: projectRoot,
@@ -182,23 +211,32 @@ describe("diff mode", () => {
       expect(findings.map((finding) => finding.path).sort()).toEqual(
         includedRelativePaths.slice().sort()
       );
-      expect(findings.every((finding) => finding.ruleId === "generic_api_key_assignment")).toBe(
-        true
-      );
+      expect(
+        findings.every(
+          (finding) => finding.ruleId === "generic_api_key_assignment"
+        )
+      ).toBe(true);
     } finally {
       await rm(projectRoot, { force: true, recursive: true });
     }
   });
 
   it("skips symlinked changed files so diff mode never follows links into local secrets", async () => {
-    const projectRoot = await mkdtemp(path.join(tmpdir(), "conciergeai-diff-symlink-"));
+    const projectRoot = await mkdtemp(
+      path.join(tmpdir(), "conciergeai-diff-symlink-")
+    );
     const markerContent = makeDummySecretAssignment();
     const symlinkPath = "apps/widget/src/link.ts";
 
     try {
       await writeFixtureFile(projectRoot, ".env.local", markerContent);
-      await mkdir(path.dirname(path.join(projectRoot, symlinkPath)), { recursive: true });
-      await symlink(path.join(projectRoot, ".env.local"), path.join(projectRoot, symlinkPath));
+      await mkdir(path.dirname(path.join(projectRoot, symlinkPath)), {
+        recursive: true
+      });
+      await symlink(
+        path.join(projectRoot, ".env.local"),
+        path.join(projectRoot, symlinkPath)
+      );
 
       const fakePorcelain = `?? ${symlinkPath}${NUL}`;
       const findings = await scanDiff({
@@ -213,7 +251,9 @@ describe("diff mode", () => {
   });
 
   it("passes cleanly when git is unavailable or there is nothing to scan", async () => {
-    const projectRoot = await mkdtemp(path.join(tmpdir(), "conciergeai-diff-empty-"));
+    const projectRoot = await mkdtemp(
+      path.join(tmpdir(), "conciergeai-diff-empty-")
+    );
     try {
       const noGit = await scanDiff({
         cwd: projectRoot,
@@ -232,7 +272,9 @@ describe("diff mode", () => {
   });
 
   it("uses the new path on rename entries and skips the original token", async () => {
-    const projectRoot = await mkdtemp(path.join(tmpdir(), "conciergeai-diff-rename-"));
+    const projectRoot = await mkdtemp(
+      path.join(tmpdir(), "conciergeai-diff-rename-")
+    );
     const markerContent = makeDummySecretAssignment();
     const newPath = "apps/widget/src/renamed.ts";
     const oldPath = "apps/widget/src/original.ts";
@@ -331,7 +373,11 @@ describe("history mode", () => {
   });
 });
 
-async function writeFixtureFile(projectRoot: string, relativePath: string, content: string) {
+async function writeFixtureFile(
+  projectRoot: string,
+  relativePath: string,
+  content: string
+) {
   const fixturePath = path.join(projectRoot, relativePath);
   await mkdir(path.dirname(fixturePath), { recursive: true });
   await writeFile(fixturePath, content, { flag: "w" });
