@@ -2,6 +2,13 @@
 
 방문자가 길을 잃기 전에 다음 행동을 먼저 제안하는, 호스트 페이지 위에 iframe으로 주입되는 의도-기반 가이드 레이어.
 
+## Live Preview
+
+- Widget Preview: TBD
+- Embed Fixture Preview: TBD
+- Admin Preview: TBD
+- Staging MotionLabs Integration: TBD
+
 ## 모노레포 구조
 
 ```

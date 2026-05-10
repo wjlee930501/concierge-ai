@@ -371,12 +371,50 @@
       window.__HOST_CTA_CLICKS__ = 0;
       window.__REVISIT_HOST_CTA_CLICKS__ = 0;
       window.__HOST_LAST_LEAD_PAYLOAD__ = null;
+      window.__CONCIERGE_DEFAULT_WIDGET_SRC__ = "http://127.0.0.1:5173/";
 
       function incrementCounter(globalKey, elementId) {
         window[globalKey] = (window[globalKey] || 0) + 1;
         document.getElementById(elementId).textContent = String(
           window[globalKey]
         );
+      }
+
+      function resolveWidgetSrc() {
+        var params = new URLSearchParams(window.location.search);
+        var candidate =
+          params.get("widgetSrc") ||
+          window.__CONCIERGE_WIDGET_SRC__ ||
+          window.__CONCIERGE_DEFAULT_WIDGET_SRC__;
+
+        return normalizeWidgetSrc(candidate);
+      }
+
+      function normalizeWidgetSrc(candidate) {
+        if (typeof candidate !== "string" || candidate.trim().length === 0) {
+          console.warn(
+            "[host-fixture] invalid widgetSrc; using local default",
+            candidate
+          );
+          return window.__CONCIERGE_DEFAULT_WIDGET_SRC__;
+        }
+
+        try {
+          var url = new URL(candidate, window.location.href);
+          if (url.protocol !== "http:" && url.protocol !== "https:") {
+            throw new Error("widgetSrc must use http or https");
+          }
+          return url.toString();
+        } catch (error) {
+          console.warn(
+            "[host-fixture] invalid widgetSrc; using local default",
+            {
+              widgetSrc: candidate,
+              reason: error instanceof Error ? error.message : String(error)
+            }
+          );
+          return window.__CONCIERGE_DEFAULT_WIDGET_SRC__;
+        }
       }
     </script>
     <script src="./dist/embed.js"></script>
@@ -395,8 +433,9 @@
         }
 
         var hostOrigin = window.location.origin;
+        var widgetSrc = resolveWidgetSrc();
         window.__CONCIERGE_HOST_HANDLE__ = injectConciergeWidget({
-          widgetSrc: "http://127.0.0.1:5173/",
+          widgetSrc: widgetSrc,
           allowedParentOrigins: [hostOrigin],
           frameAncestors: [hostOrigin],
           environment: "test",

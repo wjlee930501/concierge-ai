@@ -2,6 +2,8 @@
 
 ## [Design polish / 2026-05-10]
 
+- 2026-05-10 KST 재수정 지시 시작: 기능 추가 없이 CI Playwright e2e gate, README Live Preview TBD, host fixture widgetSrc 외부 주입, TypeScript 포맷 정상화만 정리 예정.
+- 2026-05-10 KST 재수정 지시 종료: CI timeout 20분 및 `npx playwright install --with-deps chromium`/`npm run test:e2e` gate 추가, README 상단 Live Preview 4종 TBD 추가, `host-fixture.html` `URLSearchParams`/`window.__CONCIERGE_WIDGET_SRC__`/기본 `http://127.0.0.1:5173/` 주입 경로 유지, `apps/widget/src/state/widgetPostMessage.ts` 60줄 포맷 상태 확인. 검증 `npm run format`, `npm run format:check`, `npm run test:e2e` 7 passed, 필수 rg 검색 3종 PASS.
 - 2026-05-10 KST Embed PoC 검증 fixture 보강 시작: `apps/embed/host-fixture.html`을 실제 MotionLabs-like host fixture로 교체하고 e2e/package script/postMessage targetOrigin/lead payload 분리/Prettier format gate를 구현 및 검증 예정.
 - 2026-05-10 KST Embed PoC 검증 fixture 보강 종료: `apps/embed/host-fixture.html` 실제 DOM fixture(hero/revisit/newvisit/px-intelligence/contact)와 `injectConciergeWidget()` iframe 주입, host CTA click-through, parentOrigin 우선 postMessage, sandbox opaque wildcard fallback, lead payload message 분리, Prettier format/format:check+CI gate 연결 완료; 검증 `npm run format:check`, `npm test` 43 files/330 passed, typecheck/lint/app tsconfig 3종, build/build:embed/build:vercel:widget, `npm run test:e2e` 7 passed(actual embed fixture), design-polish/pr-evidence/security source+diff/audit/git diff check/one-line TS·TSX·JSON scan PASS. real LLM/Supabase/Slack/Admin/CRM/production deploy 미구현.
 - 2026-05-10 KST Guided Conversion Layer PoC 시작: `concierge_ai_improvement_directive_v1.md` 기준으로 문서 확장을 최소화하고 host fixture, selector map, rule-based intent routing, section guide, lead form mock submit, click-through/mobile/reduced-motion e2e를 실제 동작 표면 중심으로 구현 예정.

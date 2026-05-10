@@ -12,9 +12,9 @@ permissions:
 
 jobs:
   verify:
-    name: test typecheck lint build security
+    name: test typecheck lint build e2e security
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
@@ -45,6 +45,12 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run e2e tests
+        run: npm run test:e2e
 
       - name: PR evidence template structural validate
         run: npm run pr:evidence:validate
