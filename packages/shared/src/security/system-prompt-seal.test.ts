@@ -26,7 +26,12 @@ describe("sealSystemPrompt", () => {
     const { prompt, seal } = sealSystemPrompt({
       basePrompt: "p",
       approvedDocs: [
-        { id: "kb1", version: "1.0", title: "Re:Visit", body: "환자 안내 자동화" },
+        {
+          id: "kb1",
+          version: "1.0",
+          title: "Re:Visit",
+          body: "환자 안내 자동화"
+        },
         { id: "kb2", version: "0.9", title: "체크업AI", body: "검진 결과 안내" }
       ]
     });

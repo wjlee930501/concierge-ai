@@ -25,17 +25,18 @@ export const safetyResponsePayloadSchema = z
 export type SafetyResponsePayload = z.infer<typeof safetyResponsePayloadSchema>;
 
 // PRD v1.2 §5.3 placeholder copy. source data 도착 후 한국어 카피 확정.
-export const SAFETY_RESPONSE_DEFAULT_COPY: Record<SafetyResponseReason, string> = {
+export const SAFETY_RESPONSE_DEFAULT_COPY: Record<
+  SafetyResponseReason,
+  string
+> = {
   out_of_scope:
     "그 부분은 담당자가 직접 안내드리는 게 가장 빨라요. 1영업일 안에 연락드릴 수 있도록 정보 남겨주시겠어요?",
-  kb_unavailable:
-    "정확한 정보를 위해 담당자가 직접 안내드리는 게 좋겠어요.",
+  kb_unavailable: "정확한 정보를 위해 담당자가 직접 안내드리는 게 좋겠어요.",
   pii_request:
     "개인정보 관련 요청은 처리할 수 없어요. 담당자에게 직접 연락 부탁드려요.",
   prompt_injection_detected:
     "답변하기 어려운 영역이에요. 모션랩스 도구나 도입 관련해서 도와드릴 게 있을까요?",
-  policy_violation:
-    "그 부분은 답변드리기 어려워요. 다른 부분 도와드릴게요."
+  policy_violation: "그 부분은 답변드리기 어려워요. 다른 부분 도와드릴게요."
 };
 
 export function buildDefaultSafetyResponse(

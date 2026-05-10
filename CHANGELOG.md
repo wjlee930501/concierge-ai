@@ -1,6 +1,9 @@
 # CHANGELOG.md
 
 ## [Design polish / 2026-05-10]
+
+- 2026-05-10 KST Embed PoC 검증 fixture 보강 시작: `apps/embed/host-fixture.html`을 실제 MotionLabs-like host fixture로 교체하고 e2e/package script/postMessage targetOrigin/lead payload 분리/Prettier format gate를 구현 및 검증 예정.
+- 2026-05-10 KST Embed PoC 검증 fixture 보강 종료: `apps/embed/host-fixture.html` 실제 DOM fixture(hero/revisit/newvisit/px-intelligence/contact)와 `injectConciergeWidget()` iframe 주입, host CTA click-through, parentOrigin 우선 postMessage, sandbox opaque wildcard fallback, lead payload message 분리, Prettier format/format:check+CI gate 연결 완료; 검증 `npm run format:check`, `npm test` 43 files/330 passed, typecheck/lint/app tsconfig 3종, build/build:embed/build:vercel:widget, `npm run test:e2e` 7 passed(actual embed fixture), design-polish/pr-evidence/security source+diff/audit/git diff check/one-line TS·TSX·JSON scan PASS. real LLM/Supabase/Slack/Admin/CRM/production deploy 미구현.
 - 2026-05-10 KST Guided Conversion Layer PoC 시작: `concierge_ai_improvement_directive_v1.md` 기준으로 문서 확장을 최소화하고 host fixture, selector map, rule-based intent routing, section guide, lead form mock submit, click-through/mobile/reduced-motion e2e를 실제 동작 표면 중심으로 구현 예정.
 - 2026-05-10 KST Guided Conversion Layer PoC 종료: host fixture `data-concierge-section` 5종, selector map, rule-based intent router, section spotlight/scroll, iframe hitbox click-through, lead form mock payload/failure, mobile/reduced-motion e2e 구현; 검증 `npm test` 42 files/322 passed, typecheck/lint/build/build:embed/build:vercel:widget, `npm run test:e2e` 7 passed, design-polish/pr-evidence/security source+diff/audit/git diff check PASS. real LLM/Supabase/Slack/Admin/CRM 미연결.
 - 2026-05-10 KST Speech bubble floating smoothing 시작: 말풍선 반복 floating이 루프 끝에서 시작점으로 튀는 문제를 mirror loop 계약으로 보강하고 브라우저 smoke까지 재검증 예정.
@@ -12,6 +15,7 @@
 - 2026-05-10 KST Design polish full continuation 종료: 3-tier chapter/section/beat schema, 25 micro-beat storytelling fixture, beat orchestrator(scroll/highlight/move/expression/message), completion report 추가; npm test 34 files/301 passed, typecheck/lint/security/pr-evidence/build:vercel:widget/host-preview build/git diff check PASS, browser smoke(localhost:5173 25-beat 진행/choice reveal, localhost:5180 host iframe+DOM labels) PASS. 남은 범위는 generated expression image assets, motion physics 세부 frame QA, staging Computer-Use 자동화.
 
 ## [Week 1 / 2026-05-08]
+
 - W1 2026-05-08 KST MotionLabs homepage interaction 재정렬 시작: 채널톡형 floating chat/hero mockup 중심을 폐기하고 내장형 intent-aware guide prototype으로 수정 예정.
 - W1 2026-05-08 KST MotionLabs homepage interaction 재정렬 종료: spec/prototype을 외부 솔루션·채널톡형 floating chat·hero mockup 중심에서 홈페이지 본문 내장형 intent-aware guide layer로 수정; 브라우저 클릭/콘솔/스크린샷 검증 완료.
 - W1 2026-05-08 KST 방향 정정: inline guide layer 방향을 폐기하고 PRD 기준의 center-bottom floating + overlay virtual salesman으로 spec/prototype/injector 재수정; 로컬 prototype 브라우저 클릭/콘솔/스크린샷 및 실제 motionlabs.kr DOM overlay preview 확인.
@@ -19,6 +23,7 @@
 - W1 2026-05-08 KST 0.8v 보강 종료: apps/admin·packages/kb boundary, docs/architecture/SCENARIO_NAMESPACE_SEPARATION.md, embed iframe DOM skeleton·handshake state machine·validateIncomingEnvelope, origin env contract(CONCIERGE_ALLOWED_ORIGINS + environment validation) 추가; npm test 235 passed, typecheck/lint/build, pr:evidence:validate, source/history security scan 통과.
 
 ## [Init / 2026-05-07]
+
 - W1 2026-05-08 18:30 KST Codex 보안/evidence 보강 시작: origin scheme guard, message-specific postMessage validator, PR/Computer-Use evidence validator 강화 예정.
 - W1 2026-05-08 18:38 KST Codex 보안/evidence 보강 종료: 환경별 origin guard, ready/handshake/resize validator, PRD/test/Computer-Use evidence label gate 추가; npm test 200 passed, typecheck/lint, pr:evidence:validate, source/history security scan, git diff --check 통과.
 - Project scaffold started from Concierge AI PRD v1.1.
@@ -170,7 +175,7 @@
 - W1 2026-05-08 15:06 KST cron slice 시작: Claude Code 1차 구현으로 validator 공통 markdown path guard/sanitize dedupe scaffold 보강 예정.
 - W1 2026-05-08 15:11 KST cron slice 변경: `scripts/markdown-target-guard.mjs` 공유 guard/sanitizer를 추가하고 `validate-pr-evidence.mjs`/`validate-pr-template.mjs`가 동일 함수 재사용·재export하도록 정리, 공통 guard parity 회귀 테스트 추가.
 - W1 2026-05-08 15:13 KST cron slice 검증: focused Vitest 3 files/51 passed; full gate `npm test` 17 files/184 passed, typecheck/lint/build, `npm run pr:evidence:validate`, source/diff/history security scan(0 findings), `git diff --check`, `npm audit --audit-level=moderate`(0 vulnerabilities) 통과.
-- W1 2026-05-08 15:13 KST Codex review-only PASS(Critical 0, Important 0, Nit 0): 공통 guard side-effect free, 두 validator의 lstat/realpath 경계 유지, symlink/.env*/출력 sanitize 테스트 확인.
+- W1 2026-05-08 15:13 KST Codex review-only PASS(Critical 0, Important 0, Nit 0): 공통 guard side-effect free, 두 validator의 lstat/realpath 경계 유지, symlink/.env\*/출력 sanitize 테스트 확인.
 - W1 2026-05-08 15:13 KST cron slice 종료: scaffolding-only validator guard dedupe 완료; production secret/API/webhook/real scenario/final copy/AI runtime/PIPA/Admin/KB 접근 없음; commit/push/deploy/Computer-Use 미실행.
 - Next slice 후보: PR evidence exact segment fixture README/alignment mirror test 보강 또는 validator shared guard docs-only ownership note 보강.
 - W1 2026-05-08 15:35 KST cron slice 시작: Claude Code 1차 구현으로 PR evidence exact segment fixture README/alignment mirror test 보강 예정.
@@ -229,6 +234,7 @@
 - W1 2026-05-09 KST Vercel-readiness pass 종료: production secret/API/webhook/real scenario/final copy 접근 없음, 사용자 노출 한국어는 모두 `[PLACEHOLDER]` 또는 home-benchmark preview copy로만 유지, FINAL_ALIGNMENT §3 boundary 보존.
 
 ## [PRD v1.2 + CURATION_CHOREOGRAPHY_SPEC alignment / 2026-05-09 후반]
+
 - W1 2026-05-09 KST Codex 심화 보완 시작: high-intensity review 잔여 blocker 해소 — rect_response/section_not_found 양방향 bridge, 실제 UI timeline/anchor 연결, stale async cleanup, reduced-motion state 동기화, host highlight style, parent/widget origin 분리 테스트 보강 예정.
 - W1 2026-05-09 KST Codex 심화 보완 종료: widget choreography를 실제 `executeStep` timeline/anchor/tilt/choice reveal에 연결, host-driver `rect_response`/`section_not_found` 양방향 bridge와 fixed widgetOrigin postMessage 응답 추가, parent origin referrer/ancestor allowlist 선택 및 widget ready origin 분리, stale async cleanup/driver_clear, reduced-motion 초기값+change sync, host highlight style injection, bubble viewport clamp, AI tool discriminated union 타입 보강 완료; focused Vitest 7 files/40 passed, full `npm test` 32 files/259 passed, `npm run typecheck`, widget/embed/shared tsconfig, `npm run lint`, `npm run build:vercel:widget`, `npm run build`, `npm run pr:evidence:validate`, `npm run security:scan`, `git diff --check`, Browser smoke(`http://127.0.0.1:5173/` hero→step choice visible, console error 0, dev server 종료) 통과.
 - W1 2026-05-09 KST Codex 보완 시작: repo-wide review blocker 해소 — host-driver postMessage 4종 envelope, widget choreography 실행 연결, reduced-motion 토글/즉시 jump, prompt-injection 필수 enum, scenario choice schema drift 보완 예정.

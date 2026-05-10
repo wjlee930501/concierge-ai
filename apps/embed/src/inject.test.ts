@@ -3,13 +3,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   POST_MESSAGE_EMBED_SOURCE,
   POST_MESSAGE_IFRAME_HITBOX_TYPE,
+  POST_MESSAGE_LEAD_SUBMITTED_TYPE,
   POST_MESSAGE_WIDGET_SOURCE,
   createPostMessageEnvelope
 } from "@conciergeai/shared";
-import {
-  CONCIERGE_DEFAULT_IFRAME_ID,
-  injectConciergeWidget
-} from "./inject";
+import { CONCIERGE_DEFAULT_IFRAME_ID, injectConciergeWidget } from "./inject";
 import { EMBED_READY_MESSAGE_TYPE } from "./runtime";
 
 describe("injectConciergeWidget", () => {
@@ -130,6 +128,55 @@ describe("injectConciergeWidget", () => {
       expect.objectContaining({ type: "concierge.parent.handshake" }),
       "https://widget.example.test"
     );
+    handle.destroy();
+  });
+
+  it("exposes injectConciergeWidget on the browser bundle contract", async () => {
+    await import("./embed-bundle");
+
+    expect(window.Concierge?.injectConciergeWidget).toBe(injectConciergeWidget);
+  });
+
+  it("routes lead submitted payloads through a separate callback from host-driver messages", () => {
+    const onLeadSubmit = vi.fn();
+    const handle = injectConciergeWidget({
+      widgetSrc: "https://widget.example.test/widget/",
+      allowedParentOrigins: ["https://host.example.test"],
+      frameAncestors: ["https://host.example.test"],
+      onLeadSubmit
+    });
+
+    window.dispatchEvent(
+      new MessageEvent("message", {
+        source: handle.iframe.contentWindow,
+        origin: "null",
+        data: createPostMessageEnvelope({
+          type: POST_MESSAGE_LEAD_SUBMITTED_TYPE,
+          nonce: "lead-1",
+          source: POST_MESSAGE_WIDGET_SOURCE,
+          payload: {
+            lead: {
+              source: "concierge_ai",
+              host: "motionlabs",
+              intent: "revisit",
+              hospitalName: "서울OO의원",
+              name: "홍길동",
+              phone: "010-0000-0000",
+              interestArea: "revisit",
+              consent: true
+            }
+          }
+        })
+      })
+    );
+
+    expect(onLeadSubmit).toHaveBeenCalledWith({
+      lead: expect.objectContaining({
+        source: "concierge_ai",
+        host: "motionlabs",
+        intent: "revisit"
+      })
+    });
     handle.destroy();
   });
 });

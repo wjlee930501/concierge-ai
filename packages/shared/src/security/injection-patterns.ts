@@ -47,10 +47,16 @@ const INJECTION_PATTERN_TABLE: ReadonlyArray<{
   { name: "role_hijack", re: /you\s+are\s+now\s+chatgpt/i },
   { name: "system_prompt_leak", re: /system\s+prompt/i },
   { name: "html_script_tag", re: /<\s*script[\s>]/i },
-  { name: "act_as_different", re: /act\s+as\s+(a\s+)?(different|new|another)/i },
+  {
+    name: "act_as_different",
+    re: /act\s+as\s+(a\s+)?(different|new|another)/i
+  },
   { name: "korean_role_hijack", re: /당신은\s+이제/ },
   { name: "korean_system_prompt", re: /시스템\s*프롬프트/ },
-  { name: "system_message_reveal", re: /system\s+(message|instruction)\s+(reveal|show|print|output|leak)/i },
+  {
+    name: "system_message_reveal",
+    re: /system\s+(message|instruction)\s+(reveal|show|print|output|leak)/i
+  },
   { name: "jailbreak_keyword", re: /\bjailbreak\b/i },
   { name: "html_other_active_tag", re: /<\s*\/?\s*(iframe|object|embed)\b/i }
 ];

@@ -22,4 +22,3 @@ export const motionlabsSectionMap = {
 } as const;
 
 export type MotionlabsSectionKey = keyof typeof motionlabsSectionMap;
-

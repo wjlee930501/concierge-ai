@@ -20,8 +20,14 @@ const OUTPUT_LEAK_TABLE: ReadonlyArray<{
 }> = [
   { name: "anthropic_api_key", re: /sk-ant-[A-Za-z0-9_-]{16,}/ },
   { name: "openai_api_key", re: /sk-[A-Za-z0-9]{32,}/ },
-  { name: "slack_webhook_url", re: /https?:\/\/hooks\.slack\.com\/services\/[A-Z0-9]{6,}/i },
-  { name: "system_prompt_marker", re: /\[APPROVED KNOWLEDGE — 본 자료 외 답변 금지\]/ },
+  {
+    name: "slack_webhook_url",
+    re: /https?:\/\/hooks\.slack\.com\/services\/[A-Z0-9]{6,}/i
+  },
+  {
+    name: "system_prompt_marker",
+    re: /\[APPROVED KNOWLEDGE — 본 자료 외 답변 금지\]/
+  },
   { name: "tool_schema_marker", re: /z\.object\(\s*\{/ },
   { name: "private_key_block", re: /-----BEGIN [A-Z ]+PRIVATE KEY-----/ },
   { name: "supabase_service_role_marker", re: /SUPABASE_SERVICE_ROLE_KEY\s*=/ }

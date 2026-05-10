@@ -50,65 +50,41 @@ describe("origin env contract", () => {
       "production"
     ];
 
-    it.each(localEnvs)(
-      "%s allows localhost origins",
-      (env) => {
-        expect(
-          validateOriginsForEnvironment(
-            ["http://localhost:5173", "http://127.0.0.1:3000"],
-            env
-          )
-        ).toEqual(["http://localhost:5173", "http://127.0.0.1:3000"]);
-      }
-    );
+    it.each(localEnvs)("%s allows localhost origins", (env) => {
+      expect(
+        validateOriginsForEnvironment(
+          ["http://localhost:5173", "http://127.0.0.1:3000"],
+          env
+        )
+      ).toEqual(["http://localhost:5173", "http://127.0.0.1:3000"]);
+    });
 
-    it.each(localEnvs)(
-      "%s allows .test TLD origins",
-      (env) => {
-        expect(
-          validateOriginsForEnvironment(
-            ["https://host.example.test"],
-            env
-          )
-        ).toEqual(["https://host.example.test"]);
-      }
-    );
+    it.each(localEnvs)("%s allows .test TLD origins", (env) => {
+      expect(
+        validateOriginsForEnvironment(["https://host.example.test"], env)
+      ).toEqual(["https://host.example.test"]);
+    });
 
-    it.each(localEnvs)(
-      "%s rejects non-localhost non-.test origins",
-      (env) => {
-        expect(() =>
-          validateOriginsForEnvironment(
-            ["https://real-hospital.example.com"],
-            env
-          )
-        ).toThrow(OriginPolicyError);
-      }
-    );
+    it.each(localEnvs)("%s rejects non-localhost non-.test origins", (env) => {
+      expect(() =>
+        validateOriginsForEnvironment(
+          ["https://real-hospital.example.com"],
+          env
+        )
+      ).toThrow(OriginPolicyError);
+    });
 
-    it.each(remoteEnvs)(
-      "%s requires https origins",
-      (env) => {
-        expect(
-          validateOriginsForEnvironment(
-            ["https://staging.example.test"],
-            env
-          )
-        ).toEqual(["https://staging.example.test"]);
-      }
-    );
+    it.each(remoteEnvs)("%s requires https origins", (env) => {
+      expect(
+        validateOriginsForEnvironment(["https://staging.example.test"], env)
+      ).toEqual(["https://staging.example.test"]);
+    });
 
-    it.each(remoteEnvs)(
-      "%s rejects http origins",
-      (env) => {
-        expect(() =>
-          validateOriginsForEnvironment(
-            ["http://staging.example.test"],
-            env
-          )
-        ).toThrow(OriginPolicyError);
-      }
-    );
+    it.each(remoteEnvs)("%s rejects http origins", (env) => {
+      expect(() =>
+        validateOriginsForEnvironment(["http://staging.example.test"], env)
+      ).toThrow(OriginPolicyError);
+    });
 
     it("validates all origins in the list", () => {
       expect(() =>
@@ -122,9 +98,7 @@ describe("origin env contract", () => {
     it("returns the origins unchanged on success", () => {
       const origins = ["https://staging.example.test"] as const;
 
-      expect(
-        validateOriginsForEnvironment(origins, "staging")
-      ).toBe(origins);
+      expect(validateOriginsForEnvironment(origins, "staging")).toBe(origins);
     });
   });
 });

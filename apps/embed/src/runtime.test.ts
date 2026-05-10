@@ -13,9 +13,7 @@ describe("embed runtime factory scaffold", () => {
   it("composes parent access, sandbox, origin allowlist, targetOrigin, and CSP helpers", () => {
     const runtime = createEmbedRuntime();
 
-    expect(runtime.parentAccessPolicy).toBe(
-      DEFAULT_PARENT_PAGE_ACCESS_POLICY
-    );
+    expect(runtime.parentAccessPolicy).toBe(DEFAULT_PARENT_PAGE_ACCESS_POLICY);
     expect(runtime.iframePolicy.sandbox).toBe("allow-scripts");
     expect(runtime.originPolicy.allowedOrigins).toEqual([
       ...TEST_ONLY_EMBED_PARENT_ORIGINS
@@ -23,9 +21,9 @@ describe("embed runtime factory scaffold", () => {
     expect(runtime.cspPolicy.headerValue).toBe(
       "frame-ancestors https://host.example.test"
     );
-    expect(runtime.isAllowedParentOrigin("https://host.example.test/page")).toBe(
-      true
-    );
+    expect(
+      runtime.isAllowedParentOrigin("https://host.example.test/page")
+    ).toBe(true);
     expect(runtime.targetOriginFor("https://host.example.test/page")).toBe(
       "https://host.example.test"
     );
@@ -54,9 +52,9 @@ describe("embed runtime factory scaffold", () => {
     expect(() => runtime.targetOriginFor("https://other.example.test")).toThrow(
       OriginPolicyError
     );
-    expect(() =>
-      createEmbedRuntime({ allowedParentOrigins: "*" })
-    ).toThrow(OriginPolicyError);
+    expect(() => createEmbedRuntime({ allowedParentOrigins: "*" })).toThrow(
+      OriginPolicyError
+    );
   });
 
   it("applies environment-specific origin scheme guards", () => {
@@ -114,9 +112,9 @@ describe("embed runtime factory scaffold", () => {
 
     expect(runtime.cspPolicy.frameAncestors).toEqual([]);
     expect(runtime.cspPolicy.headerValue).toBe("frame-ancestors 'none'");
-    expect(runtime.isAllowedParentOrigin("https://host.example.test/page")).toBe(
-      true
-    );
+    expect(
+      runtime.isAllowedParentOrigin("https://host.example.test/page")
+    ).toBe(true);
     expect(runtime.targetOriginFor("https://host.example.test/page")).toBe(
       "https://host.example.test"
     );

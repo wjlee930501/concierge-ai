@@ -100,7 +100,12 @@ export function computeTilt(avatar: AnchorPoint, target: AnchorPoint): number {
 export type BubblePosition = "top" | "right" | "bottom" | "left";
 
 export function pickBubblePosition(input: {
-  readonly avatar: { readonly left: number; readonly top: number; readonly right: number; readonly bottom: number };
+  readonly avatar: {
+    readonly left: number;
+    readonly top: number;
+    readonly right: number;
+    readonly bottom: number;
+  };
   readonly bubbleSize: { readonly w: number; readonly h: number };
   readonly viewport: AnchorViewport;
   readonly target?: ChoreographyTargetRect;

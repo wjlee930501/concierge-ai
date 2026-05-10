@@ -9,7 +9,9 @@ import {
 describe("aiToolSchemas (PRD v1.2 §5.2)", () => {
   it("declares exactly seven tools", () => {
     expect(AI_TOOL_NAMES).toHaveLength(7);
-    expect(Object.keys(aiToolSchemas).sort()).toEqual([...AI_TOOL_NAMES].sort());
+    expect(Object.keys(aiToolSchemas).sort()).toEqual(
+      [...AI_TOOL_NAMES].sort()
+    );
   });
 
   it("validates a navigate_to_section call with required choices", () => {

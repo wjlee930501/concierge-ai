@@ -10,13 +10,28 @@ export const POST_MESSAGE_HOST_DRIVER_HIGHLIGHT_TYPE =
   "concierge:driver_highlight" as const;
 export const POST_MESSAGE_HOST_DRIVER_CLEAR_TYPE =
   "concierge:driver_clear" as const;
-export const POST_MESSAGE_HOST_RECT_QUERY_TYPE = "concierge:rect_query" as const;
+export const POST_MESSAGE_HOST_RECT_QUERY_TYPE =
+  "concierge:rect_query" as const;
 export const POST_MESSAGE_HOST_RECT_RESPONSE_TYPE =
   "concierge:rect_response" as const;
 export const POST_MESSAGE_HOST_SECTION_NOT_FOUND_TYPE =
   "concierge:section_not_found" as const;
 export const POST_MESSAGE_IFRAME_HITBOX_TYPE =
   "concierge:iframe_hitbox" as const;
+export const POST_MESSAGE_LEAD_SUBMITTED_TYPE =
+  "concierge.lead.submitted" as const;
+
+export const POST_MESSAGE_HOST_CONTROL_TYPES = [
+  POST_MESSAGE_HOST_SCROLL_TO_TYPE,
+  POST_MESSAGE_HOST_DRIVER_HIGHLIGHT_TYPE,
+  POST_MESSAGE_HOST_DRIVER_CLEAR_TYPE,
+  POST_MESSAGE_HOST_RECT_QUERY_TYPE,
+  POST_MESSAGE_IFRAME_HITBOX_TYPE
+] as const;
+
+export const POST_MESSAGE_LEAD_PAYLOAD_TYPES = [
+  POST_MESSAGE_LEAD_SUBMITTED_TYPE
+] as const;
 
 export const POST_MESSAGE_EMBED_SOURCE = "concierge.embed" as const;
 export const POST_MESSAGE_PARENT_SOURCE = "concierge.parent" as const;
@@ -31,7 +46,8 @@ export const POST_MESSAGE_ENVELOPE_KEYS = [
   "payload"
 ] as const;
 
-export type PostMessageEnvelopeKey = (typeof POST_MESSAGE_ENVELOPE_KEYS)[number];
+export type PostMessageEnvelopeKey =
+  (typeof POST_MESSAGE_ENVELOPE_KEYS)[number];
 
 export type PostMessageEnvelope<
   TPayload = unknown,
@@ -55,7 +71,8 @@ export type PostMessageKnownType =
   | typeof POST_MESSAGE_HOST_RECT_QUERY_TYPE
   | typeof POST_MESSAGE_HOST_RECT_RESPONSE_TYPE
   | typeof POST_MESSAGE_HOST_SECTION_NOT_FOUND_TYPE
-  | typeof POST_MESSAGE_IFRAME_HITBOX_TYPE;
+  | typeof POST_MESSAGE_IFRAME_HITBOX_TYPE
+  | typeof POST_MESSAGE_LEAD_SUBMITTED_TYPE;
 
 export type ReadyMessagePayload = {
   readonly sandbox: string;
@@ -121,6 +138,10 @@ export type IframeHitboxPayload = {
   readonly padding: number;
 };
 
+export type LeadSubmittedPayload = {
+  readonly lead: Readonly<Record<string, unknown>>;
+};
+
 export type ReadyMessageEnvelope = PostMessageEnvelope<
   ReadyMessagePayload,
   typeof POST_MESSAGE_READY_TYPE
@@ -161,6 +182,10 @@ export type IframeHitboxMessageEnvelope = PostMessageEnvelope<
   IframeHitboxPayload,
   typeof POST_MESSAGE_IFRAME_HITBOX_TYPE
 >;
+export type LeadSubmittedMessageEnvelope = PostMessageEnvelope<
+  LeadSubmittedPayload,
+  typeof POST_MESSAGE_LEAD_SUBMITTED_TYPE
+>;
 
 export type KnownPostMessageEnvelope =
   | ReadyMessageEnvelope
@@ -172,7 +197,8 @@ export type KnownPostMessageEnvelope =
   | HostRectQueryMessageEnvelope
   | HostRectResponseEnvelope
   | HostSectionNotFoundEnvelope
-  | IframeHitboxMessageEnvelope;
+  | IframeHitboxMessageEnvelope
+  | LeadSubmittedMessageEnvelope;
 
 export type PostMessageValidationContext = {
   readonly origin: string;
@@ -337,6 +363,14 @@ export function validateKnownPostMessageEnvelope(
         throw new Error("Invalid Concierge host response postMessage");
       }
       return envelope as HostSectionNotFoundEnvelope;
+    case POST_MESSAGE_LEAD_SUBMITTED_TYPE:
+      if (
+        envelope.source !== POST_MESSAGE_WIDGET_SOURCE ||
+        !isLeadSubmittedPayload(envelope.payload)
+      ) {
+        throw new Error("Invalid Concierge lead payload postMessage");
+      }
+      return envelope as LeadSubmittedMessageEnvelope;
     default:
       throw new Error("Unknown Concierge postMessage type");
   }
@@ -484,6 +518,24 @@ function isIframeHitboxPayload(value: unknown): value is IframeHitboxPayload {
     isPositiveFiniteNumber(value.viewport.w) &&
     isPositiveFiniteNumber(value.viewport.h) &&
     isNonNegativeFiniteNumber(value.padding)
+  );
+}
+
+function isLeadSubmittedPayload(value: unknown): value is LeadSubmittedPayload {
+  if (!isRecord(value) || !isRecord(value.lead)) {
+    return false;
+  }
+
+  const lead = value.lead;
+  return (
+    lead.source === "concierge_ai" &&
+    lead.host === "motionlabs" &&
+    isNonEmptyString(lead.intent) &&
+    isNonEmptyString(lead.hospitalName) &&
+    isNonEmptyString(lead.name) &&
+    isNonEmptyString(lead.phone) &&
+    isNonEmptyString(lead.interestArea) &&
+    typeof lead.consent === "boolean"
   );
 }
 

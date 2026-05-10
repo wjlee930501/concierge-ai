@@ -12,14 +12,8 @@ import {
   assertNoParentPageAccess,
   type ParentPageAccessPolicy
 } from "./parent-access";
-import {
-  createEmbedIframePolicy,
-  type EmbedIframePolicy
-} from "./sandbox";
-import {
-  createEmbedCspPolicy,
-  type EmbedCspPolicy
-} from "./csp";
+import { createEmbedIframePolicy, type EmbedIframePolicy } from "./sandbox";
+import { createEmbedCspPolicy, type EmbedCspPolicy } from "./csp";
 
 export const EMBED_RUNTIME_SOURCE = "concierge.embed" as const;
 export const EMBED_READY_MESSAGE_TYPE = "concierge.embed.ready" as const;
@@ -119,7 +113,7 @@ export function createEmbedRuntime(
 
       return createPostMessageEnvelope({
         ...envelopeInput,
-        timestamp: readyInput.timestamp,
+        timestamp: readyInput.timestamp
       });
     }
   });

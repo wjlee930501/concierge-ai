@@ -32,9 +32,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
   const target = POINT_OFFSET[props.point];
   const tilt = props.tilt ?? 0;
   const idleAnimate =
-    mood === "thinking"
-      ? { y: [0, -1.5, 0, 1.5, 0] }
-      : { y: [0, -2, 0] };
+    mood === "thinking" ? { y: [0, -1.5, 0, 1.5, 0] } : { y: [0, -2, 0] };
   const idleTransition = {
     duration: mood === "thinking" ? 1.2 : 4,
     repeat: Infinity,

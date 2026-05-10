@@ -13,6 +13,7 @@
 ### Task 1: Spec Import And Planning Trace
 
 **Files:**
+
 - Create: `docs/interaction/CONCIERGE_DESIGN_POLISH_SPEC.md`
 - Create: `docs/superpowers/plans/2026-05-10-design-polish-sprint4-foundation.md`
 - Modify: `CHANGELOG.md`
@@ -34,6 +35,7 @@ Ensure `CHANGELOG.md` contains a `Design polish / 2026-05-10` start line describ
 ### Task 2: Avatar Expression Contract
 
 **Files:**
+
 - Modify: `apps/widget/src/components/Avatar.tsx`
 - Modify: `apps/widget/src/components/HeroBubble.tsx`
 - Modify: `apps/widget/src/App.tsx`
@@ -42,6 +44,7 @@ Ensure `CHANGELOG.md` contains a `Design polish / 2026-05-10` start line describ
 - [ ] **Step 1: Write the failing test**
 
 Add App-level assertions that:
+
 - Direct free-input focus switches the avatar to `listening`.
 - AI thinking mode switches the avatar to `thinking`.
 - Step choreography renders a `smile` expression for pointing/system-demo moments.
@@ -75,6 +78,7 @@ Expected: PASS.
 ### Task 3: Bubble And Chip Micro-Interactions
 
 **Files:**
+
 - Modify: `apps/widget/src/components/HeroBubble.tsx`
 - Modify: `apps/widget/src/components/QuickChips.tsx`
 - Modify: `apps/widget/src/components/AiSpeechBubble.tsx`
@@ -113,6 +117,7 @@ Expected: PASS.
 ### Task 4: Full Verification And Branch Completion
 
 **Files:**
+
 - Modify: `CHANGELOG.md`
 
 - [ ] **Step 1: Run verification**

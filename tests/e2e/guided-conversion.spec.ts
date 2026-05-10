@@ -1,10 +1,24 @@
-import { expect, test, type Frame, type FrameLocator, type Page } from "@playwright/test";
+import {
+  expect,
+  test,
+  type Frame,
+  type FrameLocator,
+  type Page
+} from "@playwright/test";
 
 const HERO_COPY =
   "어떤 고민으로 오셨나요? 모션랩스의 솔루션을 상황에 맞게 안내해드릴게요.";
 const REVISIT_CHIP = "기존 환자 재방문을 높이고 싶어요";
 
-test("기본 진입에서 Concierge Bubble이 표시되고 닫을 수 있다", async ({ page }) => {
+declare global {
+  interface Window {
+    __HOST_LAST_LEAD_PAYLOAD__?: unknown;
+  }
+}
+
+test("기본 진입에서 Concierge Bubble이 표시되고 닫을 수 있다", async ({
+  page
+}) => {
   const { widget } = await openFixture(page);
 
   await expect(widget.getByText(HERO_COPY)).toBeVisible();
@@ -22,9 +36,7 @@ test("Re:Visit Quick Chip이 host scroll, spotlight, popover, lead CTA로 이어
   const { widget } = await openFixture(page);
 
   await startRevisitFlow(page, widget);
-  await expect(
-    widget.getByText(/Re:Visit은 진료 후 안내/u)
-  ).toBeVisible();
+  await expect(widget.getByText(/Re:Visit은 진료 후 안내/u)).toBeVisible();
   await expect(
     widget.getByRole("button", { name: "상담 신청하기" })
   ).toBeVisible();
@@ -67,6 +79,17 @@ test("Lead Form은 필수값과 동의 후 mock submit payload를 남긴다", as
     interestArea: "revisit",
     consent: true,
     visitedSections: ["hero", "revisit", "contact"]
+  });
+  const hostLead = await page.evaluate(() => window.__HOST_LAST_LEAD_PAYLOAD__);
+  expect(hostLead).toMatchObject({
+    lead: {
+      source: "concierge_ai",
+      host: "motionlabs",
+      intent: "revisit",
+      hospitalName: "서울OO의원",
+      phone: "010-0000-0000",
+      consent: true
+    }
   });
 });
 
@@ -140,7 +163,11 @@ async function openFixture(page: Page): Promise<{
   readonly widget: FrameLocator;
   readonly frame: Frame;
 }> {
-  await page.goto("/");
+  await page.goto("/host-fixture.html");
+  await expect(page.locator('[data-testid="embed-host-ready"]')).toHaveText(
+    "ready"
+  );
+  await expect(page.locator("[data-concierge-section]")).toHaveCount(5);
   const widget = page.frameLocator("#concierge-ai-widget");
   await expect(widget.getByText(HERO_COPY)).toBeVisible({ timeout: 9_000 });
   const iframe = await page.locator("#concierge-ai-widget").elementHandle();

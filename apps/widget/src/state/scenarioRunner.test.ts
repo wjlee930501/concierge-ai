@@ -12,9 +12,7 @@ const baseScenario = parseScenario({
   isPlaceholder: true,
   heroBubble: {
     message: "[PLACEHOLDER] hi",
-    quickChips: [
-      { id: "c1", label: "[PLACEHOLDER] one", nextStepId: "s1" }
-    ]
+    quickChips: [{ id: "c1", label: "[PLACEHOLDER] one", nextStepId: "s1" }]
   },
   steps: [
     {
@@ -50,7 +48,12 @@ const baseScenario = parseScenario({
     subtitle: "[PLACEHOLDER] s",
     fields: [
       { id: "name", label: "[PLACEHOLDER] name", type: "text", required: true },
-      { id: "message", label: "[PLACEHOLDER] message", type: "textarea", required: false }
+      {
+        id: "message",
+        label: "[PLACEHOLDER] message",
+        type: "textarea",
+        required: false
+      }
     ],
     pipaConsents: [
       { id: "required", label: "[PLACEHOLDER] r", required: true },

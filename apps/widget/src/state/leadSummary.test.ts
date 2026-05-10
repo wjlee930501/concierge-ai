@@ -8,7 +8,9 @@ const scenario = parseScenario({
   isPlaceholder: true,
   heroBubble: {
     message: "안내",
-    quickChips: [{ id: "chip_core", label: "핵심 기능 보기", nextStepId: "step_core" }]
+    quickChips: [
+      { id: "chip_core", label: "핵심 기능 보기", nextStepId: "step_core" }
+    ]
   },
   chapters: [
     {
@@ -22,12 +24,18 @@ const scenario = parseScenario({
           beats: [
             {
               id: "beat_scroll",
-              action: { type: "scroll_to", selector: "[data-section='reminder']" },
+              action: {
+                type: "scroll_to",
+                selector: "[data-section='reminder']"
+              },
               bubbleMessage: { text: "예약 직후부터 안내합니다." }
             },
             {
               id: "beat_highlight",
-              action: { type: "highlight", selector: "[data-section='reminder']" },
+              action: {
+                type: "highlight",
+                selector: "[data-section='reminder']"
+              },
               bubbleMessage: { text: "직원이 매번 챙기지 않아도 됩니다." }
             }
           ]
@@ -59,7 +67,9 @@ const scenario = parseScenario({
   leadForm: {
     title: "상담",
     subtitle: "안내",
-    fields: [{ id: "message", label: "메시지", type: "textarea", required: false }],
+    fields: [
+      { id: "message", label: "메시지", type: "textarea", required: false }
+    ],
     pipaConsents: [
       { id: "required", label: "필수", required: true },
       { id: "marketing", label: "선택", required: false },

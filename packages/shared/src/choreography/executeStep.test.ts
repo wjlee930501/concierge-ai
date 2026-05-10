@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { executeStep, type ExecuteStepHooks, type PostMessagePayload } from "./executeStep";
+import {
+  executeStep,
+  type ExecuteStepHooks,
+  type PostMessagePayload
+} from "./executeStep";
 import type {
   AnchorName,
   AvatarExpressionName,

@@ -59,7 +59,9 @@ function scenarioBeatToChoreographyBeat(beat: ScenarioBeat): ChoreographyBeat {
   const base = {
     id: beat.id,
     ...(beat.durationMs !== undefined ? { duration_ms: beat.durationMs } : {}),
-    ...(bubbleMessage?.text !== undefined ? { message: bubbleMessage.text } : {}),
+    ...(bubbleMessage?.text !== undefined
+      ? { message: bubbleMessage.text }
+      : {}),
     ...(bubbleMessage?.typewriterSpeedMs !== undefined
       ? { typewriter_speed_ms: bubbleMessage.typewriterSpeedMs }
       : {}),
@@ -145,7 +147,10 @@ export function createHostDriverPost(input: {
 
 export function createHostDriverBridge(input: {
   readonly targetWindow: Pick<Window, "postMessage">;
-  readonly listenWindow: Pick<Window, "addEventListener" | "removeEventListener">;
+  readonly listenWindow: Pick<
+    Window,
+    "addEventListener" | "removeEventListener"
+  >;
   readonly sourceWindow?: Window;
   readonly targetOrigin: string;
   readonly allowedOrigins: readonly string[];

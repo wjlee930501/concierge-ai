@@ -27,7 +27,10 @@ export type AvatarStateTransitionResult =
     };
 
 const TRANSITIONS: Readonly<
-  Record<AvatarStateName, Partial<Record<AvatarStateEvent["type"], AvatarStateName>>>
+  Record<
+    AvatarStateName,
+    Partial<Record<AvatarStateEvent["type"], AvatarStateName>>
+  >
 > = {
   idle: {
     "user-click": "moving",

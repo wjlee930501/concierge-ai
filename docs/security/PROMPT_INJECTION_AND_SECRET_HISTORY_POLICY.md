@@ -18,14 +18,14 @@
 
 Week 2 sanitization 정책과 테스트는 최소한 다음 enum을 기준으로 작성한다.
 
-| Enum | Review meaning |
-|---|---|
-| `role_hijack` | system/developer/admin 역할을 사칭하거나 기존 지시를 무시하라고 요구하는 패턴 |
-| `unicode_direction_zwj_rtl` | unicode direction override, zero-width joiner, RTL 제어 문자로 텍스트 의미를 숨기는 패턴 |
-| `base64_encoded_payload` | base64 또는 유사 인코딩으로 지시문이나 tool payload를 숨기는 패턴 |
-| `image_alt_text_injection` | 이미지 alt text, caption, metadata에 지시문을 숨기는 패턴 |
-| `tool_call_mimicry` | 사용자가 tool call JSON, function name, schema result처럼 보이는 텍스트를 제공하는 패턴 |
-| `tool_result_reinjection` | tool 결과나 retrieval 결과를 LLM에 재주입할 때 검증되지 않은 instruction-like 텍스트가 다시 실행되는 패턴 |
+| Enum                        | Review meaning                                                                                            |
+| --------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `role_hijack`               | system/developer/admin 역할을 사칭하거나 기존 지시를 무시하라고 요구하는 패턴                             |
+| `unicode_direction_zwj_rtl` | unicode direction override, zero-width joiner, RTL 제어 문자로 텍스트 의미를 숨기는 패턴                  |
+| `base64_encoded_payload`    | base64 또는 유사 인코딩으로 지시문이나 tool payload를 숨기는 패턴                                         |
+| `image_alt_text_injection`  | 이미지 alt text, caption, metadata에 지시문을 숨기는 패턴                                                 |
+| `tool_call_mimicry`         | 사용자가 tool call JSON, function name, schema result처럼 보이는 텍스트를 제공하는 패턴                   |
+| `tool_result_reinjection`   | tool 결과나 retrieval 결과를 LLM에 재주입할 때 검증되지 않은 instruction-like 텍스트가 다시 실행되는 패턴 |
 
 Enum 값은 review 기준이며, 최종 사용자 노출 문구가 아니다. `safety_response` reason enum과 한국어 카피는 별도 owner approval 전까지 확정하지 않는다.
 
@@ -46,6 +46,7 @@ Secret scan은 current diff뿐 아니라 git history까지 추적한다. 문서 
 M0 local scanner는 `apps`, `packages`, `scripts`, `docs`, `tests` 아래 source-like 파일을 대상으로 path/rule/count만 보고하는 최소 scaffold다. root 문서/설정 파일, current diff 전체, recent git history, 아래 전체 detector family는 Week 1 수동 검증과 M1 CI 확장으로 보완한다. M0 결과를 "전체 git history 무결성"으로 해석하지 않는다.
 
 M1까지 확장할 감지 범위:
+
 - API key family: `s[k]-`, `s[k]-proj-` 형태의 de-fanged detector 기준
 - Slack token family: `xox*[-]` 형태의 de-fanged detector 기준
 - webhook signing secret family: `whsec[_]` 형태의 de-fanged detector 기준
@@ -55,11 +56,11 @@ M1까지 확장할 감지 범위:
 
 Milestones:
 
-| Milestone | Gate | Policy |
-|---|---|---|
-| M0 | Week 1 docs/scaffold | Local safe scan before exit: `npm run security:scan` for tracked/source-like paths, plus manual diff/recent-history checks when needed. Exclude `.git`, `node_modules`, build artifacts, coverage, caches, and lockfiles. Do not print matched values. |
-| M1 | Before Week 2 AI/KB Reviewable PR | Add CI secret-history scan or documented equivalent. CI output must report file/path/count only, not secret values. |
-| M2 | Before Week 4 Admin Reviewable PR | Add runtime staging/prod cross-env guard so staging cannot consume production secrets even if env wiring is wrong. |
+| Milestone | Gate                              | Policy                                                                                                                                                                                                                                                 |
+| --------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| M0        | Week 1 docs/scaffold              | Local safe scan before exit: `npm run security:scan` for tracked/source-like paths, plus manual diff/recent-history checks when needed. Exclude `.git`, `node_modules`, build artifacts, coverage, caches, and lockfiles. Do not print matched values. |
+| M1        | Before Week 2 AI/KB Reviewable PR | Add CI secret-history scan or documented equivalent. CI output must report file/path/count only, not secret values.                                                                                                                                    |
+| M2        | Before Week 4 Admin Reviewable PR | Add runtime staging/prod cross-env guard so staging cannot consume production secrets even if env wiring is wrong.                                                                                                                                     |
 
 Local scanner commands:
 

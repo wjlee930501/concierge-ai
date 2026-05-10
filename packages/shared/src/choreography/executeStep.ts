@@ -56,7 +56,9 @@ export type ExecuteStepHooks = {
   readonly setBubbleVisible: (visible: boolean) => void;
   readonly setCurrentAnchor: (anchor: AnchorName) => void;
   readonly setTilt: (deg: number) => void;
-  readonly setAvatarExpression?: (expression: AvatarExpressionName | null) => void;
+  readonly setAvatarExpression?: (
+    expression: AvatarExpressionName | null
+  ) => void;
   readonly setChoices: (choices: readonly ChoreographyChoice[]) => void;
   readonly postToHost: (payload: PostMessagePayload) => void;
   readonly queryHostRect: (
@@ -283,7 +285,8 @@ async function executeBeat(
     hooks.setAvatarState("talking");
     hooks.setBubbleMessage(beat.message);
     hooks.setBubbleVisible(true);
-    const speed = beat.typewriter_speed_ms ?? EXECUTE_STEP_TIMINGS.typewriterPerChar;
+    const speed =
+      beat.typewriter_speed_ms ?? EXECUTE_STEP_TIMINGS.typewriterPerChar;
     const typewriterMs = beat.message.length * speed;
     await env.waitFor(typewriterMs);
     elapsedMs += typewriterMs;

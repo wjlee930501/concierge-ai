@@ -25,7 +25,13 @@ const REQUIRED_GROUPS = ["ortho-advisors"] as const;
 
 const HOST_DIR = "hosts/motionlabs-kr";
 const SOURCE_EXTENSIONS = new Set([".html", ".tsx", ".jsx", ".vue", ".svelte"]);
-const IGNORED_DIRS = new Set([".git", ".next", "dist", "build", "node_modules"]);
+const IGNORED_DIRS = new Set([
+  ".git",
+  ".next",
+  "dist",
+  "build",
+  "node_modules"
+]);
 
 function listSourceFiles(dir: string): string[] {
   return readdirSync(dir).flatMap((entry) => {

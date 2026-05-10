@@ -81,13 +81,11 @@ function HeroSection(): JSX.Element {
           </div>
           <h1 className="text-[clamp(34px,5vw,64px)] font-black leading-[1.08] tracking-[-0.04em] text-balance">
             환자 경험 관리가
-            <br />
-            곧 병원 경영입니다
+            <br />곧 병원 경영입니다
           </h1>
           <p className="mt-5 max-w-xl text-[clamp(15px,1.4vw,18px)] leading-[1.7] text-[#3b4d68]">
-            매출로 이어지는 환자 관리 솔루션, 리비짓.
-            500개+ 병의원이 검증한 알림톡 자동화·맞춤 콘텐츠·재방문 분석을 한
-            번에.
+            매출로 이어지는 환자 관리 솔루션, 리비짓. 500개+ 병의원이 검증한
+            알림톡 자동화·맞춤 콘텐츠·재방문 분석을 한 번에.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a
@@ -277,8 +275,16 @@ function AutoReminderSection(): JSX.Element {
           <div className="space-y-3">
             {[
               { when: "즉시", what: "예약 확정 안내", who: "신규 환자" },
-              { when: "3일 후 10:30", what: "재방문 리마인드", who: "도수치료 환자" },
-              { when: "7일 후 11:00", what: "운동 영상 안내", who: "정형외과 환자" }
+              {
+                when: "3일 후 10:30",
+                what: "재방문 리마인드",
+                who: "도수치료 환자"
+              },
+              {
+                when: "7일 후 11:00",
+                what: "운동 영상 안내",
+                who: "정형외과 환자"
+              }
             ].map((row) => (
               <div
                 key={row.what}
@@ -286,7 +292,9 @@ function AutoReminderSection(): JSX.Element {
               >
                 <div className="font-bold text-ink">{row.what}</div>
                 <div className="text-mist">{row.when}</div>
-                <div className="text-[10px] font-bold text-accent">{row.who}</div>
+                <div className="text-[10px] font-bold text-accent">
+                  {row.who}
+                </div>
               </div>
             ))}
           </div>
@@ -311,10 +319,19 @@ function CustomContentSection(): JSX.Element {
           <br />
           충성 고객을 만드세요.
         </h2>
-        <div data-mc-section="specialty-tabs" className="mt-8 flex flex-wrap gap-2">
+        <div
+          data-mc-section="specialty-tabs"
+          className="mt-8 flex flex-wrap gap-2"
+        >
           {tabs.map((t, i) => (
             <span
-              data-mc-tab={i === 0 ? "orthopedics" : i === 1 ? "internal-medicine" : undefined}
+              data-mc-tab={
+                i === 0
+                  ? "orthopedics"
+                  : i === 1
+                    ? "internal-medicine"
+                    : undefined
+              }
               key={t}
               className={
                 i === 0
@@ -432,8 +449,8 @@ function AnalyticsSection(): JSX.Element {
             진짜 전략을 세우세요.
           </h2>
           <p className="mt-4 text-[14px] leading-[1.7] text-[#3b4d68]">
-            진료과별 재방문율, 객단가, 노쇼율, 메시지 반응률을 한 화면에서.
-            CRM 의사결정에 필요한 단 한 장의 인사이트.
+            진료과별 재방문율, 객단가, 노쇼율, 메시지 반응률을 한 화면에서. CRM
+            의사결정에 필요한 단 한 장의 인사이트.
           </p>
         </div>
         <div className="rounded-[28px] border border-black/5 bg-bg p-6 shadow-[0_18px_40px_rgba(7,20,39,0.06)]">
@@ -453,7 +470,9 @@ function AnalyticsSection(): JSX.Element {
                 className="rounded-xl bg-white px-4 py-3 shadow-[0_6px_18px_rgba(7,20,39,0.06)]"
               >
                 <div className="text-[11px] text-mist">{kpi.label}</div>
-                <div className={`text-2xl font-black tracking-tight ${kpi.color}`}>
+                <div
+                  className={`text-2xl font-black tracking-tight ${kpi.color}`}
+                >
                   {kpi.value}
                 </div>
               </div>
@@ -494,10 +513,14 @@ function DemoSection(): JSX.Element {
             className="rounded-md bg-white/10 px-3 py-2 text-[13px] text-white placeholder:text-white/50"
           />
           <select className="rounded-md bg-white/10 px-3 py-2 text-[13px] text-white md:col-span-2">
-            <option>진료과 선택 — 정형외과 / 내과 / 산부인과 / 안과 / 피부과</option>
+            <option>
+              진료과 선택 — 정형외과 / 내과 / 산부인과 / 안과 / 피부과
+            </option>
           </select>
           <select className="rounded-md bg-white/10 px-3 py-2 text-[13px] text-white md:col-span-2">
-            <option>리마인드 템플릿 선택 — 도수치료 / 검진 결과 안내 / …</option>
+            <option>
+              리마인드 템플릿 선택 — 도수치료 / 검진 결과 안내 / …
+            </option>
           </select>
           <label className="flex items-center gap-2 text-[12px] text-white/70 md:col-span-2">
             <input type="checkbox" className="accent-mint" />
@@ -537,7 +560,11 @@ function ResultsSection(): JSX.Element {
     }
   ];
   return (
-    <section data-mc-section="case-data" id="section-results" className="bg-bg px-6 py-24">
+    <section
+      data-mc-section="case-data"
+      id="section-results"
+      className="bg-bg px-6 py-24"
+    >
       <div className="mx-auto max-w-6xl">
         <h2 className="mx-auto max-w-3xl text-center text-[clamp(24px,3vw,36px)] font-black leading-[1.2] tracking-[-0.03em]">
           500개+의 병의원이 경험한 매출 상승과 경영 효율화,
@@ -548,7 +575,11 @@ function ResultsSection(): JSX.Element {
           {cards.map((c, index) => (
             <div
               data-mc-card={
-                index === 0 ? "ortho-revisit-12" : index === 2 ? "im-revenue-19" : undefined
+                index === 0
+                  ? "ortho-revisit-12"
+                  : index === 2
+                    ? "im-revenue-19"
+                    : undefined
               }
               key={c.headline}
               className="rounded-[24px] border border-black/5 bg-white p-6 shadow-[0_18px_40px_rgba(7,20,39,0.06)]"
@@ -568,16 +599,25 @@ function ResultsSection(): JSX.Element {
 function AdvisorsSection(): JSX.Element {
   const slots = Array.from({ length: 12 });
   return (
-    <section data-mc-section="advisors" id="section-advisors" className="bg-white px-6 py-24">
+    <section
+      data-mc-section="advisors"
+      id="section-advisors"
+      className="bg-white px-6 py-24"
+    >
       <div className="mx-auto max-w-6xl">
         <h2 className="mx-auto max-w-3xl text-center text-[clamp(22px,2.6vw,32px)] font-black tracking-tight">
           리비짓은 24명+의 자문 전문의가 함께하는 믿을 수 있는 솔루션입니다.
         </h2>
-        <div data-mc-group="ortho-advisors" className="mt-10 grid grid-cols-3 gap-4 md:grid-cols-6">
+        <div
+          data-mc-group="ortho-advisors"
+          className="mt-10 grid grid-cols-3 gap-4 md:grid-cols-6"
+        >
           {slots.map((_, i) => (
             <div key={i} className="text-center">
               <div className="mx-auto h-16 w-16 rounded-full bg-gradient-to-br from-bg to-accent/20" />
-              <div className="mt-2 text-[12px] font-bold text-ink">전문의 {i + 1}</div>
+              <div className="mt-2 text-[12px] font-bold text-ink">
+                전문의 {i + 1}
+              </div>
               <div className="text-[10px] text-mist">정형외과</div>
             </div>
           ))}
@@ -589,7 +629,11 @@ function AdvisorsSection(): JSX.Element {
 
 function SecuritySection(): JSX.Element {
   return (
-    <section data-mc-section="security" id="section-security" className="bg-bg px-6 py-24">
+    <section
+      data-mc-section="security"
+      id="section-security"
+      className="bg-bg px-6 py-24"
+    >
       <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[1.1fr_0.9fr] md:items-center">
         <div>
           <SectionEyebrow label="정보 보호" />
@@ -706,8 +750,12 @@ function SiteFooter(): JSX.Element {
         <div>
           <div className="mb-3 flex items-center gap-2 text-white">
             <span className="inline-block h-7 w-7 rounded-md bg-gradient-to-br from-accent to-white/40" />
-            <span className="text-base font-black tracking-tight">Re:Visit</span>
-            <span className="text-[10px] font-bold text-white/50">by MotionLabs</span>
+            <span className="text-base font-black tracking-tight">
+              Re:Visit
+            </span>
+            <span className="text-[10px] font-bold text-white/50">
+              by MotionLabs
+            </span>
           </div>
           <div>주식회사 모션랩스 (MotionLabs Inc.)</div>
           <div>대표: 이우진 · 사업자등록번호 466-88-01551</div>

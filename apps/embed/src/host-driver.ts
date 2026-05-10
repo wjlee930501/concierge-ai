@@ -4,6 +4,7 @@ import {
   POST_MESSAGE_HOST_RECT_QUERY_TYPE,
   POST_MESSAGE_HOST_RECT_RESPONSE_TYPE,
   POST_MESSAGE_HOST_SCROLL_TO_TYPE,
+  POST_MESSAGE_HOST_CONTROL_TYPES,
   POST_MESSAGE_IFRAME_HITBOX_TYPE,
   POST_MESSAGE_HOST_SECTION_NOT_FOUND_TYPE,
   POST_MESSAGE_PARENT_SOURCE,
@@ -21,13 +22,8 @@ import {
 const DRIVER_HIGHLIGHT_CLASS = "concierge-driver-highlight";
 const DRIVER_STYLE_ID = "concierge-driver-highlight-style";
 
-const HOST_DRIVER_TYPES: readonly PostMessageKnownType[] = [
-  POST_MESSAGE_HOST_SCROLL_TO_TYPE,
-  POST_MESSAGE_HOST_DRIVER_HIGHLIGHT_TYPE,
-  POST_MESSAGE_HOST_DRIVER_CLEAR_TYPE,
-  POST_MESSAGE_HOST_RECT_QUERY_TYPE,
-  POST_MESSAGE_IFRAME_HITBOX_TYPE
-];
+const HOST_DRIVER_TYPES: readonly PostMessageKnownType[] =
+  POST_MESSAGE_HOST_CONTROL_TYPES;
 
 type WidgetHostResponse =
   | {
@@ -164,7 +160,10 @@ function highlightSelector(
   const node = doc.querySelector<HTMLElement>(payload.selector);
   if (node === null) return;
   node.classList.add(DRIVER_HIGHLIGHT_CLASS);
-  node.style.setProperty("--concierge-highlight-padding", `${payload.padding}px`);
+  node.style.setProperty(
+    "--concierge-highlight-padding",
+    `${payload.padding}px`
+  );
   node.style.setProperty("--concierge-highlight-radius", `${payload.radius}px`);
   node.style.setProperty("--concierge-highlight-color", payload.color);
 }

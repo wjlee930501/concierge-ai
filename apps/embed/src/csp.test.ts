@@ -32,9 +32,7 @@ describe("embed CSP frame-ancestors scaffold", () => {
   });
 
   it("rejects wildcard and null frame ancestors", () => {
-    expect(() => buildFrameAncestorsDirective("*")).toThrow(
-      OriginPolicyError
-    );
+    expect(() => buildFrameAncestorsDirective("*")).toThrow(OriginPolicyError);
     expect(() => buildFrameAncestorsDirective("null")).toThrow(
       OriginPolicyError
     );

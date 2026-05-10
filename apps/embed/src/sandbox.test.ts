@@ -15,9 +15,7 @@ describe("embed iframe sandbox policy", () => {
 
   it("forbids top-navigation sandbox tokens", () => {
     for (const token of FORBIDDEN_IFRAME_SANDBOX_TOKENS) {
-      expect(() => buildIframeSandbox(["allow-scripts", token])).toThrow(
-        token
-      );
+      expect(() => buildIframeSandbox(["allow-scripts", token])).toThrow(token);
     }
   });
 

@@ -20,8 +20,7 @@ describe("speech bubble floating motion", () => {
 
   it("keeps the floating range subtle enough for speech content", () => {
     const range =
-      Math.max(...SPEECH_FLOAT_ANIMATE.y) -
-      Math.min(...SPEECH_FLOAT_ANIMATE.y);
+      Math.max(...SPEECH_FLOAT_ANIMATE.y) - Math.min(...SPEECH_FLOAT_ANIMATE.y);
 
     expect(range).toBeLessThanOrEqual(3.2);
     expect(SPEECH_FLOAT_TRANSITION.duration).toBeGreaterThanOrEqual(4.8);

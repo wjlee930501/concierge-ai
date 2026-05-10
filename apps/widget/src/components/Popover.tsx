@@ -30,7 +30,9 @@ export function Popover(props: PopoverProps): JSX.Element {
           <div className="mb-1 text-[11px] font-black uppercase tracking-[0.08em] text-mint">
             {props.content.label}
           </div>
-          <div className="mb-1 font-black tracking-tight">{props.content.title}</div>
+          <div className="mb-1 font-black tracking-tight">
+            {props.content.title}
+          </div>
           <div className="text-[13px] leading-[1.52] text-white/80">
             {props.content.body}
           </div>
@@ -54,10 +56,7 @@ export function Popover(props: PopoverProps): JSX.Element {
   );
 }
 
-function useTargetPosition(
-  target: string | null,
-  visible: boolean
-): Position {
+function useTargetPosition(target: string | null, visible: boolean): Position {
   const [pos, setPos] = useState<Position>({ top: 100, left: 100 });
 
   useEffect(() => {

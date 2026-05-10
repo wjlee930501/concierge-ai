@@ -9,8 +9,10 @@ import {
   POST_MESSAGE_HANDSHAKE_TYPE,
   POST_MESSAGE_PARENT_SOURCE,
   POST_MESSAGE_EMBED_SOURCE,
+  POST_MESSAGE_LEAD_SUBMITTED_TYPE,
   createPostMessageEnvelope,
   validateKnownPostMessageEnvelope,
+  type LeadSubmittedPayload,
   type PostMessageEnvelope
 } from "@conciergeai/shared";
 import { attachConciergeHostDriver } from "./host-driver";
@@ -23,6 +25,7 @@ export type ConciergeInjectOptions = EmbedRuntimeFactoryInput & {
   readonly height?: string;
   readonly idAttribute?: string;
   readonly onReady?: (payload: EmbedReadyPayload) => void;
+  readonly onLeadSubmit?: (payload: LeadSubmittedPayload) => void;
 };
 
 export type ConciergeInjectionHandle = {
@@ -58,9 +61,10 @@ export function injectConciergeWidget(
   const messageListener = (event: MessageEvent) => {
     if (event.source !== iframe.contentWindow) return;
     try {
-      const envelope = validateKnownPostMessageEnvelope(event.data, {
-        origin: event.origin,
-        allowedOrigins: [widgetOrigin],
+      const envelope = validateWidgetEnvelope({
+        event,
+        iframe,
+        widgetOrigin,
         expectedType: EMBED_READY_MESSAGE_TYPE
       });
       if (envelope.type !== EMBED_READY_MESSAGE_TYPE) return;
@@ -73,7 +77,18 @@ export function injectConciergeWidget(
       iframe.contentWindow?.postMessage(handshake, widgetOrigin);
       options.onReady?.(envelope.payload as EmbedReadyPayload);
     } catch {
-      /* swallow invalid envelopes per security policy */
+      try {
+        const envelope = validateWidgetEnvelope({
+          event,
+          iframe,
+          widgetOrigin,
+          expectedType: POST_MESSAGE_LEAD_SUBMITTED_TYPE
+        });
+        if (envelope.type !== POST_MESSAGE_LEAD_SUBMITTED_TYPE) return;
+        options.onLeadSubmit?.(envelope.payload);
+      } catch {
+        /* swallow invalid envelopes per security policy */
+      }
     }
   };
 
@@ -88,6 +103,37 @@ export function injectConciergeWidget(
       iframe.remove();
     }
   };
+}
+
+function validateWidgetEnvelope(input: {
+  readonly event: MessageEvent;
+  readonly iframe: HTMLIFrameElement;
+  readonly widgetOrigin: string;
+  readonly expectedType:
+    | typeof EMBED_READY_MESSAGE_TYPE
+    | typeof POST_MESSAGE_LEAD_SUBMITTED_TYPE;
+}) {
+  return validateKnownPostMessageEnvelope(input.event.data, {
+    origin: isSandboxOpaqueWidgetMessage(input.event, input.iframe)
+      ? input.widgetOrigin
+      : input.event.origin,
+    allowedOrigins: [input.widgetOrigin],
+    expectedType: input.expectedType
+  });
+}
+
+function isSandboxOpaqueWidgetMessage(
+  event: MessageEvent,
+  iframe: HTMLIFrameElement
+): boolean {
+  return event.origin === "null" && usesOpaqueSandbox(iframe);
+}
+
+function usesOpaqueSandbox(iframe: HTMLIFrameElement): boolean {
+  const sandbox = iframe.getAttribute("sandbox");
+  if (sandbox === null) return false;
+  const tokens = sandbox.split(/\s+/u).filter((token) => token.length > 0);
+  return !tokens.includes("allow-same-origin");
 }
 
 function createIframe(input: {

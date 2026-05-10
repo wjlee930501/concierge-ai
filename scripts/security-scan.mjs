@@ -7,7 +7,13 @@ import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
 
-export const DEFAULT_SCAN_ROOTS = ["apps", "packages", "scripts", "docs", "tests"];
+export const DEFAULT_SCAN_ROOTS = [
+  "apps",
+  "packages",
+  "scripts",
+  "docs",
+  "tests"
+];
 
 // Week 1 M1 scaffold introduces three modes that all reuse the same redacted
 // path/rule/count reporting contract. Matched secret values are never printed.
@@ -47,7 +53,14 @@ const DEFAULT_EXCLUDED_FILENAMES = new Set([
 ]);
 
 const DEFAULT_EXCLUDED_FILE_PREFIXES = [".env"];
-const DEFAULT_INCLUDED_DIFF_ROOTS = ["apps", "packages", "scripts", "docs", "tests", ".github"];
+const DEFAULT_INCLUDED_DIFF_ROOTS = [
+  "apps",
+  "packages",
+  "scripts",
+  "docs",
+  "tests",
+  ".github"
+];
 const DEFAULT_INCLUDED_DIFF_ROOT_FILES = new Set([
   "AGENTS.md",
   "CLAUDE.md",
@@ -72,7 +85,8 @@ export const SECRET_SCAN_RULES = Object.freeze([
   },
   {
     id: "generic_api_key_assignment",
-    pattern: /\b(?:api[_-]?key|secret|token|webhook)\b\s*[:=]\s*["'][A-Za-z0-9_./+=-]{20,}["']/giu
+    pattern:
+      /\b(?:api[_-]?key|secret|token|webhook)\b\s*[:=]\s*["'][A-Za-z0-9_./+=-]{20,}["']/giu
   },
   {
     id: "private_key_header",
@@ -80,7 +94,8 @@ export const SECRET_SCAN_RULES = Object.freeze([
   },
   {
     id: "supabase_service_role_marker",
-    pattern: /\bSUPABASE_SERVICE_ROLE_KEY\b\s*[:=]\s*["'][A-Za-z0-9_./+=-]{20,}["']/giu
+    pattern:
+      /\bSUPABASE_SERVICE_ROLE_KEY\b\s*[:=]\s*["'][A-Za-z0-9_./+=-]{20,}["']/giu
   },
   {
     id: "openai_api_key_family",
@@ -100,7 +115,8 @@ export const SECRET_SCAN_RULES = Object.freeze([
   },
   {
     id: "jwt_like_token_family",
-    pattern: /\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/gu
+    pattern:
+      /\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/gu
   }
 ]);
 
@@ -158,7 +174,10 @@ export async function scanDiff(options = {}) {
 
   const changed = await collectDiffPaths(cwd, runner);
   for (const relativePath of changed) {
-    if (shouldSkipRelativePath(relativePath) || !isIncludedDiffPath(relativePath)) {
+    if (
+      shouldSkipRelativePath(relativePath) ||
+      !isIncludedDiffPath(relativePath)
+    ) {
       continue;
     }
 
@@ -188,7 +207,10 @@ export async function scanDiff(options = {}) {
 
 export async function scanHistory(options = {}) {
   const cwd = options.cwd ?? process.cwd();
-  const commits = Math.max(1, Number(options.commits ?? DEFAULT_HISTORY_COMMITS));
+  const commits = Math.max(
+    1,
+    Number(options.commits ?? DEFAULT_HISTORY_COMMITS)
+  );
   const runner = options.runGit ?? defaultGitRunner;
 
   const patchText = await collectHistoryPatch(cwd, commits, runner);
@@ -232,9 +254,10 @@ export function formatFindings(findings) {
     (finding) =>
       `secret-scan: ${finding.path} ${finding.ruleId} count=${finding.count} value=[REDACTED]`
   );
-  return [`secret-scan: FAIL (${findings.length} file/rule findings)`, ...lines].join(
-    "\n"
-  );
+  return [
+    `secret-scan: FAIL (${findings.length} file/rule findings)`,
+    ...lines
+  ].join("\n");
 }
 
 export function parseCliArgs(argv) {
@@ -255,7 +278,9 @@ export function parseCliArgs(argv) {
     if (arg === "--commits") {
       const value = Number(argv[index + 1]);
       if (!Number.isFinite(value) || value <= 0) {
-        throw new Error(`--commits must be a positive integer, got: ${String(argv[index + 1])}`);
+        throw new Error(
+          `--commits must be a positive integer, got: ${String(argv[index + 1])}`
+        );
       }
       result.commits = Math.floor(value);
       index += 1;
@@ -305,7 +330,11 @@ function shouldSkipRelativePath(relative) {
     return true;
   }
 
-  if (DEFAULT_EXCLUDED_PART_SEQUENCES.some((sequence) => hasPartSequence(parts, sequence))) {
+  if (
+    DEFAULT_EXCLUDED_PART_SEQUENCES.some((sequence) =>
+      hasPartSequence(parts, sequence)
+    )
+  ) {
     return true;
   }
 
@@ -314,11 +343,15 @@ function shouldSkipRelativePath(relative) {
     return true;
   }
 
-  if (DEFAULT_EXCLUDED_FILE_PREFIXES.some((prefix) => fileName.startsWith(prefix))) {
+  if (
+    DEFAULT_EXCLUDED_FILE_PREFIXES.some((prefix) => fileName.startsWith(prefix))
+  ) {
     return true;
   }
 
-  return DEFAULT_EXCLUDED_PATH_SUFFIXES.some((suffix) => relative.endsWith(suffix));
+  return DEFAULT_EXCLUDED_PATH_SUFFIXES.some((suffix) =>
+    relative.endsWith(suffix)
+  );
 }
 
 function isIncludedDiffPath(relative) {
@@ -331,7 +364,9 @@ function isIncludedDiffPath(relative) {
 
 function hasPartSequence(parts, sequence) {
   return parts.some((_, index) =>
-    sequence.every((part, sequenceIndex) => parts[index + sequenceIndex] === part)
+    sequence.every(
+      (part, sequenceIndex) => parts[index + sequenceIndex] === part
+    )
   );
 }
 
@@ -450,7 +485,11 @@ function splitPatchByFile(patchText) {
       continue;
     }
 
-    if (line.startsWith("--- ") || line.startsWith("@@") || line.startsWith("index ")) {
+    if (
+      line.startsWith("--- ") ||
+      line.startsWith("@@") ||
+      line.startsWith("index ")
+    ) {
       continue;
     }
 
@@ -506,7 +545,9 @@ async function main() {
   try {
     parsed = parseCliArgs(process.argv.slice(2));
   } catch (error) {
-    console.error(`secret-scan: ${error instanceof Error ? error.message : String(error)}`);
+    console.error(
+      `secret-scan: ${error instanceof Error ? error.message : String(error)}`
+    );
     process.exitCode = 2;
     return;
   }

@@ -15,9 +15,11 @@ export type EmbedCspPolicy = {
   readonly headerValue: string;
 };
 
-export function createEmbedCspPolicy(input: {
-  readonly frameAncestors?: OriginAllowlistInput;
-} = {}): EmbedCspPolicy {
+export function createEmbedCspPolicy(
+  input: {
+    readonly frameAncestors?: OriginAllowlistInput;
+  } = {}
+): EmbedCspPolicy {
   const frameAncestors = parseFrameAncestors(
     input.frameAncestors ?? DEFAULT_EMBED_FRAME_ANCESTORS
   );

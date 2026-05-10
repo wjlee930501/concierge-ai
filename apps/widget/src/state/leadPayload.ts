@@ -1,7 +1,4 @@
-import {
-  routeConciergeIntent,
-  type ConciergeIntent
-} from "./intentRouter";
+import { routeConciergeIntent, type ConciergeIntent } from "./intentRouter";
 
 export type { ConciergeIntent } from "./intentRouter";
 

@@ -16,8 +16,7 @@ describe("buildMockLeadPayload", () => {
         painPoint: "진료 후 환자 관리와 재방문율 개선"
       },
       consent: true,
-      conversationSummary:
-        "방문자는 Re:Visit에 관심을 보였고 상담을 요청함.",
+      conversationSummary: "방문자는 Re:Visit에 관심을 보였고 상담을 요청함.",
       visitedSections: ["hero", "revisit", "contact"],
       createdAt: "2026-05-10T00:00:00.000Z"
     });
@@ -36,8 +35,7 @@ describe("buildMockLeadPayload", () => {
       preferredContactTime: "평일 오후",
       painPoint: "진료 후 환자 관리와 재방문율 개선",
       consent: true,
-      conversationSummary:
-        "방문자는 Re:Visit에 관심을 보였고 상담을 요청함.",
+      conversationSummary: "방문자는 Re:Visit에 관심을 보였고 상담을 요청함.",
       visitedSections: ["hero", "revisit", "contact"],
       createdAt: "2026-05-10T00:00:00.000Z"
     });

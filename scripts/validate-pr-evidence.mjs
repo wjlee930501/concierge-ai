@@ -29,7 +29,11 @@ import {
 
 const DEFAULT_PR_TEMPLATE_PATH = ".github/pull_request_template.md";
 
-export { sanitizeForReport, assertSafeMarkdownTargetPath, assertPathStaysInsideWorkspace };
+export {
+  sanitizeForReport,
+  assertSafeMarkdownTargetPath,
+  assertPathStaysInsideWorkspace
+};
 
 export const REQUIRED_PR_EVIDENCE_SECTIONS = Object.freeze([
   "Scope",
@@ -82,7 +86,9 @@ function splitLinesPreservingFences(markdown) {
 
 export function parseH2Headings(markdown) {
   if (typeof markdown !== "string") {
-    throw new TypeError("validate-pr-evidence: markdown input must be a string");
+    throw new TypeError(
+      "validate-pr-evidence: markdown input must be a string"
+    );
   }
 
   const lines = splitLinesPreservingFences(markdown);
@@ -108,10 +114,14 @@ export function parseH2Headings(markdown) {
 
 export function extractSectionBody(markdown, headingTitle) {
   if (typeof markdown !== "string") {
-    throw new TypeError("validate-pr-evidence: markdown input must be a string");
+    throw new TypeError(
+      "validate-pr-evidence: markdown input must be a string"
+    );
   }
   if (typeof headingTitle !== "string" || headingTitle.length === 0) {
-    throw new TypeError("validate-pr-evidence: headingTitle must be a non-empty string");
+    throw new TypeError(
+      "validate-pr-evidence: headingTitle must be a non-empty string"
+    );
   }
 
   const lines = splitLinesPreservingFences(markdown);
@@ -265,7 +275,9 @@ export function formatReport(targetPath, result) {
     lines.push(`  missing sections: ${result.missingSections.join(", ")}`);
   }
   if (result.duplicatedSections.length > 0) {
-    lines.push(`  duplicated sections: ${result.duplicatedSections.join(", ")}`);
+    lines.push(
+      `  duplicated sections: ${result.duplicatedSections.join(", ")}`
+    );
   }
   if (result.missingCostLedgerKeys.length > 0) {
     lines.push(
@@ -341,7 +353,9 @@ async function main() {
   try {
     safeTargetPath = assertSafeMarkdownTargetPath(targetPath);
   } catch (error) {
-    const reason = sanitizeForReport(error instanceof Error ? error.message : String(error));
+    const reason = sanitizeForReport(
+      error instanceof Error ? error.message : String(error)
+    );
     console.error(
       `validate-pr-evidence: unsafe target ${sanitizeForReport(targetPath)}: ${reason}`
     );
@@ -362,7 +376,9 @@ async function main() {
     assertPathStaysInsideWorkspace(realTargetPath, realWorkspacePath);
     markdown = await readFile(realTargetPath, "utf8");
   } catch (error) {
-    const reason = sanitizeForReport(error instanceof Error ? error.message : String(error));
+    const reason = sanitizeForReport(
+      error instanceof Error ? error.message : String(error)
+    );
     console.error(
       `validate-pr-evidence: cannot read ${sanitizeForReport(targetPath)}: ${reason}`
     );

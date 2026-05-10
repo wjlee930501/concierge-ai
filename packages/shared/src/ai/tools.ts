@@ -161,7 +161,9 @@ export function parseAiToolCall(value: unknown): AiToolCall {
   return parsed as AiToolCall;
 }
 
-export function safeParseAiToolCall(value: unknown):
+export function safeParseAiToolCall(
+  value: unknown
+):
   | { readonly ok: true; readonly value: AiToolCall }
   | { readonly ok: false; readonly error: z.ZodError } {
   const result = aiToolCallSchema.safeParse(value);

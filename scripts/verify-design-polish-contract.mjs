@@ -25,12 +25,7 @@ const REQUIRED_GUIDED_CHIP_LABELS = [
   "PX Intelligence가 궁금해요",
   "상담을 받고 싶어요"
 ];
-const REQUIRED_LEAD_FIELDS = [
-  "hospitalName",
-  "name",
-  "phone",
-  "interestArea"
-];
+const REQUIRED_LEAD_FIELDS = ["hospitalName", "name", "phone", "interestArea"];
 const REQUIRED_INTEREST_OPTIONS = [
   "revisit",
   "newvisit",
@@ -41,7 +36,8 @@ const REQUIRED_INTEREST_OPTIONS = [
 ];
 
 export async function collectDesignPolishEvidence(input = {}) {
-  const repoRoot = input.repoRoot ?? path.resolve(fileURLToPath(import.meta.url), "..", "..");
+  const repoRoot =
+    input.repoRoot ?? path.resolve(fileURLToPath(import.meta.url), "..", "..");
   const scenarioPath = path.join(
     repoRoot,
     "tests",
@@ -55,7 +51,12 @@ export async function collectDesignPolishEvidence(input = {}) {
     "host-integration",
     "DESIGN_POLISH_STAGING_CHECKLIST.md"
   );
-  const hostFixturePath = path.join(repoRoot, "tests", "e2e", "fixtures", "index.html");
+  const hostFixturePath = path.join(
+    repoRoot,
+    "apps",
+    "embed",
+    "host-fixture.html"
+  );
   const assetDir = path.join(repoRoot, "apps", "widget", "assets", "avatar");
   const scenario = JSON.parse(await readFile(scenarioPath, "utf8"));
   const hostFixture = existsSync(hostFixturePath)
@@ -85,7 +86,9 @@ export async function collectDesignPolishEvidence(input = {}) {
       (chip) => chip.label
     ),
     leadFieldIds: (scenario.leadForm?.fields ?? []).map((field) => field.id),
-    interestOptions: (interestArea?.options ?? []).map((option) => option.value),
+    interestOptions: (interestArea?.options ?? []).map(
+      (option) => option.value
+    ),
     stagingChecklistItems: await countChecklistItems(checklistPath)
   };
 }
@@ -134,7 +137,9 @@ export function validateDesignPolishEvidence(evidence) {
   }
 
   if (evidence.stagingChecklistItems < 10) {
-    failures.push("Staging validation checklist must include at least 10 checks");
+    failures.push(
+      "Staging validation checklist must include at least 10 checks"
+    );
   }
 
   return failures;
@@ -199,6 +204,9 @@ async function main() {
 }
 
 const currentFile = fileURLToPath(import.meta.url);
-if (process.argv[1] !== undefined && path.resolve(process.argv[1]) === currentFile) {
+if (
+  process.argv[1] !== undefined &&
+  path.resolve(process.argv[1]) === currentFile
+) {
   await main();
 }
