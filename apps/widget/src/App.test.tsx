@@ -99,6 +99,11 @@ describe("App choreography wiring", () => {
     expect(concierge.getAttribute("data-motion-positioning")).toBe("transform");
     expect(concierge.getAttribute("data-path-control")).toMatch(/^\d+,\d+$/);
     expect(
+      document
+        .querySelector('[data-concierge-hitbox="true"]')
+        ?.className.toString()
+    ).toContain("w-[min(560px,calc(100vw-32px))]");
+    expect(
       screen
         .getByText("기존 환자 재방문을 높이고 싶어요")
         .getAttribute("data-feedback-window-ms")

@@ -104,6 +104,7 @@ function parseReferrerHost(referrer: string | undefined): string | undefined {
   try {
     const url = new URL(referrer);
     if (url.host.length === 0) return undefined;
+    if (isLocalPreviewHost(url.hostname)) return undefined;
     if (typeof window !== "undefined" && url.host === window.location.host) {
       return undefined;
     }
@@ -111,6 +112,16 @@ function parseReferrerHost(referrer: string | undefined): string | undefined {
   } catch {
     return undefined;
   }
+}
+
+function isLocalPreviewHost(hostname: string): boolean {
+  const normalized = hostname.toLowerCase();
+  return (
+    normalized === "localhost" ||
+    normalized === "127.0.0.1" ||
+    normalized === "::1" ||
+    normalized.endsWith(".localhost")
+  );
 }
 
 function nonEmpty(value: string | null | undefined): string | undefined {

@@ -50,6 +50,18 @@ describe("detectPageContext", () => {
     expect(ctx.referrerHost).toBe("blog.example.test");
   });
 
+  it("does not expose local preview origins as referral copy", () => {
+    const ctx = detectPageContext({
+      url: "http://localhost:5173/",
+      referrer: "http://127.0.0.1:5181/",
+      storage: new MemoryStorage(),
+      now: 1
+    });
+    expect(ctx.variant).toBe("default");
+    expect(ctx.referrerHost).toBeUndefined();
+    expect(buildVariantGreetingSuffix(ctx)).toBeNull();
+  });
+
   it("detects returning visitor when stored timestamp is recent", () => {
     const storage = new MemoryStorage();
     storage.setItem("concierge.session.lastVisitAt", String(1_000_000));

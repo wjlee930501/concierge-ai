@@ -135,7 +135,7 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
 
             <motion.div
               data-concierge-hitbox="true"
-              className="flex w-[min(560px,calc(100vw-32px))] flex-col items-center gap-2.5 will-change-transform"
+              className="flex w-[min(560px,calc(100vw-32px))] max-w-[min(560px,calc(100vw-32px))] flex-col items-center gap-2.5 will-change-transform"
               animate={
                 reduced
                   ? { x: 0, y: 0 }
@@ -180,18 +180,24 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
               {props.bubbleVisible &&
               props.choices.length > 0 &&
               !showFreeInput ? (
-                <QuickChips
-                  chips={props.choices}
-                  onSelect={props.onSelectChoice}
-                  {...(props.activeChoiceId !== undefined
-                    ? { activeChipId: props.activeChoiceId }
-                    : {})}
-                />
+                <div className={showSection ? "" : "order-2"}>
+                  <QuickChips
+                    chips={props.choices}
+                    onSelect={props.onSelectChoice}
+                    {...(props.activeChoiceId !== undefined
+                      ? { activeChipId: props.activeChoiceId }
+                      : {})}
+                  />
+                </div>
               ) : null}
 
               {/* Free input (replaces chips when open) */}
               {props.bubbleVisible && showFreeInput ? (
-                <div className="w-full max-w-[440px]">
+                <div
+                  className={`w-[min(440px,calc(100vw-32px))] max-w-full ${
+                    showSection ? "" : "order-2"
+                  }`}
+                >
                   <FreeInputBar
                     disabled={freeInputDisabled}
                     placeholder="무엇이 궁금하세요?"
@@ -203,7 +209,11 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
               ) : null}
 
               {/* Main speech pill: avatar + dark bubble */}
-              <div className="flex items-center gap-2.5">
+              <div
+                className={`flex items-center gap-2.5 ${
+                  showSection ? "" : "order-1"
+                }`}
+              >
                 <Avatar
                   point={props.avatarPoint}
                   mood={props.avatarMood}
@@ -228,7 +238,11 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
 
               {/* Toggle row: back + free input toggle */}
               {props.bubbleVisible ? (
-                <div className="flex items-center justify-center gap-2">
+                <div
+                  className={`flex items-center justify-center gap-2 ${
+                    showSection ? "" : "order-3"
+                  }`}
+                >
                   {props.canGoBack ? (
                     <button
                       type="button"
@@ -328,6 +342,9 @@ function SpeechPill(props: {
   readonly isPlaceholderScenario: boolean;
 }): JSX.Element {
   const radius = props.stacked ? "rounded-3xl" : "rounded-full";
+  const width = props.stacked
+    ? "w-[min(460px,calc(100vw-96px))]"
+    : "max-w-[460px]";
   const contentKey = `${props.section?.label ?? "hero"}::${props.message.slice(0, 40)}`;
   const breathing = !props.reduced;
   return (
@@ -340,7 +357,7 @@ function SpeechPill(props: {
       }
       data-floating-amplitude-px={SPEECH_FLOAT_AMPLITUDE_PX}
       data-tail-anchor={props.currentAnchor}
-      className={`relative max-w-[460px] ${radius} bg-ink/95 px-4 py-3 text-white shadow-[0_18px_40px_rgba(7,20,39,0.35)] backdrop-blur`}
+      className={`relative ${width} ${radius} bg-ink/95 px-4 py-3 text-white shadow-[0_18px_40px_rgba(7,20,39,0.35)] backdrop-blur`}
       {...(breathing
         ? {
             initial: { y: 0, scale: 1 },

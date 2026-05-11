@@ -8,7 +8,9 @@
     "dev:next": "node ./scripts/dev-next.mjs",
     "dev:vite": "node ./scripts/dev-vite.mjs",
     "dev:auto": "node ./scripts/auto-dev.mjs",
+    "dev:proxy": "node ./scripts/dev-html-proxy.mjs",
     "dev:with-widget": "node ./scripts/with-widget.mjs",
+    "dev:with-widget:proxy": "node ./scripts/with-widget-proxy.mjs",
     "build": "node ./scripts/build-placeholder.mjs"
   }
 }

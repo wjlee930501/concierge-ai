@@ -1,4 +1,11 @@
-import { useId, useRef, type FormEvent, type JSX } from "react";
+import {
+  useId,
+  useRef,
+  type FormEvent,
+  type KeyboardEvent,
+  type JSX,
+  type PointerEvent
+} from "react";
 
 export type FreeInputBarProps = {
   readonly disabled: boolean;
@@ -11,15 +18,37 @@ export type FreeInputBarProps = {
 export function FreeInputBar(props: FreeInputBarProps): JSX.Element {
   const id = useId();
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const lastSubmitAtRef = useRef(0);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
-    event.preventDefault();
-    if (props.disabled) return;
-    if (props.draft.trim().length === 0) return;
+  const canSubmit = !props.disabled && props.draft.trim().length > 0;
+
+  const submitDraft = (): void => {
+    if (!canSubmit) return;
+    const now = Date.now();
+    if (now - lastSubmitAtRef.current < 200) return;
+    lastSubmitAtRef.current = now;
     props.onSubmit();
     requestAnimationFrame(() => {
       inputRef.current?.focus();
     });
+  };
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
+    event.preventDefault();
+    submitDraft();
+  };
+
+  const handleInputKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
+    if (event.key !== "Enter" || event.nativeEvent.isComposing) return;
+    event.preventDefault();
+    submitDraft();
+  };
+
+  const handleSubmitPointerUp = (
+    event: PointerEvent<HTMLButtonElement>
+  ): void => {
+    event.preventDefault();
+    submitDraft();
   };
 
   return (
@@ -38,13 +67,16 @@ export function FreeInputBar(props: FreeInputBarProps): JSX.Element {
         value={props.draft}
         placeholder={props.placeholder}
         onChange={(event) => props.onChangeDraft(event.currentTarget.value)}
+        onKeyDown={handleInputKeyDown}
         disabled={props.disabled}
         className="flex-1 bg-transparent px-2 text-[13px] text-ink placeholder:text-mist focus:outline-none disabled:text-mist"
         autoComplete="off"
       />
       <button
         type="submit"
-        disabled={props.disabled || props.draft.trim().length === 0}
+        disabled={!canSubmit}
+        onPointerUp={handleSubmitPointerUp}
+        onClick={submitDraft}
         className="rounded-full bg-ink px-3.5 py-1 text-[11px] font-extrabold text-white disabled:cursor-not-allowed disabled:bg-mist/60"
       >
         보내기

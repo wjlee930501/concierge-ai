@@ -43,7 +43,7 @@ export function anchorToPoint(
   const h = viewport.height;
   switch (anchor) {
     case "hero_center":
-      return { x: w / 2, y: h - 220 };
+      return { x: w / 2, y: h - 145 };
     case "right_anchor":
       return { x: w - 80, y: h / 2 };
     case "left_anchor":

@@ -20,7 +20,7 @@ describe("anchors", () => {
   it("computes hero_center close to center-bottom", () => {
     const p = anchorToPoint("hero_center", desktop);
     expect(p.x).toBe(640);
-    expect(p.y).toBe(580);
+    expect(p.y).toBe(655);
   });
 
   it("right anchors sit 80px from right edge", () => {
