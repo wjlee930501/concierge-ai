@@ -236,7 +236,20 @@ function buildExecuteStepHooks(input: {
       setChoreographyUi((prev) => ({ ...prev, choicesVisible: true }));
     },
     postToHost: (payload) => {
-      if (isActive()) bridge?.postToHost(payload);
+      if (!isActive()) return;
+      if (bridge !== undefined) {
+        bridge.postToHost(payload);
+        return;
+      }
+      // Standalone / internal mode (no host driver attached): the parent
+      // page is the widget's own document, so translate the `scroll_to`
+      // signal into a local scrollIntoView. Other host-control payloads
+      // (highlight / clear / rect_query) have no meaning without a host
+      // driver and are silently dropped — Spotlight's internal mode
+      // paints the ring directly from the widget's own DOM.
+      if (payload.type === "concierge:scroll_to") {
+        performLocalScroll(payload.payload);
+      }
     },
     queryHostRect: async (selector) => {
       if (!isActive()) return null;
@@ -265,4 +278,33 @@ function useLatestRef<T>(value: T): React.MutableRefObject<T> {
   const ref = useRef<T>(value);
   ref.current = value;
   return ref;
+}
+
+/**
+ * Internal-mode self-scroll. In standalone preview (or any iframe load
+ * without a host driver) the widget IS the top-level document, so the
+ * choreographer's `scroll_to` postMessage is a no-op. To still bring the
+ * target into view we resolve the selector locally and use the native
+ * scrollIntoView with the same `behavior` / `block` contract the host
+ * driver honors. Failure (missing selector, no DOM, throw) is silent —
+ * Spotlight's internal mode still attempts to render dim-only fallback.
+ */
+function performLocalScroll(payload: {
+  readonly selector: string;
+  readonly behavior: "smooth" | "instant";
+  readonly block: "start" | "center" | "end";
+}): void {
+  if (typeof document === "undefined") return;
+  try {
+    const node = document.querySelector<HTMLElement>(payload.selector);
+    if (node === null) return;
+    node.scrollIntoView({
+      behavior: payload.behavior === "instant" ? "auto" : "smooth",
+      block: payload.block,
+      inline: "nearest"
+    });
+  } catch {
+    // scrollIntoView with options is unsupported in some jsdom builds;
+    // swallow and let Spotlight's IntersectionObserver guarantee kick in.
+  }
 }

@@ -23,13 +23,18 @@ export type AvatarProps = {
   readonly firstWave?: boolean;
 };
 
+// Polish iter 4: tilt upweight. The pre-iter4 offsets (x:±4, rotate:±2°) read
+// as a faint sway rather than a deliberate point — users could not feel where
+// the avatar was directing them. Bumping to x:±7 and rotate:±4.5° lands at
+// "obvious lean toward target" while staying inside the 52px avatar bounds so
+// neither the speech-pill anchor nor the floating loop is destabilized.
 const POINT_OFFSET: Record<
   ScenarioAvatarPoint,
   { readonly x: number; readonly y: number; readonly rotate: number }
 > = {
   up: { x: 0, y: -3, rotate: 0 },
-  left: { x: -4, y: 0, rotate: -2 },
-  right: { x: 4, y: 0, rotate: 2 }
+  left: { x: -7, y: 0, rotate: -4.5 },
+  right: { x: 7, y: 0, rotate: 4.5 }
 };
 
 export function Avatar(props: AvatarProps): JSX.Element {

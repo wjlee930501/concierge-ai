@@ -184,6 +184,15 @@ function InternalSpotlight(props: InternalSpotlightProps): JSX.Element {
  * as the page reflows. Returns `null` when the target is missing — the
  * caller then falls back to the dim-only external rendering so users still
  * see *something* even if the selector cannot be located.
+ *
+ * Polish iter 4 — viewport guarantee: even when the choreographer's
+ * self-scroll fires, the target rect can briefly resolve to a position
+ * outside the viewport (selector resolved before scroll settled, or
+ * standalone preview hosted in a small window). We attach an
+ * IntersectionObserver to the resolved node; if it reports `isIntersecting:
+ * false` we issue a single recovery scrollIntoView. This is a one-shot per
+ * selector — the resize/scroll listeners below then keep the ring tracking
+ * normally without re-scrolling.
  */
 function useTargetRect(input: {
   readonly enabled: boolean;
@@ -200,6 +209,7 @@ function useTargetRect(input: {
       return undefined;
     }
 
+    let recovered = false;
     const update = () => {
       const node = document.querySelector<HTMLElement>(input.selector!);
       if (node === null) {
@@ -233,10 +243,48 @@ function useTargetRect(input: {
 
     update();
     const raf = window.requestAnimationFrame(update);
+
+    // One-shot viewport-recovery: if the target is offscreen on first
+    // resolve, scroll it back into view exactly once. Subsequent reflows
+    // are handled by the resize/scroll listeners.
+    let observer: IntersectionObserver | null = null;
+    const targetNode = document.querySelector<HTMLElement>(input.selector);
+    if (
+      targetNode !== null &&
+      typeof window.IntersectionObserver === "function"
+    ) {
+      observer = new IntersectionObserver(
+        (entries) => {
+          if (recovered) return;
+          const entry = entries[0];
+          if (entry === undefined) return;
+          if (!entry.isIntersecting) {
+            recovered = true;
+            try {
+              targetNode.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+                inline: "nearest"
+              });
+            } catch {
+              // scrollIntoView with options unsupported — accept the
+              // dim-only fallback rather than throwing.
+            }
+          } else {
+            recovered = true;
+          }
+          observer?.disconnect();
+        },
+        { threshold: 0.1 }
+      );
+      observer.observe(targetNode);
+    }
+
     window.addEventListener("resize", update);
     window.addEventListener("scroll", update, { passive: true, capture: true });
     return () => {
       window.cancelAnimationFrame(raf);
+      observer?.disconnect();
       window.removeEventListener("resize", update);
       window.removeEventListener("scroll", update, { capture: true } as
         | EventListenerOptions
