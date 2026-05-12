@@ -103,6 +103,17 @@ describe("origin allowlist", () => {
     }
   });
 
+  it("normalizes IDN/Unicode hosts to ASCII punycode or rejects them", () => {
+    // WHATWG URL converts Unicode hostnames into xn-- punycode automatically.
+    const normalized = parseOriginAllowlist("https://모션랩스.kr");
+    expect(normalized).toHaveLength(1);
+    expect(normalized[0]).toMatch(/^https:\/\/xn--/u);
+    // ASCII hosts are preserved unchanged.
+    expect(parseOriginAllowlist("https://example.test")).toEqual([
+      "https://example.test"
+    ]);
+  });
+
   it("keeps development and test origins limited to localhost, loopback, and fixture hosts", () => {
     for (const environment of ["development", "test"] as const) {
       expect(() =>

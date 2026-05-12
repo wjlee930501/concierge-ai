@@ -60,12 +60,19 @@ export function createIframeDomSkeleton(
   return iframe;
 }
 
-function assertSafeSrc(src: string): void {
-  if (src.startsWith("javascript:")) {
-    throw new Error("javascript: src is forbidden");
-  }
+const FORBIDDEN_IFRAME_SRC_PROTOCOLS: readonly string[] = [
+  "javascript:",
+  "data:",
+  "blob:",
+  "vbscript:",
+  "file:"
+];
 
-  if (src.startsWith("data:")) {
-    throw new Error("data: src is forbidden");
+export function assertSafeSrc(src: string): void {
+  const normalized = src.trim().toLowerCase();
+  for (const proto of FORBIDDEN_IFRAME_SRC_PROTOCOLS) {
+    if (normalized.startsWith(proto)) {
+      throw new Error(`${proto} src is forbidden`);
+    }
   }
 }

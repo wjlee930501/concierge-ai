@@ -3,6 +3,7 @@ import {
   POST_MESSAGE_HOST_SECTION_NOT_FOUND_TYPE,
   POST_MESSAGE_PARENT_SOURCE,
   POST_MESSAGE_WIDGET_SOURCE,
+  createEnvelopeReplayGuard,
   createPostMessageEnvelope,
   validateKnownPostMessageEnvelope,
   type ChoreographyBeat,
@@ -158,6 +159,13 @@ export function createHostDriverBridge(input: {
   readonly requestIdFactory?: () => string;
   readonly timeoutMs?: number;
   readonly onSectionNotFound?: (payload: HostSectionNotFoundPayload) => void;
+  // Replay guard (nonce LRU + clock skew) is ON by default — fail-closed per
+  // FINAL_ALIGNMENT §1. Production code must never set `disableReplayGuard`;
+  // it exists only as a dev-mode escape hatch for fixtures with frozen
+  // timestamps. The flag is ignored outside `import.meta.env.DEV`.
+  readonly disableReplayGuard?: boolean;
+  readonly maxNonces?: number;
+  readonly maxClockSkewMs?: number;
 }): {
   readonly postToHost: (payload: PostMessagePayload) => void;
   readonly queryHostRect: (
@@ -173,6 +181,18 @@ export function createHostDriverBridge(input: {
       readonly timeout: ReturnType<typeof setTimeout>;
     }
   >();
+  const replayGuardDisabled =
+    input.disableReplayGuard === true && isDevModeBuild();
+  const replayGuard = replayGuardDisabled
+    ? null
+    : createEnvelopeReplayGuard({
+        ...(input.maxNonces !== undefined
+          ? { maxNonces: input.maxNonces }
+          : {}),
+        ...(input.maxClockSkewMs !== undefined
+          ? { maxClockSkewMs: input.maxClockSkewMs }
+          : {})
+      });
 
   const onMessage = (event: Event) => {
     if (!(event instanceof MessageEvent)) return;
@@ -185,6 +205,22 @@ export function createHostDriverBridge(input: {
 
     const envelope = validateHostResponse(event, input.allowedOrigins);
     if (envelope === null) return;
+
+    if (replayGuard !== null) {
+      // envelope here is the narrowed response type without nonce/timestamp;
+      // pull them from the raw event data after re-validation.
+      const raw = (event.data ?? {}) as {
+        readonly nonce?: unknown;
+        readonly timestamp?: unknown;
+      };
+      if (
+        typeof raw.nonce !== "string" ||
+        typeof raw.timestamp !== "number" ||
+        !replayGuard.verify({ nonce: raw.nonce, timestamp: raw.timestamp }).ok
+      ) {
+        return;
+      }
+    }
 
     if (envelope.type === POST_MESSAGE_HOST_SECTION_NOT_FOUND_TYPE) {
       input.onSectionNotFound?.(envelope.payload);
@@ -286,6 +322,38 @@ function generateNonce(): string {
     return globalThis.crypto.randomUUID();
   }
   return `widget-host-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+// Dev-mode detection — gated through Vite's `import.meta.env.DEV` plus a
+// safe fallback for non-Vite test runners (vitest sets NODE_ENV=test which we
+// also treat as dev for the escape hatch). Production bundles must always
+// evaluate this to `false` so the replay guard stays ON. The `process`
+// reference is read through `globalThis` so the widget tsconfig (which does
+// not pull in @types/node) still type-checks; the runtime guard ensures we
+// never throw in pure-browser bundles.
+function isDevModeBuild(): boolean {
+  try {
+    const meta = import.meta as ImportMeta & {
+      readonly env?: { readonly DEV?: unknown };
+    };
+    if (meta.env && meta.env.DEV === true) {
+      return true;
+    }
+  } catch {
+    // import.meta.env access can throw in some non-Vite runtimes — ignore.
+  }
+  const proc = (
+    globalThis as {
+      readonly process?: { readonly env?: Record<string, string | undefined> };
+    }
+  ).process;
+  if (proc !== undefined && proc.env !== undefined) {
+    const env = proc.env.NODE_ENV;
+    if (env === "development" || env === "test") {
+      return true;
+    }
+  }
+  return false;
 }
 
 function generateRequestId(): string {

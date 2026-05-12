@@ -118,6 +118,20 @@ export function normalizeOrigin(originLike: string): string {
     throw new OriginPolicyError("Only http and https origins are supported");
   }
 
+  // IDN safety: the WHATWG URL parser converts Unicode hosts (e.g. 모션랩스.kr)
+  // to ASCII punycode (xn--...) automatically. If a non-ASCII host slips
+  // through anyway, attempt one normalization pass and otherwise reject so we
+  // never feed mixed-script origins into the allowlist comparison.
+  if (!isAsciiHost(url.host)) {
+    const reparsed = tryReparseAsPunycodeHost(url);
+    if (reparsed === null || !isAsciiHost(reparsed.host)) {
+      throw new OriginPolicyError(
+        "Origin host must be ASCII (punycode) after normalization"
+      );
+    }
+    url = reparsed;
+  }
+
   if (url.protocol === "http:" && isStagingPreviewOrProductionHost(url)) {
     throw new OriginPolicyError(
       "Staging, preview, and production origins must use https"
@@ -125,6 +139,27 @@ export function normalizeOrigin(originLike: string): string {
   }
 
   return url.origin;
+}
+
+function isAsciiHost(host: string): boolean {
+  for (let i = 0; i < host.length; i += 1) {
+    if (host.charCodeAt(i) > 127) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function tryReparseAsPunycodeHost(url: URL): URL | null {
+  try {
+    // Round-trip through new URL with just the host portion so the parser has
+    // a fresh chance to apply IDN-to-ASCII. If the parser still returns a
+    // non-ASCII host, the caller treats it as a hard failure.
+    const reparsed = new URL(`${url.protocol}//${url.host}`);
+    return reparsed;
+  } catch {
+    return null;
+  }
 }
 
 export function assertOriginsAllowedForEnvironment(

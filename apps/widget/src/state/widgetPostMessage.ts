@@ -7,24 +7,35 @@ import {
 export function resolveWidgetParentTargetOrigin(input: {
   readonly parentOrigin: string | null;
   readonly opaqueOrigin: boolean;
+  readonly allowWildcardTarget?: boolean;
 }): string | null {
   if (input.parentOrigin !== null) {
     return input.parentOrigin;
   }
-  return input.opaqueOrigin ? "*" : null;
+  // Wildcard targetOrigin is only allowed when the widget runs under an opaque
+  // sandbox AND the caller explicitly opts in via allowWildcardTarget. Default
+  // is fail-closed (null) per FINAL_ALIGNMENT §D-4.
+  if (input.opaqueOrigin && input.allowWildcardTarget === true) {
+    return "*";
+  }
+  return null;
 }
 
 export function postWidgetMessageToParent<TPayload>(input: {
   readonly targetWindow: Pick<Window, "postMessage">;
   readonly parentOrigin: string | null;
   readonly opaqueOrigin?: boolean;
+  readonly allowWildcardTarget?: boolean;
   readonly type: PostMessageKnownType;
   readonly payload: TPayload;
   readonly nonce?: string;
 }): void {
   const targetOrigin = resolveWidgetParentTargetOrigin({
     parentOrigin: input.parentOrigin,
-    opaqueOrigin: input.opaqueOrigin ?? isCurrentWindowOpaqueOrigin()
+    opaqueOrigin: input.opaqueOrigin ?? isCurrentWindowOpaqueOrigin(),
+    ...(input.allowWildcardTarget !== undefined
+      ? { allowWildcardTarget: input.allowWildcardTarget }
+      : {})
   });
 
   if (targetOrigin === null) {

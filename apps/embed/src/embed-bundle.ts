@@ -1,5 +1,6 @@
 import { injectConciergeWidget } from "./inject";
 import type { ConciergeInjectionHandle } from "./inject";
+import type { OriginPolicyEnvironment } from "@conciergeai/shared";
 
 declare global {
   interface Window {
@@ -9,6 +10,27 @@ declare global {
       readonly handle?: ConciergeInjectionHandle;
     };
   }
+}
+
+const SUPPORTED_EMBED_ENVIRONMENTS: readonly OriginPolicyEnvironment[] = [
+  "development",
+  "test",
+  "staging",
+  "preview",
+  "production"
+];
+
+export function resolveEmbedEnvironment(
+  raw: string | undefined
+): OriginPolicyEnvironment {
+  if (typeof raw !== "string") {
+    return "production";
+  }
+  const candidate = raw.trim().toLowerCase();
+  for (const env of SUPPORTED_EMBED_ENVIRONMENTS) {
+    if (env === candidate) return env;
+  }
+  return "production";
 }
 
 if (typeof window !== "undefined") {
@@ -29,6 +51,10 @@ function autoInjectFromCurrentScript(): void {
   const hostOrigin = currentScript.dataset.conciergeHostOrigin;
   if (widgetOrigin === undefined || hostOrigin === undefined) return;
 
+  const environment = resolveEmbedEnvironment(
+    currentScript.dataset.conciergeEnvironment
+  );
+
   const inject = () => {
     if (document.getElementById("concierge-ai-widget") !== null) return;
 
@@ -36,7 +62,7 @@ function autoInjectFromCurrentScript(): void {
       widgetSrc: new URL("/", widgetOrigin).toString(),
       allowedParentOrigins: [hostOrigin],
       frameAncestors: [hostOrigin],
-      environment: "development"
+      environment
     });
 
     window.Concierge = Object.freeze({

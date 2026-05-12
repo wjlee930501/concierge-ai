@@ -47,6 +47,22 @@ describe("injectConciergeWidget", () => {
     ).toThrow();
   });
 
+  it.each([
+    ["javascript:alert(1)", /javascript/u],
+    ["data:text/html,<h1>xss</h1>", /data/u],
+    ["blob:https://example.test/abc", /blob/u],
+    ["vbscript:msgbox(1)", /vbscript/u],
+    ["file:///etc/passwd", /file/u]
+  ])("rejects dangerous widgetSrc protocol %s", (widgetSrc, message) => {
+    expect(() =>
+      injectConciergeWidget({
+        widgetSrc,
+        allowedParentOrigins: ["https://host.example.test"],
+        frameAncestors: ["https://host.example.test"]
+      })
+    ).toThrow(message);
+  });
+
   it("attaches to a custom mount target", () => {
     const mount = document.createElement("section");
     document.body.appendChild(mount);
@@ -135,6 +151,72 @@ describe("injectConciergeWidget", () => {
     await import("./embed-bundle");
 
     expect(window.Concierge?.injectConciergeWidget).toBe(injectConciergeWidget);
+  });
+
+  it("treats the replay-guard nonce LRU as type-agnostic so a ready nonce cannot be reused as a lead_submitted nonce", () => {
+    // The inject ready/lead branches share one envelope replay guard instance
+    // by design. The LRU is keyed by nonce only — type-agnostic — so an
+    // attacker who captures a valid ready envelope cannot resend the same
+    // nonce as a forged lead_submitted message. This test pins that
+    // fail-closed contract so a refactor toward type-prefixed keys would
+    // surface here.
+    const onReady = vi.fn();
+    const onLeadSubmit = vi.fn();
+    const handle = injectConciergeWidget({
+      widgetSrc: "https://widget.example.test/widget/",
+      allowedParentOrigins: ["https://host.example.test"],
+      frameAncestors: ["https://host.example.test"],
+      onReady,
+      onLeadSubmit
+    });
+
+    const sharedNonce = "shared-nonce-cross-type";
+
+    window.dispatchEvent(
+      new MessageEvent("message", {
+        source: handle.iframe.contentWindow,
+        origin: "https://widget.example.test",
+        data: createPostMessageEnvelope({
+          type: EMBED_READY_MESSAGE_TYPE,
+          nonce: sharedNonce,
+          source: POST_MESSAGE_EMBED_SOURCE,
+          payload: {
+            sandbox: "allow-scripts",
+            frameAncestors: ["https://host.example.test"],
+            parentAccessPolicy: { parentDomScrape: false }
+          }
+        })
+      })
+    );
+
+    expect(onReady).toHaveBeenCalledOnce();
+
+    window.dispatchEvent(
+      new MessageEvent("message", {
+        source: handle.iframe.contentWindow,
+        origin: "https://widget.example.test",
+        data: createPostMessageEnvelope({
+          type: POST_MESSAGE_LEAD_SUBMITTED_TYPE,
+          nonce: sharedNonce,
+          source: POST_MESSAGE_WIDGET_SOURCE,
+          payload: {
+            lead: {
+              source: "concierge_ai",
+              host: "motionlabs",
+              intent: "revisit",
+              hospitalName: "서울OO의원",
+              name: "홍길동",
+              phone: "010-0000-0000",
+              interestArea: "revisit",
+              consent: true
+            }
+          }
+        })
+      })
+    );
+
+    expect(onLeadSubmit).not.toHaveBeenCalled();
+    handle.destroy();
   });
 
   it("routes lead submitted payloads through a separate callback from host-driver messages", () => {

@@ -116,7 +116,7 @@ describe("choreographyBridge", () => {
           version: 1,
           type: POST_MESSAGE_HOST_RECT_RESPONSE_TYPE,
           nonce: "nonce-response",
-          timestamp: 1_714_000_000_000,
+          timestamp: Date.now(),
           source: POST_MESSAGE_PARENT_SOURCE,
           payload: {
             request_id: "rect-1",
@@ -153,7 +153,7 @@ describe("choreographyBridge", () => {
           version: 1,
           type: POST_MESSAGE_HOST_SECTION_NOT_FOUND_TYPE,
           nonce: "nonce-section-missing",
-          timestamp: 1_714_000_000_000,
+          timestamp: Date.now(),
           source: POST_MESSAGE_PARENT_SOURCE,
           payload: { selector: "#missing" }
         }
@@ -182,8 +182,8 @@ describe("choreographyBridge", () => {
         data: {
           version: 1,
           type: POST_MESSAGE_HOST_SECTION_NOT_FOUND_TYPE,
-          nonce: "nonce-section-missing",
-          timestamp: 1_714_000_000_000,
+          nonce: "nonce-section-missing-2",
+          timestamp: Date.now(),
           source: POST_MESSAGE_PARENT_SOURCE,
           payload: { selector: "#missing" }
         }

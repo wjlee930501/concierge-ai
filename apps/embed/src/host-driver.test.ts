@@ -129,7 +129,7 @@ describe("attachConciergeHostDriver", () => {
     detach();
   });
 
-  it("accepts sandboxed widget messages with opaque origin when the source is the injected iframe", () => {
+  it("prefers iframe.src origin over wildcard when the sandboxed widget posts an opaque-origin message", () => {
     const target = document.createElement("section");
     target.id = "section-demo";
     target.getBoundingClientRect = () =>
@@ -147,6 +147,7 @@ describe("attachConciergeHostDriver", () => {
     document.body.appendChild(target);
     const iframe = document.createElement("iframe");
     iframe.setAttribute("sandbox", "allow-scripts");
+    iframe.setAttribute("src", "https://widget.example.test/v1");
     document.body.appendChild(iframe);
     const postMessage = vi.fn();
     Object.defineProperty(iframe, "contentWindow", {
@@ -183,6 +184,62 @@ describe("attachConciergeHostDriver", () => {
           rect: { left: 12, top: 24, width: 320, height: 140 }
         })
       }),
+      "https://widget.example.test"
+    );
+    detach();
+  });
+
+  it("falls back to wildcard target only when allowWildcardTarget is explicitly enabled and the iframe.src origin is unresolvable", () => {
+    const target = document.createElement("section");
+    target.id = "section-demo";
+    target.getBoundingClientRect = () =>
+      ({
+        left: 1,
+        top: 2,
+        width: 3,
+        height: 4,
+        right: 4,
+        bottom: 6,
+        x: 1,
+        y: 2,
+        toJSON: () => ({})
+      }) as DOMRect;
+    document.body.appendChild(target);
+    const iframe = document.createElement("iframe");
+    iframe.setAttribute("sandbox", "allow-scripts");
+    // No src attribute → iframe.src origin cannot be resolved. Wildcard
+    // fallback is permitted only because allowWildcardTarget was explicitly
+    // passed by the host driver caller.
+    document.body.appendChild(iframe);
+    const postMessage = vi.fn();
+    Object.defineProperty(iframe, "contentWindow", {
+      configurable: true,
+      value: { postMessage }
+    });
+    const detach = attachConciergeHostDriver({
+      iframe,
+      widgetOrigin: "https://widget.example.test",
+      allowWildcardTarget: true
+    });
+
+    window.dispatchEvent(
+      new MessageEvent("message", {
+        source: iframe.contentWindow,
+        origin: "null",
+        data: createPostMessageEnvelope({
+          type: POST_MESSAGE_HOST_RECT_QUERY_TYPE,
+          nonce: "nonce-opaque-wildcard",
+          source: POST_MESSAGE_WIDGET_SOURCE,
+          payload: {
+            selector: "#section-demo",
+            request_id: "rect-wildcard"
+          }
+        })
+      })
+    );
+
+    expect(postMessage).toHaveBeenCalledWith(
+      expect.objectContaining({ source: POST_MESSAGE_PARENT_SOURCE }),
       "*"
     );
     detach();
@@ -259,6 +316,61 @@ describe("attachConciergeHostDriver", () => {
       }),
       "https://widget.example.test"
     );
+    detach();
+  });
+
+  it("silently drops widget envelopes that replay an already-seen nonce", () => {
+    const target = document.createElement("section");
+    target.id = "section-demo";
+    document.body.appendChild(target);
+    const iframe = document.createElement("iframe");
+    document.body.appendChild(iframe);
+    const detach = attachConciergeHostDriver({
+      iframe,
+      widgetOrigin: "https://widget.example.test"
+    });
+
+    const replayedNonce = "nonce-replay";
+    const buildHighlight = () =>
+      new MessageEvent("message", {
+        source: iframe.contentWindow,
+        origin: "https://widget.example.test",
+        data: createPostMessageEnvelope({
+          type: POST_MESSAGE_HOST_DRIVER_HIGHLIGHT_TYPE,
+          nonce: replayedNonce,
+          source: POST_MESSAGE_WIDGET_SOURCE,
+          payload: {
+            selector: "#section-demo",
+            padding: 12,
+            radius: 8,
+            color: "rgba(26, 86, 219, 0.25)"
+          }
+        })
+      });
+
+    window.dispatchEvent(buildHighlight());
+    expect(target.classList.contains("concierge-driver-highlight")).toBe(true);
+
+    // Clear via a *different* nonce so the first apply isn't undone by a
+    // replayed clear. Then re-dispatch the original highlight with the same
+    // nonce — the replay guard must drop it (target stays cleared).
+    window.dispatchEvent(
+      new MessageEvent("message", {
+        source: iframe.contentWindow,
+        origin: "https://widget.example.test",
+        data: createPostMessageEnvelope({
+          type: POST_MESSAGE_HOST_DRIVER_CLEAR_TYPE,
+          nonce: "nonce-replay-clear",
+          source: POST_MESSAGE_WIDGET_SOURCE,
+          payload: {}
+        })
+      })
+    );
+    expect(target.classList.contains("concierge-driver-highlight")).toBe(false);
+
+    window.dispatchEvent(buildHighlight());
+    expect(target.classList.contains("concierge-driver-highlight")).toBe(false);
+
     detach();
   });
 

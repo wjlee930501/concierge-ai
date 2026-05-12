@@ -388,6 +388,71 @@ export function isKnownPostMessageEnvelope(
   }
 }
 
+export const DEFAULT_ENVELOPE_REPLAY_MAX_NONCES = 128 as const;
+export const DEFAULT_ENVELOPE_REPLAY_MAX_CLOCK_SKEW_MS = 60_000 as const;
+
+export type EnvelopeReplayVerifyOk = { readonly ok: true };
+export type EnvelopeReplayVerifyReason = "nonce_replay" | "clock_skew";
+export type EnvelopeReplayVerifyFail = {
+  readonly ok: false;
+  readonly reason: EnvelopeReplayVerifyReason;
+};
+export type EnvelopeReplayVerifyResult =
+  | EnvelopeReplayVerifyOk
+  | EnvelopeReplayVerifyFail;
+
+export type EnvelopeReplayGuard = {
+  readonly verify: (
+    envelope: Pick<PostMessageEnvelope, "nonce" | "timestamp">
+  ) => EnvelopeReplayVerifyResult;
+};
+
+export type CreateEnvelopeReplayGuardOptions = {
+  readonly maxNonces?: number;
+  readonly maxClockSkewMs?: number;
+  readonly now?: () => number;
+};
+
+export function createEnvelopeReplayGuard(
+  options: CreateEnvelopeReplayGuardOptions = {}
+): EnvelopeReplayGuard {
+  const maxNonces = Math.max(
+    1,
+    Math.floor(options.maxNonces ?? DEFAULT_ENVELOPE_REPLAY_MAX_NONCES)
+  );
+  const maxClockSkewMs = Math.max(
+    0,
+    Math.floor(
+      options.maxClockSkewMs ?? DEFAULT_ENVELOPE_REPLAY_MAX_CLOCK_SKEW_MS
+    )
+  );
+  const now = options.now ?? (() => Date.now());
+
+  // LRU via insertion-ordered Map. Set semantics: presence of key = seen.
+  const seenNonces = new Map<string, true>();
+
+  const verify = (
+    envelope: Pick<PostMessageEnvelope, "nonce" | "timestamp">
+  ): EnvelopeReplayVerifyResult => {
+    if (Math.abs(now() - envelope.timestamp) > maxClockSkewMs) {
+      return { ok: false, reason: "clock_skew" };
+    }
+    if (seenNonces.has(envelope.nonce)) {
+      return { ok: false, reason: "nonce_replay" };
+    }
+    seenNonces.set(envelope.nonce, true);
+    if (seenNonces.size > maxNonces) {
+      const oldestKey = seenNonces.keys().next().value;
+      if (typeof oldestKey === "string") {
+        seenNonces.delete(oldestKey);
+      }
+    }
+    return { ok: true };
+  };
+
+  return Object.freeze({ verify });
+}
+
 function hasExactEnvelopeKeys(value: unknown): value is EnvelopeRecord {
   if (!isRecord(value)) {
     return false;
