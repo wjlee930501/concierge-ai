@@ -26,7 +26,32 @@ export function MinimizedPill(props: MinimizedPillProps): JSX.Element {
           className="h-full w-full rounded-full object-cover ring-1 ring-white/80"
           draggable={false}
         />
-        <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full border-2 border-white bg-mint" />
+        {/*
+          Mint status dot + expanding ping ring.
+          - The base dot stays static (anchored to the avatar corner).
+          - A sibling ring expands and fades outward on a 2.0s loop, like a
+            soft radar ping — quieter than a scale pulse on the dot itself,
+            and reads as "I'm awake" without competing with hero motion.
+          - `prefers-reduced-motion: reduce` collapses to a static dot via
+            the `motion-reduce:hidden` utility on the ping layer.
+        */}
+        <span
+          data-polish-minimized-ping="on"
+          className="pointer-events-none absolute -bottom-0.5 -right-0.5 inline-block h-2 w-2"
+        >
+          <motion.span
+            aria-hidden="true"
+            className="motion-reduce:hidden absolute inset-0 rounded-full bg-mint"
+            initial={{ scale: 1, opacity: 0.6 }}
+            animate={{ scale: 2.4, opacity: 0 }}
+            transition={{
+              duration: 2,
+              repeat: Number.POSITIVE_INFINITY,
+              ease: "easeOut"
+            }}
+          />
+          <span className="absolute inset-0 rounded-full border-2 border-white bg-mint" />
+        </span>
       </span>
       안내 받기
     </motion.button>

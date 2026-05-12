@@ -29,7 +29,8 @@ type TargetRect = {
   readonly height: number;
 };
 
-const RING_COLOR = "#1c73e8"; // tailwind `accent`
+// `accent` (#1c73e8) lives inside the rgba(...) shadow constants below so the
+// breathing bloom stays in lockstep with the base ring color.
 const RING_WIDTH_PX = 3;
 const RING_INSET_PX = 6;
 const RING_RADIUS_PX = 12;
@@ -52,6 +53,7 @@ export function Spotlight(props: SpotlightProps): JSX.Element {
             target={props.target}
             rect={rect}
             duration={transitionDuration}
+            reducedMotion={props.reducedMotion === true}
           />
         ) : (
           <motion.div
@@ -76,7 +78,11 @@ type InternalSpotlightProps = {
   readonly target: string | null;
   readonly rect: TargetRect;
   readonly duration: number;
+  readonly reducedMotion: boolean;
 };
+
+const RING_SHADOW_BASE = `0 0 0 ${RING_WIDTH_PX}px rgba(28,115,232,1)`;
+const RING_SHADOW_BLOOM = `0 0 0 ${RING_WIDTH_PX * 2}px rgba(28,115,232,0.42)`;
 
 function InternalSpotlight(props: InternalSpotlightProps): JSX.Element {
   const inset = RING_INSET_PX;
@@ -84,6 +90,33 @@ function InternalSpotlight(props: InternalSpotlightProps): JSX.Element {
   const holeTop = Math.round(props.rect.top - inset);
   const holeWidth = Math.round(props.rect.width + inset * 2);
   const holeHeight = Math.round(props.rect.height + inset * 2);
+  const reduced = props.reducedMotion;
+
+  // Ring entrance + breathing loop. When reducedMotion is on, freeze to the
+  // static base ring with no scale animation (motion still mounts, but the
+  // keyframes collapse to a single value so the loop is a no-op).
+  const ringInitial = reduced
+    ? { scale: 1, opacity: 1, boxShadow: RING_SHADOW_BASE }
+    : { scale: 0.94, opacity: 0, boxShadow: RING_SHADOW_BASE };
+  const ringAnimate = reduced
+    ? { scale: 1, opacity: 1, boxShadow: RING_SHADOW_BASE }
+    : {
+        scale: 1,
+        opacity: 1,
+        boxShadow: [RING_SHADOW_BASE, RING_SHADOW_BLOOM, RING_SHADOW_BASE]
+      };
+  const ringTransition = reduced
+    ? { duration: 0 }
+    : {
+        scale: { duration: 0.32, ease: [0.2, 0.8, 0.2, 1] as const },
+        opacity: { duration: 0.32, ease: [0.2, 0.8, 0.2, 1] as const },
+        boxShadow: {
+          duration: 2.4,
+          repeat: Number.POSITIVE_INFINITY,
+          ease: [0.45, 0, 0.55, 1] as const,
+          delay: 0.32
+        }
+      };
 
   return (
     <motion.div
@@ -123,9 +156,10 @@ function InternalSpotlight(props: InternalSpotlightProps): JSX.Element {
           mask="url(#concierge-spotlight-mask)"
         />
       </svg>
-      {/* Ring outline. */}
-      <div
+      {/* Ring outline — entrance scale-in + breathing bloom. */}
+      <motion.div
         data-testid="widget-internal-spotlight-ring"
+        data-polish-ring-breathing={reduced ? "off" : "on"}
         style={{
           position: "absolute",
           left: holeLeft,
@@ -133,9 +167,12 @@ function InternalSpotlight(props: InternalSpotlightProps): JSX.Element {
           width: holeWidth,
           height: holeHeight,
           borderRadius: RING_RADIUS_PX,
-          boxShadow: `0 0 0 ${RING_WIDTH_PX}px ${RING_COLOR}`,
-          pointerEvents: "none"
+          pointerEvents: "none",
+          transformOrigin: "center center"
         }}
+        initial={ringInitial}
+        animate={ringAnimate}
+        transition={ringTransition}
       />
     </motion.div>
   );

@@ -90,7 +90,7 @@ describe("App choreography wiring", () => {
       screen
         .getByTestId("speech-pill")
         .getAttribute("data-floating-amplitude-px")
-    ).toBe("1.6");
+    ).toBe("2.4");
     expect(
       screen.getByTestId("concierge-avatar").getAttribute("data-avatar-asset")
     ).toBe("smile");
