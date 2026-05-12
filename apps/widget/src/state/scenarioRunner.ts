@@ -465,10 +465,9 @@ function stepById(scenario: Scenario, id: string): ScenarioStep | undefined {
 }
 
 function createEmptyLeadDraft(scenario: Scenario): LeadFormDraft {
-  const fields: Record<string, string> = {};
-  for (const field of scenario.leadForm.fields) {
-    fields[field.id] = "";
-  }
+  const fields: Record<string, string> = Object.fromEntries(
+    scenario.leadForm.fields.map((field) => [field.id, ""])
+  );
   return {
     fields,
     consents: { required: false, marketing: false, expanded: false },

@@ -19,9 +19,11 @@ import {
   POST_MESSAGE_WIDGET_SOURCE,
   createEnvelopeReplayGuard,
   createPostMessageEnvelope,
+  generateNonce,
   isKnownPostMessageEnvelope,
   isPostMessageEnvelope,
   validateKnownPostMessageEnvelope,
+  validateOneOfKnownEnvelopes,
   validatePostMessageEnvelope
 } from "./post-message";
 
@@ -504,5 +506,99 @@ describe("createEnvelopeReplayGuard", () => {
     });
     // "a" was evicted, so verifying it again is treated as fresh.
     expect(guard.verify({ nonce: "a", timestamp: now })).toEqual({ ok: true });
+  });
+});
+
+describe("generateNonce", () => {
+  it("returns a non-empty string each call", () => {
+    const value = generateNonce();
+    expect(typeof value).toBe("string");
+    expect(value.length).toBeGreaterThan(0);
+  });
+
+  it("produces unique values across many calls", () => {
+    const sample = new Set<string>();
+    for (let i = 0; i < 64; i += 1) {
+      sample.add(generateNonce());
+    }
+    expect(sample.size).toBe(64);
+  });
+});
+
+describe("validateOneOfKnownEnvelopes", () => {
+  it("returns the matched type and envelope on the first successful candidate", () => {
+    const ready = createPostMessageEnvelope({
+      type: POST_MESSAGE_READY_TYPE,
+      nonce: "nonce-one-of-ready",
+      timestamp: 1_714_000_000_000,
+      source: POST_MESSAGE_EMBED_SOURCE,
+      payload: {
+        sandbox: "allow-scripts",
+        frameAncestors: ["https://host.example.test"],
+        parentAccessPolicy: {}
+      }
+    });
+
+    const result = validateOneOfKnownEnvelopes({
+      value: ready,
+      origin: "https://host.example.test",
+      allowedOrigins: ALLOWED_ORIGINS,
+      expectedTypes: [
+        POST_MESSAGE_HANDSHAKE_TYPE,
+        POST_MESSAGE_READY_TYPE
+      ] as const
+    });
+
+    expect(result?.type).toBe(POST_MESSAGE_READY_TYPE);
+    expect(result?.envelope.nonce).toBe("nonce-one-of-ready");
+  });
+
+  it("returns null when no candidate type matches", () => {
+    const ready = createPostMessageEnvelope({
+      type: POST_MESSAGE_READY_TYPE,
+      nonce: "nonce-one-of-miss",
+      timestamp: 1_714_000_000_000,
+      source: POST_MESSAGE_EMBED_SOURCE,
+      payload: {
+        sandbox: "allow-scripts",
+        frameAncestors: ["https://host.example.test"],
+        parentAccessPolicy: {}
+      }
+    });
+
+    const result = validateOneOfKnownEnvelopes({
+      value: ready,
+      origin: "https://host.example.test",
+      allowedOrigins: ALLOWED_ORIGINS,
+      expectedTypes: [
+        POST_MESSAGE_HANDSHAKE_TYPE,
+        POST_MESSAGE_RESIZE_TYPE
+      ] as const
+    });
+
+    expect(result).toBeNull();
+  });
+
+  it("rejects envelopes whose origin is not allowlisted", () => {
+    const ready = createPostMessageEnvelope({
+      type: POST_MESSAGE_READY_TYPE,
+      nonce: "nonce-one-of-origin",
+      timestamp: 1_714_000_000_000,
+      source: POST_MESSAGE_EMBED_SOURCE,
+      payload: {
+        sandbox: "allow-scripts",
+        frameAncestors: ["https://host.example.test"],
+        parentAccessPolicy: {}
+      }
+    });
+
+    const result = validateOneOfKnownEnvelopes({
+      value: ready,
+      origin: "https://evil.example.test",
+      allowedOrigins: ALLOWED_ORIGINS,
+      expectedTypes: [POST_MESSAGE_READY_TYPE] as const
+    });
+
+    expect(result).toBeNull();
   });
 });

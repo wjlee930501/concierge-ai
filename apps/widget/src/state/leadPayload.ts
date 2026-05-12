@@ -106,17 +106,17 @@ export function resolveIntentFromInteractions(
 export function buildVisitedSections(
   interactions: readonly PayloadInteraction[]
 ): readonly string[] {
-  const sections = ["hero"];
-  for (const interaction of interactions) {
-    const section = sectionFromKnownId(interaction.id);
-    if (section !== null && !sections.includes(section)) {
-      sections.push(section);
-    }
-  }
-  if (!sections.includes("contact")) {
-    sections.push("contact");
-  }
-  return sections;
+  const fromInteractions = interactions.reduce<readonly string[]>(
+    (acc, interaction) => {
+      const section = sectionFromKnownId(interaction.id);
+      if (section === null || acc.includes(section)) return acc;
+      return [...acc, section];
+    },
+    ["hero"]
+  );
+  return fromInteractions.includes("contact")
+    ? fromInteractions
+    : [...fromInteractions, "contact"];
 }
 
 export function buildConversationSummary(input: {

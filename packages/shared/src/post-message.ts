@@ -388,6 +388,58 @@ export function isKnownPostMessageEnvelope(
   }
 }
 
+/**
+ * Validate `value` against any of the supplied known envelope types. Returns
+ * the matched type/envelope pair on the first success, or `null` if every type
+ * fails to validate. Each `validateKnownPostMessageEnvelope` call is wrapped in
+ * a try/catch so caller code does not need to repeat the swallow-and-try-next
+ * pattern. Validation semantics are identical to calling
+ * `validateKnownPostMessageEnvelope` for each type in order: origin,
+ * nonce/timestamp, source, and payload shape are checked the same way.
+ */
+export function validateOneOfKnownEnvelopes<
+  TType extends PostMessageKnownType
+>(input: {
+  readonly value: unknown;
+  readonly origin: string;
+  readonly allowedOrigins: readonly string[];
+  readonly expectedTypes: readonly TType[];
+}): {
+  readonly type: TType;
+  readonly envelope: KnownPostMessageEnvelope;
+} | null {
+  for (const expectedType of input.expectedTypes) {
+    try {
+      const envelope = validateKnownPostMessageEnvelope(input.value, {
+        origin: input.origin,
+        allowedOrigins: input.allowedOrigins,
+        expectedType
+      });
+      return { type: expectedType, envelope };
+    } catch {
+      // Try the next known type, then fail closed.
+    }
+  }
+  return null;
+}
+
+/**
+ * Generate a cryptographically random nonce suitable for postMessage
+ * envelopes. Prefers `crypto.randomUUID()` (RFC 4122 v4, 122 bits of
+ * randomness) and falls back to a timestamped `Math.random()` string when
+ * `crypto` is unavailable. The fallback is **only** reached in degraded
+ * runtimes — Node 19+, all evergreen browsers, and JSDOM ship `randomUUID`.
+ */
+export function generateNonce(): string {
+  if (
+    typeof globalThis.crypto !== "undefined" &&
+    typeof globalThis.crypto.randomUUID === "function"
+  ) {
+    return globalThis.crypto.randomUUID();
+  }
+  return `nonce-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
 export const DEFAULT_ENVELOPE_REPLAY_MAX_NONCES = 128 as const;
 export const DEFAULT_ENVELOPE_REPLAY_MAX_CLOCK_SKEW_MS = 60_000 as const;
 

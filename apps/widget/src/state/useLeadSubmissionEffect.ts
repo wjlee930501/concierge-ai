@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { POST_MESSAGE_LEAD_SUBMITTED_TYPE } from "@conciergeai/shared";
 import { postWidgetMessageToParent } from "./widgetPostMessage";
+import { isDevBuild } from "./isDevBuild";
 import type { RunnerState } from "./types";
 
 declare global {
@@ -41,32 +42,4 @@ export function useLeadSubmissionEffect(input: {
       });
     }
   }, [parentOrigin, payload]);
-}
-
-/**
- * Dev-mode detection — gates the mock-submit `console.info` so production
- * bundles ship without the log. Mirrors `choreographyBridge.isDevModeBuild`:
- * read `import.meta.env.DEV` first, then fall back to `NODE_ENV` for vitest
- * (which sets it to `"test"`). The flag must evaluate to `false` in
- * production builds.
- */
-function isDevBuild(): boolean {
-  try {
-    const meta = import.meta as ImportMeta & {
-      readonly env?: { readonly DEV?: unknown };
-    };
-    if (meta.env && meta.env.DEV === true) return true;
-  } catch {
-    // import.meta.env access can throw in some non-Vite runtimes — ignore.
-  }
-  const proc = (
-    globalThis as {
-      readonly process?: { readonly env?: Record<string, string | undefined> };
-    }
-  ).process;
-  if (proc !== undefined && proc.env !== undefined) {
-    const env = proc.env.NODE_ENV;
-    if (env === "development" || env === "test") return true;
-  }
-  return false;
 }

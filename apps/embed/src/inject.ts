@@ -12,7 +12,8 @@ import {
   POST_MESSAGE_LEAD_SUBMITTED_TYPE,
   createEnvelopeReplayGuard,
   createPostMessageEnvelope,
-  validateKnownPostMessageEnvelope,
+  generateNonce,
+  validateOneOfKnownEnvelopes,
   type LeadSubmittedPayload,
   type PostMessageEnvelope
 } from "@conciergeai/shared";
@@ -61,17 +62,27 @@ export function injectConciergeWidget(
 
   const handshakeNonce = generateNonce();
   const replayGuard = createEnvelopeReplayGuard();
+  const widgetEnvelopeTypes = [
+    EMBED_READY_MESSAGE_TYPE,
+    POST_MESSAGE_LEAD_SUBMITTED_TYPE
+  ] as const;
   const messageListener = (event: MessageEvent) => {
     if (event.source !== iframe.contentWindow) return;
-    try {
-      const envelope = validateWidgetEnvelope({
-        event,
-        iframe,
-        widgetOrigin,
-        expectedType: EMBED_READY_MESSAGE_TYPE
-      });
-      if (envelope.type !== EMBED_READY_MESSAGE_TYPE) return;
-      if (!replayGuard.verify(envelope).ok) return;
+
+    const matched = validateOneOfKnownEnvelopes({
+      value: event.data,
+      origin: isSandboxOpaqueWidgetMessage(event, iframe)
+        ? widgetOrigin
+        : event.origin,
+      allowedOrigins: [widgetOrigin],
+      expectedTypes: widgetEnvelopeTypes
+    });
+    if (matched === null) return;
+
+    const envelope = matched.envelope;
+    if (!replayGuard.verify(envelope).ok) return;
+
+    if (matched.type === EMBED_READY_MESSAGE_TYPE) {
       const handshake = createPostMessageEnvelope({
         type: POST_MESSAGE_HANDSHAKE_TYPE,
         nonce: handshakeNonce,
@@ -80,21 +91,9 @@ export function injectConciergeWidget(
       });
       iframe.contentWindow?.postMessage(handshake, widgetOrigin);
       options.onReady?.(envelope.payload as EmbedReadyPayload);
-    } catch {
-      try {
-        const envelope = validateWidgetEnvelope({
-          event,
-          iframe,
-          widgetOrigin,
-          expectedType: POST_MESSAGE_LEAD_SUBMITTED_TYPE
-        });
-        if (envelope.type !== POST_MESSAGE_LEAD_SUBMITTED_TYPE) return;
-        if (!replayGuard.verify(envelope).ok) return;
-        options.onLeadSubmit?.(envelope.payload);
-      } catch {
-        /* swallow invalid envelopes per security policy */
-      }
+      return;
     }
+    options.onLeadSubmit?.(envelope.payload as LeadSubmittedPayload);
   };
 
   window.addEventListener("message", messageListener);
@@ -108,23 +107,6 @@ export function injectConciergeWidget(
       iframe.remove();
     }
   };
-}
-
-function validateWidgetEnvelope(input: {
-  readonly event: MessageEvent;
-  readonly iframe: HTMLIFrameElement;
-  readonly widgetOrigin: string;
-  readonly expectedType:
-    | typeof EMBED_READY_MESSAGE_TYPE
-    | typeof POST_MESSAGE_LEAD_SUBMITTED_TYPE;
-}) {
-  return validateKnownPostMessageEnvelope(input.event.data, {
-    origin: isSandboxOpaqueWidgetMessage(input.event, input.iframe)
-      ? input.widgetOrigin
-      : input.event.origin,
-    allowedOrigins: [input.widgetOrigin],
-    expectedType: input.expectedType
-  });
 }
 
 function isSandboxOpaqueWidgetMessage(
@@ -165,16 +147,6 @@ function createIframe(input: {
   iframe.style.pointerEvents = "none";
   iframe.style.clipPath = "inset(100% 0px 0px 0px)";
   return iframe;
-}
-
-function generateNonce(): string {
-  if (
-    typeof globalThis.crypto !== "undefined" &&
-    typeof globalThis.crypto.randomUUID === "function"
-  ) {
-    return globalThis.crypto.randomUUID();
-  }
-  return `nonce-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
 export type { PostMessageEnvelope };

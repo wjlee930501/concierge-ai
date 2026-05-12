@@ -1,6 +1,7 @@
 import {
   POST_MESSAGE_WIDGET_SOURCE,
   createPostMessageEnvelope,
+  generateNonce,
   type PostMessageKnownType
 } from "@conciergeai/shared";
 
@@ -58,14 +59,4 @@ export function isCurrentWindowOpaqueOrigin(): boolean {
     return false;
   }
   return window.origin === "null";
-}
-
-function generateNonce(): string {
-  if (
-    typeof globalThis.crypto !== "undefined" &&
-    typeof globalThis.crypto.randomUUID === "function"
-  ) {
-    return globalThis.crypto.randomUUID();
-  }
-  return `widget-message-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }

@@ -5,7 +5,8 @@ import {
   POST_MESSAGE_WIDGET_SOURCE,
   createEnvelopeReplayGuard,
   createPostMessageEnvelope,
-  validateKnownPostMessageEnvelope,
+  generateNonce,
+  validateOneOfKnownEnvelopes,
   type ChoreographyBeat,
   type ChoreographyStep,
   type ChoreographyTargetRect,
@@ -18,6 +19,7 @@ import {
   type ScenarioBeat,
   type ScenarioStep
 } from "@conciergeai/shared";
+import { isDevBuild } from "./isDevBuild";
 
 export function scenarioStepToChoreographyStep(
   step: ScenarioStep,
@@ -182,7 +184,7 @@ export function createHostDriverBridge(input: {
     }
   >();
   const replayGuardDisabled =
-    input.disableReplayGuard === true && isDevModeBuild();
+    input.disableReplayGuard === true && isDevBuild();
   const replayGuard = replayGuardDisabled
     ? null
     : createEnvelopeReplayGuard({
@@ -280,80 +282,32 @@ function validateHostResponse(
       readonly payload: HostSectionNotFoundPayload;
     }
   | null {
-  const responseTypes: readonly PostMessageKnownType[] = [
+  const responseTypes = [
     POST_MESSAGE_HOST_RECT_RESPONSE_TYPE,
     POST_MESSAGE_HOST_SECTION_NOT_FOUND_TYPE
-  ];
+  ] as const satisfies readonly PostMessageKnownType[];
 
-  for (const expectedType of responseTypes) {
-    try {
-      const envelope = validateKnownPostMessageEnvelope(event.data, {
-        origin: event.origin,
-        allowedOrigins,
-        expectedType
-      });
-      if (envelope.source !== POST_MESSAGE_PARENT_SOURCE) return null;
-      if (envelope.type === POST_MESSAGE_HOST_RECT_RESPONSE_TYPE) {
-        return {
-          type: POST_MESSAGE_HOST_RECT_RESPONSE_TYPE,
-          payload: envelope.payload as HostRectResponsePayload
-        };
-      }
-      if (envelope.type !== POST_MESSAGE_HOST_SECTION_NOT_FOUND_TYPE) {
-        return null;
-      }
-      return {
-        type: POST_MESSAGE_HOST_SECTION_NOT_FOUND_TYPE,
-        payload: envelope.payload as HostSectionNotFoundPayload
-      };
-    } catch {
-      // Try the next known host response type, then fail closed.
-    }
-  }
+  const matched = validateOneOfKnownEnvelopes({
+    value: event.data,
+    origin: event.origin,
+    allowedOrigins,
+    expectedTypes: responseTypes
+  });
+  if (matched === null) return null;
 
-  return null;
-}
+  const envelope = matched.envelope;
+  if (envelope.source !== POST_MESSAGE_PARENT_SOURCE) return null;
 
-function generateNonce(): string {
-  if (
-    typeof globalThis.crypto !== "undefined" &&
-    typeof globalThis.crypto.randomUUID === "function"
-  ) {
-    return globalThis.crypto.randomUUID();
-  }
-  return `widget-host-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-}
-
-// Dev-mode detection — gated through Vite's `import.meta.env.DEV` plus a
-// safe fallback for non-Vite test runners (vitest sets NODE_ENV=test which we
-// also treat as dev for the escape hatch). Production bundles must always
-// evaluate this to `false` so the replay guard stays ON. The `process`
-// reference is read through `globalThis` so the widget tsconfig (which does
-// not pull in @types/node) still type-checks; the runtime guard ensures we
-// never throw in pure-browser bundles.
-function isDevModeBuild(): boolean {
-  try {
-    const meta = import.meta as ImportMeta & {
-      readonly env?: { readonly DEV?: unknown };
+  if (matched.type === POST_MESSAGE_HOST_RECT_RESPONSE_TYPE) {
+    return {
+      type: POST_MESSAGE_HOST_RECT_RESPONSE_TYPE,
+      payload: envelope.payload as HostRectResponsePayload
     };
-    if (meta.env && meta.env.DEV === true) {
-      return true;
-    }
-  } catch {
-    // import.meta.env access can throw in some non-Vite runtimes — ignore.
   }
-  const proc = (
-    globalThis as {
-      readonly process?: { readonly env?: Record<string, string | undefined> };
-    }
-  ).process;
-  if (proc !== undefined && proc.env !== undefined) {
-    const env = proc.env.NODE_ENV;
-    if (env === "development" || env === "test") {
-      return true;
-    }
-  }
-  return false;
+  return {
+    type: POST_MESSAGE_HOST_SECTION_NOT_FOUND_TYPE,
+    payload: envelope.payload as HostSectionNotFoundPayload
+  };
 }
 
 function generateRequestId(): string {
