@@ -1,5 +1,10 @@
 # CHANGELOG.md
 
+## [Widget polish iteration 3 / 2026-05-13]
+
+- 2026-05-13 KST widget polish iteration 3 시작: iter 1+2 회귀 0 위에서 가변속도 typewriter(SpeechPill) / Popover position magic-move / Lead form 필드 stagger + SubmittedCard sparkle + Avatar celebrate mood 3건 구현 예정. R2 connector(spotlight↔popover SVG line)는 iter 4로 defer.
+- 2026-05-13 KST widget polish iteration 3 종료: R1 신규 `useTypewriter.ts`(74줄) — `Intl.Segmenter('ko', grapheme)` 기반 음절 단위 progressive reveal(jsdom fallback `Array.from(text)`), baseDelay 45ms / fastDelay 30ms(영문·숫자·공백) / 문장부호 직후 +180ms 휴식, reducedMotion instant complete, text 변경 시 reset + unmount cleanup; `HeroBubble.tsx` SpeechPill 본문을 신규 `TypewriterLine` sub-component로 교체, 진행 중 2px caret `motion.span` 0.8s opacity loop, completion 시 자동 제거. R2 `Popover.tsx` `top`/`left`를 `animate` 속성으로 승격해 anchor 변경 시 spring(stiffness 220/damping 28/mass 0.9) magic-move 슬라이드, `y`/`opacity`는 0.22s tween 유지, reducedMotion 시 `duration: 0` jump 보존; R2 connector(SVG mint draw-in)는 popover·spotlight 이중 rect 소스 필요로 iter 4 defer. R3 `LeadFormCard.tsx` stagger 재구성 — `staggerChildren 60ms / delayChildren 50ms`, 각 필드·PIPA fieldset·submit button을 `FieldRow` motion wrapper로 감싸 `y 8→0 / opacity 0→1 / 0.3s expo-out [0.16,1,0.3,1]`, reducedMotion 시 plain div fallback; `SubmittedCard.tsx` mint sparkle 3종(left 18%/82%/50%, delay 0.05/0.18/0.32s) `scale [0,1.2,1,0] + opacity [0,1,1,0] + rotate [0,45,90]` 1.1s keyframe, overflow-hidden 격리, reducedMotion 시 미렌더; `Avatar.tsx` `celebrate` mood 추가 — `y [0,-5,0,-3,0] + rotate [0,-10,8,-4,target]` 1.2s keyframe(자산 불필요), walk-on보다 우선; `AvatarMood` union type export + HeroBubble avatarMood 5종 확장. 신규 테스트 4건(`useTypewriter.test.tsx`). 검증: `npm run lint` PASS, `npm test` 49 files/403 passed(+4), `npm run security:scan` PASS(0 findings), `npm run build:vercel:widget` SUCCESS, `npx playwright test tests/e2e/guided-conversion.spec.ts` 7/7 PASS(회귀 0).
+
 ## [Widget polish iteration 2 / 2026-05-13]
 
 - 2026-05-13 KST widget polish iteration 2 시작: iter 1 회귀 0 위에서 Walk-on entrance(Hero + Avatar wave) / Magic-move LayoutGroup(chips↔freeInput height transition) / Chip→Avatar mint flare 3건 구현 예정.

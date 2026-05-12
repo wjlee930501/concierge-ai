@@ -1,5 +1,5 @@
 import { useEffect, useState, type JSX } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import type { ScenarioChoice, ScenarioPopover } from "@conciergeai/shared";
 
 export type PopoverProps = {
@@ -12,20 +12,48 @@ export type PopoverProps = {
 
 type Position = { readonly top: number; readonly left: number };
 
+const POSITION_SPRING = {
+  type: "spring" as const,
+  stiffness: 220,
+  damping: 28,
+  mass: 0.9
+};
+
 export function Popover(props: PopoverProps): JSX.Element {
   const position = useTargetPosition(props.target, props.visible);
+  const reduced = useReducedMotion() === true;
 
   return (
     <AnimatePresence>
       {props.visible && props.content !== null ? (
         <motion.aside
           aria-live="polite"
+          data-testid="concierge-popover"
+          data-polish-position-spring={reduced ? "off" : "on"}
           className="fixed z-[91] max-w-[340px] rounded-2xl bg-ink p-4 text-white shadow-[0_18px_60px_rgba(7,20,39,0.30)]"
-          style={{ top: position.top, left: position.left }}
-          initial={{ y: 6, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
+          initial={{
+            top: position.top,
+            left: position.left,
+            y: 6,
+            opacity: 0
+          }}
+          animate={{
+            top: position.top,
+            left: position.left,
+            y: 0,
+            opacity: 1
+          }}
           exit={{ y: 6, opacity: 0 }}
-          transition={{ duration: 0.22 }}
+          transition={
+            reduced
+              ? { duration: 0 }
+              : {
+                  top: POSITION_SPRING,
+                  left: POSITION_SPRING,
+                  y: { duration: 0.22 },
+                  opacity: { duration: 0.22 }
+                }
+          }
         >
           <div className="mb-1 text-[11px] font-black uppercase tracking-[0.08em] text-mint">
             {props.content.label}

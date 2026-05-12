@@ -8,9 +8,16 @@ import {
 
 export type { AvatarExpression } from "./avatarAssets";
 
+export type AvatarMood =
+  | "idle"
+  | "thinking"
+  | "replying"
+  | "pointing"
+  | "celebrate";
+
 export type AvatarProps = {
   readonly point: ScenarioAvatarPoint;
-  readonly mood?: "idle" | "thinking" | "replying" | "pointing";
+  readonly mood?: AvatarMood;
   readonly expression?: AvatarExpression;
   readonly tilt?: number;
   readonly firstWave?: boolean;
@@ -41,28 +48,51 @@ export function Avatar(props: AvatarProps): JSX.Element {
   };
 
   const wave = props.firstWave === true && !reduced;
+  const celebrate = mood === "celebrate" && !reduced;
   const targetRotate = target.rotate + tilt;
-  const containerAnimate = reduced
-    ? { x: 0, y: 0, rotate: 0 }
-    : wave
-      ? {
-          x: target.x,
-          y: [0, -3, 0, -1, 0] as number[],
-          rotate: [-6, 8, -4, 4, targetRotate] as number[]
-        }
-      : { x: target.x, y: target.y, rotate: targetRotate };
-  const containerTransition = wave
-    ? ({
-        duration: 1.1,
-        ease: [0.2, 0.8, 0.2, 1],
-        times: [0, 0.25, 0.55, 0.8, 1]
-      } as const)
-    : ({
-        type: "spring",
-        stiffness: 160,
-        damping: 22,
-        mass: 0.9
-      } as const);
+  let containerAnimate: Record<string, number | number[]>;
+  let containerTransition:
+    | { readonly duration: number; readonly ease: readonly number[]; readonly times: readonly number[] }
+    | { readonly type: "spring"; readonly stiffness: number; readonly damping: number; readonly mass: number };
+  if (reduced) {
+    containerAnimate = { x: 0, y: 0, rotate: 0 };
+    containerTransition = {
+      type: "spring",
+      stiffness: 160,
+      damping: 22,
+      mass: 0.9
+    } as const;
+  } else if (celebrate) {
+    containerAnimate = {
+      x: target.x,
+      y: [0, -5, 0, -3, 0],
+      rotate: [0, -10, 8, -4, targetRotate]
+    };
+    containerTransition = {
+      duration: 1.2,
+      ease: [0.2, 0.8, 0.2, 1],
+      times: [0, 0.2, 0.5, 0.75, 1]
+    } as const;
+  } else if (wave) {
+    containerAnimate = {
+      x: target.x,
+      y: [0, -3, 0, -1, 0],
+      rotate: [-6, 8, -4, 4, targetRotate]
+    };
+    containerTransition = {
+      duration: 1.1,
+      ease: [0.2, 0.8, 0.2, 1],
+      times: [0, 0.25, 0.55, 0.8, 1]
+    } as const;
+  } else {
+    containerAnimate = { x: target.x, y: target.y, rotate: targetRotate };
+    containerTransition = {
+      type: "spring",
+      stiffness: 160,
+      damping: 22,
+      mass: 0.9
+    } as const;
+  }
 
   return (
     <motion.div

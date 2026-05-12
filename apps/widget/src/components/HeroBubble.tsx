@@ -27,12 +27,18 @@ import {
   SPEECH_FLOAT_ANIMATE,
   SPEECH_FLOAT_TRANSITION
 } from "./floatingMotion";
+import { useTypewriter } from "./useTypewriter";
 import type { FreeInputSlice } from "../state/types";
 
 export type HeroBubbleProps = {
   readonly visible: boolean;
   readonly avatarPoint: ScenarioAvatarPoint;
-  readonly avatarMood: "idle" | "thinking" | "replying" | "pointing";
+  readonly avatarMood:
+    | "idle"
+    | "thinking"
+    | "replying"
+    | "pointing"
+    | "celebrate";
   readonly avatarExpression: AvatarExpression;
   readonly anchorPosition: AnchorPoint;
   readonly currentAnchor: AnchorName;
@@ -468,13 +474,11 @@ function SpeechPill(props: {
               {props.section.title}
             </div>
           ) : null}
-          <p
-            className={`text-[13px] leading-[1.55] text-white/85 ${
-              props.section !== null ? "mt-1" : ""
-            }`}
-          >
-            {props.message}
-          </p>
+          <TypewriterLine
+            text={props.message}
+            reduced={props.reduced}
+            offsetTop={props.section !== null}
+          />
           {props.variantSuffix !== undefined ? (
             <p className="mt-1 text-[11px] leading-snug text-mint/90">
               {props.variantSuffix}
@@ -499,4 +503,35 @@ function resolveTailRotation(anchor: AnchorName): number {
   if (anchor.includes("left")) return 38;
   if (anchor.includes("bottom")) return 58;
   return 45;
+}
+
+function TypewriterLine(props: {
+  readonly text: string;
+  readonly reduced: boolean;
+  readonly offsetTop: boolean;
+}): JSX.Element {
+  const { displayed, isComplete } = useTypewriter(props.text, {
+    reducedMotion: props.reduced
+  });
+  const showCaret = !props.reduced && !isComplete;
+  return (
+    <p
+      data-testid="speech-typewriter"
+      data-tw-complete={isComplete ? "true" : "false"}
+      className={`text-[13px] leading-[1.55] text-white/85 ${
+        props.offsetTop ? "mt-1" : ""
+      }`}
+    >
+      {displayed}
+      {showCaret ? (
+        <motion.span
+          aria-hidden="true"
+          data-testid="speech-typewriter-caret"
+          className="ml-[1px] inline-block h-[0.85em] w-[2px] translate-y-[2px] bg-white/85 align-baseline"
+          animate={{ opacity: [0.9, 0] }}
+          transition={{ duration: 0.8, repeat: Infinity, ease: "easeInOut" }}
+        />
+      ) : null}
+    </p>
+  );
 }
