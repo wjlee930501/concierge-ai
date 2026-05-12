@@ -108,6 +108,27 @@ describe("streamMockAiResponse", () => {
     expect(done?.type).toBe("done");
   });
 
+  it("emits aborted=true done event when signal is aborted mid-stream", async () => {
+    const controller = new AbortController();
+    const events: AiStreamEvent[] = [];
+    const run = streamMockAiResponse({
+      query: "노쇼 줄일 수 있나요?",
+      scenario,
+      tokenDelayMs: 1,
+      signal: controller.signal,
+      onEvent: (event) => {
+        events.push(event);
+        if (event.type === "chunk") controller.abort();
+      }
+    });
+    await run;
+    const done = events.find((event) => event.type === "done");
+    expect(done?.type).toBe("done");
+    if (done?.type === "done") {
+      expect(done.aborted).toBe(true);
+    }
+  });
+
   it.each([
     ["노쇼 줄일 수 있나요?", "chip_revisit"],
     ["예약 리마인드 자동 발송 되나요?", "chip_revisit"],

@@ -145,6 +145,8 @@ export function App(): JSX.Element {
       <Spotlight
         target={isStep ? stepNode!.spotlightTarget : null}
         active={isStep}
+        mode={renderHostPreview ? "internal" : "external"}
+        reducedMotion={state.reducedMotion}
       />
 
       <HeroBubble
