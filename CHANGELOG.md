@@ -1,5 +1,9 @@
 # CHANGELOG.md
 
+## [Opaque-sandbox e2e 회귀 fix / 2026-05-12]
+
+- 2026-05-12 KST `apps/embed/src/host-driver.ts`의 `targetOriginForWidget`를 browser-constraint 기반으로 환원: PR#1 M1 wildcard 제한이 `sandbox="allow-scripts"`(allow-same-origin OFF) opaque iframe의 경우 `iframe.src origin`을 반환했지만 브라우저는 opaque iframe에게 wildcard 외의 targetOrigin은 silent drop하기 때문에 rect_response가 widget에 도달하지 못해 guided-conversion e2e TC2~TC6이 회귀했음. 변경 후: opaque sandbox → wildcard 자동 반환(browser constraint, 보안 완화 아님), 비-opaque iframe → 기존 명시 origin 로직 + `allowWildcardTarget` opt-in override 유지. envelope-level nonce/timestamp/origin/payload 검증 + replay guard는 그대로 active defense로 남음. 테스트 갱신: opaque auto-wildcard / non-opaque widgetOrigin retain / non-opaque allowWildcardTarget override 3건.
+
 ## [일관성 정리 PR#4 / 2026-05-12]
 
 - 2026-05-12 KST PR#4 일관성 정리 시작: 4-lane 리뷰 P3 정리 항목 + PR#2 review에서 도출된 isDevBuild 중복을 behavior 변경 0으로 통합 예정 — C1 immutability(mutation 2건 제거), C2 generateNonce 4중 중복 packages/shared 단일 export로 통합, C3 envelope-type fallthrough loop 3건을 validateOneOfKnownEnvelopes helper로 단순화, C4 isDevBuild() 2중 중복(useLeadSubmissionEffect / choreographyBridge) apps/widget/src/state/isDevBuild.ts로 통합.

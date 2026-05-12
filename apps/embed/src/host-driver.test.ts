@@ -129,7 +129,12 @@ describe("attachConciergeHostDriver", () => {
     detach();
   });
 
-  it("prefers iframe.src origin over wildcard when the sandboxed widget posts an opaque-origin message", () => {
+  it("auto-targets wildcard for opaque-sandbox iframes because the browser drops any other targetOrigin", () => {
+    // Opaque-sandbox (allow-scripts only, no allow-same-origin) iframes have
+    // an effective origin of "null". The browser silently drops postMessages
+    // whose targetOrigin differs from the recipient's effective origin, so
+    // wildcard is the only deliverable target. Envelope-level validation +
+    // replay guard remain the active defense for these messages.
     const target = document.createElement("section");
     target.id = "section-demo";
     target.getBoundingClientRect = () =>
@@ -184,12 +189,67 @@ describe("attachConciergeHostDriver", () => {
           rect: { left: 12, top: 24, width: 320, height: 140 }
         })
       }),
+      "*"
+    );
+    detach();
+  });
+
+  it("keeps the explicit widgetOrigin target for non-opaque iframes (PR#1 M1 fix retained)", () => {
+    // Non-opaque iframe (no sandbox attribute, or sandbox includes
+    // allow-same-origin) has a resolvable effective origin. The PR#1 M1
+    // hardening still applies: never wildcard unless allowWildcardTarget
+    // is explicitly enabled by the caller.
+    const target = document.createElement("section");
+    target.id = "section-demo";
+    target.getBoundingClientRect = () =>
+      ({
+        left: 5,
+        top: 6,
+        width: 7,
+        height: 8,
+        right: 12,
+        bottom: 14,
+        x: 5,
+        y: 6,
+        toJSON: () => ({})
+      }) as DOMRect;
+    document.body.appendChild(target);
+    const iframe = document.createElement("iframe");
+    document.body.appendChild(iframe);
+    const postMessage = vi.fn();
+    Object.defineProperty(iframe, "contentWindow", {
+      configurable: true,
+      value: { postMessage }
+    });
+    const detach = attachConciergeHostDriver({
+      iframe,
+      widgetOrigin: "https://widget.example.test"
+    });
+
+    window.dispatchEvent(
+      new MessageEvent("message", {
+        source: iframe.contentWindow,
+        origin: "https://widget.example.test",
+        data: createPostMessageEnvelope({
+          type: POST_MESSAGE_HOST_RECT_QUERY_TYPE,
+          nonce: "nonce-non-opaque-rect-query",
+          source: POST_MESSAGE_WIDGET_SOURCE,
+          payload: {
+            selector: "#section-demo",
+            request_id: "rect-non-opaque"
+          }
+        })
+      })
+    );
+
+    expect(postMessage).toHaveBeenCalledWith(
+      expect.objectContaining({ source: POST_MESSAGE_PARENT_SOURCE }),
       "https://widget.example.test"
     );
     detach();
   });
 
-  it("falls back to wildcard target only when allowWildcardTarget is explicitly enabled and the iframe.src origin is unresolvable", () => {
+  it("forces wildcard on non-opaque iframes only when allowWildcardTarget is explicitly enabled (opt-in override)", () => {
     const target = document.createElement("section");
     target.id = "section-demo";
     target.getBoundingClientRect = () =>
@@ -206,10 +266,8 @@ describe("attachConciergeHostDriver", () => {
       }) as DOMRect;
     document.body.appendChild(target);
     const iframe = document.createElement("iframe");
-    iframe.setAttribute("sandbox", "allow-scripts");
-    // No src attribute → iframe.src origin cannot be resolved. Wildcard
-    // fallback is permitted only because allowWildcardTarget was explicitly
-    // passed by the host driver caller.
+    // No sandbox attribute → not opaque. allowWildcardTarget opt-in is the
+    // only way the host driver may post wildcard in this case.
     document.body.appendChild(iframe);
     const postMessage = vi.fn();
     Object.defineProperty(iframe, "contentWindow", {
@@ -225,14 +283,14 @@ describe("attachConciergeHostDriver", () => {
     window.dispatchEvent(
       new MessageEvent("message", {
         source: iframe.contentWindow,
-        origin: "null",
+        origin: "https://widget.example.test",
         data: createPostMessageEnvelope({
           type: POST_MESSAGE_HOST_RECT_QUERY_TYPE,
-          nonce: "nonce-opaque-wildcard",
+          nonce: "nonce-non-opaque-wildcard-override",
           source: POST_MESSAGE_WIDGET_SOURCE,
           payload: {
             selector: "#section-demo",
-            request_id: "rect-wildcard"
+            request_id: "rect-wildcard-override"
           }
         })
       })

@@ -245,33 +245,22 @@ function targetOriginForWidget(
   widgetOrigin: string,
   allowWildcardTarget: boolean
 ): string {
-  // Prefer the explicit widgetOrigin passed in. When the iframe runs under an
-  // opaque sandbox we still try to resolve the iframe.src origin before
-  // falling back to a wildcard. Wildcard target is only allowed when explicitly
-  // opted in via allowWildcardTarget — fail-closed default per FINAL_ALIGNMENT.
-  if (!usesOpaqueSandbox(iframe)) {
-    return widgetOrigin;
+  // Opaque-sandbox iframes can only receive wildcard targets; this is a
+  // browser constraint, not a security relaxation. An iframe declared as
+  // `sandbox="allow-scripts"` (no `allow-same-origin`) has an effective
+  // origin of "null" (opaque), and the browser silently drops any
+  // postMessage whose targetOrigin differs from the recipient's effective
+  // origin. Envelope-level nonce/timestamp/origin/payload validation +
+  // replay guard remain the active defense for these messages.
+  if (usesOpaqueSandbox(iframe)) {
+    return "*";
   }
-  const srcOrigin = tryReadIframeSrcOrigin(iframe);
-  if (srcOrigin !== null) {
-    return srcOrigin;
-  }
+  // Non-opaque iframe: keep the PR#1 M1 fix — never wildcard unless the
+  // caller explicitly opts in via allowWildcardTarget.
   if (allowWildcardTarget) {
     return "*";
   }
   return widgetOrigin;
-}
-
-function tryReadIframeSrcOrigin(iframe: HTMLIFrameElement): string | null {
-  const rawSrc = iframe.getAttribute("src") ?? iframe.src;
-  if (typeof rawSrc !== "string" || rawSrc.length === 0) {
-    return null;
-  }
-  try {
-    return new URL(rawSrc).origin;
-  } catch {
-    return null;
-  }
 }
 
 function usesOpaqueSandbox(iframe: HTMLIFrameElement): boolean {
