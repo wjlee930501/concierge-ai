@@ -1,5 +1,10 @@
 # CHANGELOG.md
 
+## [Widget decomposition PR#3 / 2026-05-12]
+
+- 2026-05-12 KST PR#3 widget decomposition 시작: PR#1 보안 stack 위에서 `apps/widget/src/App.tsx`(545줄)와 `apps/widget/src/preview/HostPagePreview.tsx`(817줄)를 UX 변경 0으로 분해해 code-reviewer HIGH #1~#3을 닫고, choreography effect의 viewport/reducedMotion race를 hook 경계에서 해소할 예정.
+- 2026-05-12 KST PR#3 widget decomposition 종료: App.tsx 545→274줄로 축소(`useChoreographyController`/`useParentOrigin`/`useLeadSubmissionEffect`/`useViewport`/`clampBubbleAnchorPoint` 5개 모듈 분리), choreography effect의 dependency를 `stepNode.id` + parent-origin presence로 좁히고 viewport·reducedMotion·scenario·parentOrigin은 `useLatestRef` 경유로 in-flight step abort 없이 latest 값을 읽도록 race-condition 가드 적용. HostPagePreview는 817→50줄 scaffold로 축소되고 15개 section 파일(`apps/widget/src/preview/sections/*.tsx`, 평균 50줄)로 분리(`primitives.tsx`는 Dot/SectionEyebrow/CheckMark/Badge 공용). 신규 회귀 가드 테스트 2개(`useChoreographyController.test.tsx`: viewport resize 시 executeStep 1회 유지, reducedMotion 토글 시 executeStep 1회 유지) + parent-origin allowlist fallback 테스트 5개 추가. 검증 `npm run lint` PASS, `npm test` 46 files/381 passed(+10), `npm run security:scan` PASS(0 findings).
+
 ## [Security hardening PR#1 / 2026-05-12]
 
 - 2026-05-12 KST PR#1 security hardening 시작: 4-lane 리뷰에서 도출된 8건(embed-bundle env fail-closed, host/widget postMessage targetOrigin 와일드카드 제한, output-sanitizer PIPA PII 패턴, postMessage envelope nonce/timestamp replay guard, iframe src protocol 차단 확장, normalizeOrigin IDN/punycode 안전화, .env.example placeholder 통일, injection-patterns 한국어 변형)을 단일 self-contained branch로 구현·테스트 예정.
