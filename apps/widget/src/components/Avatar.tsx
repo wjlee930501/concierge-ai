@@ -13,6 +13,7 @@ export type AvatarProps = {
   readonly mood?: "idle" | "thinking" | "replying" | "pointing";
   readonly expression?: AvatarExpression;
   readonly tilt?: number;
+  readonly firstWave?: boolean;
 };
 
 const POINT_OFFSET: Record<
@@ -39,15 +40,29 @@ export function Avatar(props: AvatarProps): JSX.Element {
     ease: "easeInOut" as const
   };
 
+  const wave = props.firstWave === true && !reduced;
+  const targetRotate = target.rotate + tilt;
   const containerAnimate = reduced
     ? { x: 0, y: 0, rotate: 0 }
-    : { x: target.x, y: target.y, rotate: target.rotate + tilt };
-  const containerTransition = {
-    type: "spring" as const,
-    stiffness: 160,
-    damping: 22,
-    mass: 0.9
-  };
+    : wave
+      ? {
+          x: target.x,
+          y: [0, -3, 0, -1, 0] as number[],
+          rotate: [-6, 8, -4, 4, targetRotate] as number[]
+        }
+      : { x: target.x, y: target.y, rotate: targetRotate };
+  const containerTransition = wave
+    ? ({
+        duration: 1.1,
+        ease: [0.2, 0.8, 0.2, 1],
+        times: [0, 0.25, 0.55, 0.8, 1]
+      } as const)
+    : ({
+        type: "spring",
+        stiffness: 160,
+        damping: 22,
+        mass: 0.9
+      } as const);
 
   return (
     <motion.div
@@ -56,6 +71,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
       data-avatar-expression={expression}
       data-avatar-asset={asset.id}
       data-avatar-mood={mood}
+      data-polish-first-wave={wave ? "true" : "false"}
       className="relative h-[52px] w-[52px] shrink-0"
       animate={containerAnimate}
       transition={containerTransition}

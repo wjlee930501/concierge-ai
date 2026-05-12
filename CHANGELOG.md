@@ -1,5 +1,10 @@
 # CHANGELOG.md
 
+## [Widget polish iteration 2 / 2026-05-13]
+
+- 2026-05-13 KST widget polish iteration 2 시작: iter 1 회귀 0 위에서 Walk-on entrance(Hero + Avatar wave) / Magic-move LayoutGroup(chips↔freeInput height transition) / Chip→Avatar mint flare 3건 구현 예정.
+- 2026-05-13 KST widget polish iteration 2 종료: Q1 `HeroBubble.tsx` outer `motion.section`에 walk-on `initial: { scale:0.92, rotate:-2, opacity:0 }` → `animate: { scale:1, rotate:0, opacity:1 }` spring(stiffness 230/damping 24/mass 0.95) 추가 — y offset은 anchor 기준 유지해 viewport 경계 회귀 방지; `useFirstMount` hook으로 첫 등장 1회만 적용. `Avatar.tsx`에 `firstWave` prop 추가: wave=true 시 containerAnimate를 `y:[0,-3,0,-1,0]` + `rotate:[-6,8,-4,4,targetRotate]` 1.1s keyframe 시퀀스로 교체(손짓 흉내, 자산 불필요). `SpeechPill`에 `entranceDelaySec:0.22` stagger — walk-on 시 opacity/scale 220ms 지연 후 fade-in. Q2 `HeroBubble.tsx`에 `<LayoutGroup id="concierge-hero-stack">` 추가, chips/freeInput/pill/toggles 각 `motion.div`에 `layout` + `MAGIC_MOVE_LAYOUT`(spring stiffness 240/damping 30/mass 0.9) 적용 — chips↔freeInput 전환 시 컨테이너 높이 변화가 spring으로 매끄럽게 전환; `layoutId` 미사용(조건부 렌더링 위치 충돌 방지). Q3 `ChipFlare.tsx` 신규(22줄) — mint 원형 파티클 `y:-28, x:-10, opacity:0→0.85→0` 0.38s ease 상방 이탈; `QuickChips.tsx`에 `flaringId` local state + 420ms timer로 chip click 시 해당 chip 위 flare 1회 렌더, `prefers-reduced-motion` 시 flare 미렌더. 검증: `npm run lint` PASS, `npm test` 48 files/399 passed(회귀 0), `npm run security:scan` PASS(0 findings), `npm run build:vercel:widget` SUCCESS, `npx playwright test tests/e2e/guided-conversion.spec.ts` 7/7 PASS(회귀 0).
+
 ## [Widget polish iteration 1 / 2026-05-13]
 
 - 2026-05-13 KST widget polish iteration 1 시작: `docs/interaction/CONCIERGE_DESIGN_POLISH_SPEC.md` §3 정합으로 "기능 OK, 감각 약함" 상태를 Interact AI 풍 + 모션랩스 디자인 정합 ≥90%로 끌어올리기 위해 자산 의존 없는 S-비용 3건(Spotlight ring breathing + entrance, SpeechPill breath 진폭 upweight, MinimizedPill idle ping)을 회귀 0으로 구현 예정.
