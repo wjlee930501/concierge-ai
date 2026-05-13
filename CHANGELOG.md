@@ -1,5 +1,14 @@
 # CHANGELOG.md
 
+## [Opaque-sandbox e2e 회귀 fix / 2026-05-12]
+
+- 2026-05-12 KST `apps/embed/src/host-driver.ts`의 `targetOriginForWidget`를 browser-constraint 기반으로 환원: PR#1 M1 wildcard 제한이 `sandbox="allow-scripts"`(allow-same-origin OFF) opaque iframe의 경우 `iframe.src origin`을 반환했지만 브라우저는 opaque iframe에게 wildcard 외의 targetOrigin은 silent drop하기 때문에 rect_response가 widget에 도달하지 못해 guided-conversion e2e TC2~TC6이 회귀했음. 변경 후: opaque sandbox → wildcard 자동 반환(browser constraint, 보안 완화 아님), 비-opaque iframe → 기존 명시 origin 로직 + `allowWildcardTarget` opt-in override 유지. envelope-level nonce/timestamp/origin/payload 검증 + replay guard는 그대로 active defense로 남음. 테스트 갱신: opaque auto-wildcard / non-opaque widgetOrigin retain / non-opaque allowWildcardTarget override 3건.
+
+## [일관성 정리 PR#4 / 2026-05-12]
+
+- 2026-05-12 KST PR#4 일관성 정리 시작: 4-lane 리뷰 P3 정리 항목 + PR#2 review에서 도출된 isDevBuild 중복을 behavior 변경 0으로 통합 예정 — C1 immutability(mutation 2건 제거), C2 generateNonce 4중 중복 packages/shared 단일 export로 통합, C3 envelope-type fallthrough loop 3건을 validateOneOfKnownEnvelopes helper로 단순화, C4 isDevBuild() 2중 중복(useLeadSubmissionEffect / choreographyBridge) apps/widget/src/state/isDevBuild.ts로 통합.
+- 2026-05-12 KST PR#4 일관성 정리 종료: C1 `scenarioRunner.createEmptyLeadDraft`를 `Object.fromEntries(scenario.leadForm.fields.map(...))`로 immutable 변환, `leadPayload.buildVisitedSections`를 `reduce`-기반 immutable build로 변환. C2 `packages/shared/src/post-message.ts`에 `generateNonce()` export 추가하고 widgetPostMessage/choreographyBridge/host-driver/inject 4개 callsite의 로컬 generateNonce 제거 후 import 일원화. C3 `validateOneOfKnownEnvelopes` helper export 추가 후 choreographyBridge.validateHostResponse, host-driver.onMessage, inject.messageListener 3곳의 try/catch fallthrough 루프 제거(envelope/origin/source/payload 검증 의미 동일, fail-closed 정책 유지). C4 신규 `apps/widget/src/state/isDevBuild.ts`(33줄) 단일 helper로 useLeadSubmissionEffect/choreographyBridge의 중복 dev-mode 가드 통합. 신규 테스트 +8개(generateNonce 2건, validateOneOfKnownEnvelopes 3건, isDevBuild 3건). 검증: `npm run lint` PASS, `npm test` 48 files/397 passed(+8), `npm run security:scan` PASS(0 findings), `npm run typecheck` PASS.
+
 ## [UX 핵심 수정 PR#2 / 2026-05-12]
 
 - 2026-05-12 KST PR#2 UX 핵심 수정 시작: B1 Spotlight widget 내부 ring/dim fallback, B2 streamMockAiResponse 에러/abort path, B3 console.info dev-flag 게이팅 3건 구현 예정.

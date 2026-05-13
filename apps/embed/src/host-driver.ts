@@ -10,7 +10,8 @@ import {
   POST_MESSAGE_PARENT_SOURCE,
   createEnvelopeReplayGuard,
   createPostMessageEnvelope,
-  validateKnownPostMessageEnvelope,
+  generateNonce,
+  validateOneOfKnownEnvelopes,
   type HostDriverHighlightMessagePayload,
   type IframeHitboxPayload,
   type HostRectQueryMessagePayload,
@@ -54,53 +55,54 @@ export function attachConciergeHostDriver(input: {
   const onMessage = (event: MessageEvent) => {
     if (event.source !== input.iframe.contentWindow) return;
 
-    for (const expectedType of HOST_DRIVER_TYPES) {
-      try {
-        const envelope = validateWidgetMessage({
-          event,
-          iframe: input.iframe,
-          widgetOrigin: input.widgetOrigin,
-          expectedType
-        });
+    const matched = validateOneOfKnownEnvelopes({
+      value: event.data,
+      origin: isSandboxOpaqueWidgetMessage(event, input.iframe)
+        ? input.widgetOrigin
+        : event.origin,
+      allowedOrigins: [input.widgetOrigin],
+      expectedTypes: HOST_DRIVER_TYPES
+    });
+    if (matched === null) return;
 
-        if (!replayGuard.verify(envelope).ok) {
-          // Silently swallow replays (duplicate nonce or stale timestamp).
-          return;
-        }
+    const envelope = matched.envelope;
+    if (!replayGuard.verify(envelope).ok) {
+      // Silently swallow replays (duplicate nonce or stale timestamp).
+      return;
+    }
 
-        switch (envelope.type) {
-          case POST_MESSAGE_HOST_SCROLL_TO_TYPE:
-            scrollToSelector(
-              input.iframe,
-              input.widgetOrigin,
-              allowWildcardTarget,
-              doc,
-              envelope.payload
-            );
-            return;
-          case POST_MESSAGE_HOST_DRIVER_HIGHLIGHT_TYPE:
-            highlightSelector(doc, envelope.payload);
-            return;
-          case POST_MESSAGE_HOST_DRIVER_CLEAR_TYPE:
-            clearHighlight(doc);
-            return;
-          case POST_MESSAGE_HOST_RECT_QUERY_TYPE:
-            respondToRectQuery(
-              input.iframe,
-              input.widgetOrigin,
-              allowWildcardTarget,
-              doc,
-              win,
-              envelope.payload
-            );
-            return;
-          case POST_MESSAGE_IFRAME_HITBOX_TYPE:
-            applyIframeHitbox(input.iframe, envelope.payload);
-            return;
-        }
-      } catch {
-        // Try the next known host-driver type, then fail closed.
-      }
+    switch (envelope.type) {
+      case POST_MESSAGE_HOST_SCROLL_TO_TYPE:
+        scrollToSelector(
+          input.iframe,
+          input.widgetOrigin,
+          allowWildcardTarget,
+          doc,
+          envelope.payload as HostScrollToMessagePayload
+        );
+        return;
+      case POST_MESSAGE_HOST_DRIVER_HIGHLIGHT_TYPE:
+        highlightSelector(
+          doc,
+          envelope.payload as HostDriverHighlightMessagePayload
+        );
+        return;
+      case POST_MESSAGE_HOST_DRIVER_CLEAR_TYPE:
+        clearHighlight(doc);
+        return;
+      case POST_MESSAGE_HOST_RECT_QUERY_TYPE:
+        respondToRectQuery(
+          input.iframe,
+          input.widgetOrigin,
+          allowWildcardTarget,
+          doc,
+          win,
+          envelope.payload as HostRectQueryMessagePayload
+        );
+        return;
+      case POST_MESSAGE_IFRAME_HITBOX_TYPE:
+        applyIframeHitbox(input.iframe, envelope.payload as IframeHitboxPayload);
+        return;
     }
   };
 
@@ -231,21 +233,6 @@ function postToWidget(
   );
 }
 
-function validateWidgetMessage(input: {
-  readonly event: MessageEvent;
-  readonly iframe: HTMLIFrameElement;
-  readonly widgetOrigin: string;
-  readonly expectedType: PostMessageKnownType;
-}) {
-  return validateKnownPostMessageEnvelope(input.event.data, {
-    origin: isSandboxOpaqueWidgetMessage(input.event, input.iframe)
-      ? input.widgetOrigin
-      : input.event.origin,
-    allowedOrigins: [input.widgetOrigin],
-    expectedType: input.expectedType
-  });
-}
-
 function isSandboxOpaqueWidgetMessage(
   event: MessageEvent,
   iframe: HTMLIFrameElement
@@ -258,33 +245,22 @@ function targetOriginForWidget(
   widgetOrigin: string,
   allowWildcardTarget: boolean
 ): string {
-  // Prefer the explicit widgetOrigin passed in. When the iframe runs under an
-  // opaque sandbox we still try to resolve the iframe.src origin before
-  // falling back to a wildcard. Wildcard target is only allowed when explicitly
-  // opted in via allowWildcardTarget — fail-closed default per FINAL_ALIGNMENT.
-  if (!usesOpaqueSandbox(iframe)) {
-    return widgetOrigin;
+  // Opaque-sandbox iframes can only receive wildcard targets; this is a
+  // browser constraint, not a security relaxation. An iframe declared as
+  // `sandbox="allow-scripts"` (no `allow-same-origin`) has an effective
+  // origin of "null" (opaque), and the browser silently drops any
+  // postMessage whose targetOrigin differs from the recipient's effective
+  // origin. Envelope-level nonce/timestamp/origin/payload validation +
+  // replay guard remain the active defense for these messages.
+  if (usesOpaqueSandbox(iframe)) {
+    return "*";
   }
-  const srcOrigin = tryReadIframeSrcOrigin(iframe);
-  if (srcOrigin !== null) {
-    return srcOrigin;
-  }
+  // Non-opaque iframe: keep the PR#1 M1 fix — never wildcard unless the
+  // caller explicitly opts in via allowWildcardTarget.
   if (allowWildcardTarget) {
     return "*";
   }
   return widgetOrigin;
-}
-
-function tryReadIframeSrcOrigin(iframe: HTMLIFrameElement): string | null {
-  const rawSrc = iframe.getAttribute("src") ?? iframe.src;
-  if (typeof rawSrc !== "string" || rawSrc.length === 0) {
-    return null;
-  }
-  try {
-    return new URL(rawSrc).origin;
-  } catch {
-    return null;
-  }
 }
 
 function usesOpaqueSandbox(iframe: HTMLIFrameElement): boolean {
@@ -336,14 +312,4 @@ function clearHighlight(doc: Document): void {
     node.style.removeProperty("--concierge-highlight-radius");
     node.style.removeProperty("--concierge-highlight-color");
   }
-}
-
-function generateNonce(): string {
-  if (
-    typeof globalThis.crypto !== "undefined" &&
-    typeof globalThis.crypto.randomUUID === "function"
-  ) {
-    return globalThis.crypto.randomUUID();
-  }
-  return `host-driver-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
