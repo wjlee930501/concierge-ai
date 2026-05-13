@@ -1,11 +1,6 @@
-import { useEffect, useMemo, useRef, useState, type JSX } from "react";
+import { useMemo, type JSX } from "react";
 import {
   anchorToPoint,
-  executeStep,
-  isOriginAllowed,
-  POST_MESSAGE_LEAD_SUBMITTED_TYPE,
-  type AnchorName,
-  type AnchorPoint,
   type AvatarExpressionName,
   type AvatarStateName
 } from "@conciergeai/shared";
@@ -21,28 +16,17 @@ import { loadPlaceholderScenario } from "./preview/load-placeholder-scenario";
 import { isLeadDraftSubmittable } from "./state/scenarioRunner";
 import { useScenarioRunner } from "./state/useScenarioRunner";
 import { useIframeHitbox } from "./state/useIframeHitbox";
+import { useViewport } from "./state/useViewport";
+import { clampBubbleAnchorPoint } from "./state/clampBubbleAnchorPoint";
 import { buildVariantGreetingSuffix } from "./state/pageContext";
-import { postWidgetMessageToParent } from "./state/widgetPostMessage";
 import { readConciergeRuntimeConfig } from "./config/runtime";
-import {
-  createHostDriverBridge,
-  scenarioStepToChoreographyStep
-} from "./state/choreographyBridge";
+import { useParentOrigin } from "./state/useParentOrigin";
+import { useLeadSubmissionEffect } from "./state/useLeadSubmissionEffect";
+import { useChoreographyController } from "./state/useChoreographyController";
 
 type ChoiceContext =
   | { readonly kind: "hero"; readonly chipId: string }
   | { readonly kind: "step"; readonly choiceId: string };
-
-type ChoreographyUiState = {
-  readonly stepId: string | null;
-  readonly avatarState: AvatarStateName;
-  readonly anchor: AnchorName;
-  readonly tilt: number;
-  readonly expressionOverride: AvatarExpressionName | null;
-  readonly bubbleMessage: string | null;
-  readonly bubbleVisible: boolean;
-  readonly choicesVisible: boolean;
-};
 
 declare global {
   interface Window {
@@ -51,32 +35,13 @@ declare global {
   }
 }
 
-const INITIAL_CHOREOGRAPHY_UI: ChoreographyUiState = Object.freeze({
-  stepId: null,
-  avatarState: "idle",
-  anchor: "hero_center",
-  tilt: 0,
-  expressionOverride: null,
-  bubbleMessage: null,
-  bubbleVisible: true,
-  choicesVisible: false
-});
-
 export function App(): JSX.Element {
   const scenario = useMemo(() => loadPlaceholderScenario(), []);
   const { state, dispatch } = useScenarioRunner(scenario);
   const viewport = useViewport();
   const renderHostPreview = shouldRenderHostPreview();
   const runtimeConfig = useMemo(() => readConciergeRuntimeConfig(), []);
-  const parentOrigin = useMemo(
-    () => resolveParentOrigin(runtimeConfig.allowedOrigins),
-    [runtimeConfig.allowedOrigins]
-  );
-  const [choreographyUi, setChoreographyUi] = useState<ChoreographyUiState>(
-    INITIAL_CHOREOGRAPHY_UI
-  );
-  const currentAnchorRef = useRef<AnchorName>("hero_center");
-  const runIdRef = useRef(0);
+  const parentOrigin = useParentOrigin(runtimeConfig.allowedOrigins);
 
   const phase = state.phase;
   const isHero = phase.kind === "hero-visible";
@@ -88,8 +53,16 @@ export function App(): JSX.Element {
 
   const stepNode = isStep ? phase.step : null;
   const heroPoint = stepNode?.avatarPoint ?? "up";
-  const isCurrentStepChoreography =
-    stepNode !== null && choreographyUi.stepId === stepNode.id;
+
+  const { choreographyUi, isStepActive: isCurrentStepChoreography } =
+    useChoreographyController({
+      stepNode,
+      scenario,
+      reducedMotion: state.reducedMotion,
+      viewport,
+      parentOrigin
+    });
+
   const avatarMood = resolveAvatarMood({
     freeInputMode: state.freeInput.mode,
     avatarState: choreographyUi.avatarState,
@@ -109,20 +82,7 @@ export function App(): JSX.Element {
   const variantSuffix = buildVariantGreetingSuffix(state.pageContext);
   const canSubmit = isLeadDraftSubmittable(state);
 
-  useEffect(() => {
-    const payload = state.submission?.payload;
-    if (payload === undefined) return;
-    window.__CONCIERGE_LAST_MOCK_LEAD__ = payload;
-    console.info("[concierge-ai] mock lead submit", payload);
-    if (typeof window !== "undefined" && window.parent !== window) {
-      postWidgetMessageToParent({
-        targetWindow: window.parent,
-        parentOrigin,
-        type: POST_MESSAGE_LEAD_SUBMITTED_TYPE,
-        payload: { lead: payload }
-      });
-    }
-  }, [parentOrigin, state.submission?.payload]);
+  useLeadSubmissionEffect({ submission: state.submission, parentOrigin });
 
   const usedChipIds = useMemo(() => {
     const ids = new Set<string>();
@@ -177,147 +137,6 @@ export function App(): JSX.Element {
     targetOrigin: parentOrigin,
     signal: hitboxSignal
   });
-
-  useEffect(() => {
-    if (stepNode === null) {
-      setChoreographyUi((prev) => ({
-        ...prev,
-        stepId: null,
-        avatarState: "idle",
-        tilt: 0,
-        expressionOverride: null,
-        bubbleMessage: null,
-        bubbleVisible: true,
-        choicesVisible: false
-      }));
-      return undefined;
-    }
-
-    let cancelled = false;
-    const runId = runIdRef.current + 1;
-    runIdRef.current = runId;
-    const isActive = () => !cancelled && runIdRef.current === runId;
-    const targetOrigin = parentOrigin;
-    let bridge: ReturnType<typeof createHostDriverBridge> | undefined;
-    const enterFallback = (fallback?: string) => {
-      if (!isActive()) return;
-      cancelled = true;
-      bridge?.postToHost({
-        type: "concierge:driver_clear",
-        payload: {}
-      });
-      setChoreographyUi((prev) => ({
-        ...prev,
-        avatarState: "talking",
-        bubbleMessage:
-          fallback ?? "안내 위치를 찾지 못했어요. 이어서 도와드릴게요.",
-        bubbleVisible: true,
-        choicesVisible: false
-      }));
-    };
-
-    if (
-      targetOrigin !== null &&
-      typeof window !== "undefined" &&
-      window.parent !== window
-    ) {
-      bridge = createHostDriverBridge({
-        targetWindow: window.parent,
-        listenWindow: window,
-        sourceWindow: window.parent,
-        targetOrigin,
-        allowedOrigins: [targetOrigin],
-        onSectionNotFound: (payload) => {
-          if (payload.selector === stepNode.spotlightTarget) {
-            enterFallback();
-          }
-        }
-      });
-    }
-
-    setChoreographyUi((prev) => ({
-      ...prev,
-      stepId: stepNode.id,
-      avatarState: "talking",
-      tilt: 0,
-      expressionOverride: null,
-      bubbleMessage: stepNode.popover.title,
-      bubbleVisible: true,
-      choicesVisible: false
-    }));
-
-    void executeStep(scenarioStepToChoreographyStep(stepNode, scenario), {
-      viewport,
-      currentAnchor: currentAnchorRef.current,
-      reducedMotion: state.reducedMotion,
-      hooks: {
-        setAvatarState: (next) => {
-          if (!isActive()) return;
-          setChoreographyUi((prev) => ({ ...prev, avatarState: next }));
-        },
-        setBubbleMessage: (msg) => {
-          if (!isActive()) return;
-          setChoreographyUi((prev) => ({ ...prev, bubbleMessage: msg }));
-        },
-        setBubbleVisible: (visible) => {
-          if (!isActive()) return;
-          setChoreographyUi((prev) => ({ ...prev, bubbleVisible: visible }));
-        },
-        setCurrentAnchor: (next) => {
-          if (!isActive()) return;
-          currentAnchorRef.current = next;
-          setChoreographyUi((prev) => ({ ...prev, anchor: next }));
-        },
-        setTilt: (deg) => {
-          if (!isActive()) return;
-          setChoreographyUi((prev) => ({ ...prev, tilt: deg }));
-        },
-        setAvatarExpression: (expression) => {
-          if (!isActive()) return;
-          setChoreographyUi((prev) => ({
-            ...prev,
-            expressionOverride: expression
-          }));
-        },
-        setChoices: () => {
-          if (!isActive()) return;
-          setChoreographyUi((prev) => ({ ...prev, choicesVisible: true }));
-        },
-        postToHost: (payload) => {
-          if (isActive()) bridge?.postToHost(payload);
-        },
-        queryHostRect: async (selector) => {
-          if (!isActive()) return null;
-          if (bridge !== undefined) {
-            return bridge.queryHostRect(selector);
-          }
-          const node = document.querySelector<HTMLElement>(selector);
-          if (node === null) {
-            return null;
-          }
-          const rect = node.getBoundingClientRect();
-          return {
-            left: rect.left,
-            top: rect.top,
-            width: rect.width,
-            height: rect.height
-          };
-        },
-        enterConversationMode: (fallback) => {
-          enterFallback(fallback);
-        }
-      }
-    });
-
-    return () => {
-      cancelled = true;
-      bridge?.postToHost({
-        type: "concierge:driver_clear",
-        payload: {}
-      });
-      bridge?.detach();
-    };
-  }, [parentOrigin, scenario, state.reducedMotion, stepNode, viewport]);
 
   return (
     <div className="relative">
@@ -447,96 +266,6 @@ function resolveAvatarExpression(input: {
   if (input.avatarState === "pointing" || input.isStep) return "smile";
   if (input.avatarState === "moving") return "neutral";
   return "smile";
-}
-
-function useViewport(): {
-  readonly width: number;
-  readonly height: number;
-  readonly isMobile: boolean;
-} {
-  const [viewport, setViewport] = useState(() => readViewport());
-
-  useEffect(() => {
-    const onResize = () => setViewport(readViewport());
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
-
-  return viewport;
-}
-
-function readViewport(): {
-  readonly width: number;
-  readonly height: number;
-  readonly isMobile: boolean;
-} {
-  if (typeof window === "undefined") {
-    return { width: 1280, height: 800, isMobile: false };
-  }
-  return {
-    width: window.innerWidth,
-    height: window.innerHeight,
-    isMobile: window.innerWidth < 768
-  };
-}
-
-function clampBubbleAnchorPoint(
-  point: AnchorPoint,
-  viewport: {
-    readonly width: number;
-    readonly height: number;
-    readonly isMobile: boolean;
-  }
-): AnchorPoint {
-  const bubbleWidth = Math.min(560, Math.max(0, viewport.width - 32));
-  const horizontalInset = bubbleWidth / 2 + 16;
-  const verticalInset = viewport.isMobile ? 96 : 112;
-
-  return {
-    x: clamp(point.x, horizontalInset, viewport.width - horizontalInset),
-    y: clamp(point.y, verticalInset, viewport.height - verticalInset)
-  };
-}
-
-function clamp(value: number, min: number, max: number): number {
-  if (max < min) return (min + max) / 2;
-  return Math.min(max, Math.max(min, value));
-}
-
-function resolveParentOrigin(allowedOrigins: readonly string[]): string | null {
-  if (typeof window === "undefined" || typeof document === "undefined") {
-    return allowedOrigins[0] ?? null;
-  }
-
-  const candidates = [
-    document.referrer,
-    getAncestorOrigin(),
-    allowedOrigins[0] ?? null
-  ];
-  for (const candidate of candidates) {
-    if (candidate === null || candidate.length === 0) continue;
-    try {
-      const origin = new URL(candidate).origin;
-      if (isOriginAllowed(origin, allowedOrigins)) {
-        return origin;
-      }
-    } catch {
-      // Continue to the next source of parent-origin evidence.
-    }
-  }
-
-  return null;
-}
-
-function getAncestorOrigin(): string | null {
-  const location = window.location as Location & {
-    readonly ancestorOrigins?: DOMStringList;
-  };
-  const ancestorOrigins = location.ancestorOrigins;
-  if (ancestorOrigins === undefined || ancestorOrigins.length === 0) {
-    return null;
-  }
-  return ancestorOrigins.item(0);
 }
 
 export function shouldRenderHostPreview(): boolean {
