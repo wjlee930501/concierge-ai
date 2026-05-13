@@ -8,20 +8,33 @@ import {
 
 export type { AvatarExpression } from "./avatarAssets";
 
+export type AvatarMood =
+  | "idle"
+  | "thinking"
+  | "replying"
+  | "pointing"
+  | "celebrate";
+
 export type AvatarProps = {
   readonly point: ScenarioAvatarPoint;
-  readonly mood?: "idle" | "thinking" | "replying" | "pointing";
+  readonly mood?: AvatarMood;
   readonly expression?: AvatarExpression;
   readonly tilt?: number;
+  readonly firstWave?: boolean;
 };
 
+// Polish iter 4: tilt upweight. The pre-iter4 offsets (x:±4, rotate:±2°) read
+// as a faint sway rather than a deliberate point — users could not feel where
+// the avatar was directing them. Bumping to x:±7 and rotate:±4.5° lands at
+// "obvious lean toward target" while staying inside the 52px avatar bounds so
+// neither the speech-pill anchor nor the floating loop is destabilized.
 const POINT_OFFSET: Record<
   ScenarioAvatarPoint,
   { readonly x: number; readonly y: number; readonly rotate: number }
 > = {
   up: { x: 0, y: -3, rotate: 0 },
-  left: { x: -4, y: 0, rotate: -2 },
-  right: { x: 4, y: 0, rotate: 2 }
+  left: { x: -7, y: 0, rotate: -4.5 },
+  right: { x: 7, y: 0, rotate: 4.5 }
 };
 
 export function Avatar(props: AvatarProps): JSX.Element {
@@ -39,15 +52,52 @@ export function Avatar(props: AvatarProps): JSX.Element {
     ease: "easeInOut" as const
   };
 
-  const containerAnimate = reduced
-    ? { x: 0, y: 0, rotate: 0 }
-    : { x: target.x, y: target.y, rotate: target.rotate + tilt };
-  const containerTransition = {
-    type: "spring" as const,
-    stiffness: 160,
-    damping: 22,
-    mass: 0.9
-  };
+  const wave = props.firstWave === true && !reduced;
+  const celebrate = mood === "celebrate" && !reduced;
+  const targetRotate = target.rotate + tilt;
+  let containerAnimate: Record<string, number | number[]>;
+  let containerTransition:
+    | { readonly duration: number; readonly ease: readonly number[]; readonly times: readonly number[] }
+    | { readonly type: "spring"; readonly stiffness: number; readonly damping: number; readonly mass: number };
+  if (reduced) {
+    containerAnimate = { x: 0, y: 0, rotate: 0 };
+    containerTransition = {
+      type: "spring",
+      stiffness: 160,
+      damping: 22,
+      mass: 0.9
+    } as const;
+  } else if (celebrate) {
+    containerAnimate = {
+      x: target.x,
+      y: [0, -5, 0, -3, 0],
+      rotate: [0, -10, 8, -4, targetRotate]
+    };
+    containerTransition = {
+      duration: 1.2,
+      ease: [0.2, 0.8, 0.2, 1],
+      times: [0, 0.2, 0.5, 0.75, 1]
+    } as const;
+  } else if (wave) {
+    containerAnimate = {
+      x: target.x,
+      y: [0, -3, 0, -1, 0],
+      rotate: [-6, 8, -4, 4, targetRotate]
+    };
+    containerTransition = {
+      duration: 1.1,
+      ease: [0.2, 0.8, 0.2, 1],
+      times: [0, 0.25, 0.55, 0.8, 1]
+    } as const;
+  } else {
+    containerAnimate = { x: target.x, y: target.y, rotate: targetRotate };
+    containerTransition = {
+      type: "spring",
+      stiffness: 160,
+      damping: 22,
+      mass: 0.9
+    } as const;
+  }
 
   return (
     <motion.div
@@ -56,6 +106,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
       data-avatar-expression={expression}
       data-avatar-asset={asset.id}
       data-avatar-mood={mood}
+      data-polish-first-wave={wave ? "true" : "false"}
       className="relative h-[52px] w-[52px] shrink-0"
       animate={containerAnimate}
       transition={containerTransition}

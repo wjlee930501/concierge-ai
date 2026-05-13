@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState, type JSX } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import {
+  AnimatePresence,
+  LayoutGroup,
+  motion,
+  useReducedMotion
+} from "framer-motion";
 import type {
   AnchorName,
   AnchorPoint,
@@ -22,12 +27,18 @@ import {
   SPEECH_FLOAT_ANIMATE,
   SPEECH_FLOAT_TRANSITION
 } from "./floatingMotion";
+import { useTypewriter } from "./useTypewriter";
 import type { FreeInputSlice } from "../state/types";
 
 export type HeroBubbleProps = {
   readonly visible: boolean;
   readonly avatarPoint: ScenarioAvatarPoint;
-  readonly avatarMood: "idle" | "thinking" | "replying" | "pointing";
+  readonly avatarMood:
+    | "idle"
+    | "thinking"
+    | "replying"
+    | "pointing"
+    | "celebrate";
   readonly avatarExpression: AvatarExpression;
   readonly anchorPosition: AnchorPoint;
   readonly currentAnchor: AnchorName;
@@ -83,6 +94,8 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
     props.anchorPosition
   );
   const scrollLagY = useScrollLag(reduced);
+  const isFirstEntrance = useFirstMount(props.visible);
+  const walkOn = isFirstEntrance && !reduced;
 
   return (
     <AnimatePresence>
@@ -95,6 +108,7 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
           data-motion-duration-ms={moveProfile.durationMs}
           data-path-control={`${Math.round(pathControl.x)},${Math.round(pathControl.y)}`}
           data-scroll-lag-y={Math.round(scrollLagY)}
+          data-polish-walk-on={walkOn ? "true" : "false"}
           className="pointer-events-auto fixed z-[90]"
           style={{
             left: 0,
@@ -104,23 +118,33 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
           initial={{
             opacity: 0,
             x: props.anchorPosition.x,
-            y: props.anchorPosition.y
+            y: props.anchorPosition.y,
+            ...(walkOn ? { scale: 0.92, rotate: -2 } : {})
           }}
           animate={{
             x: props.anchorPosition.x,
             y: props.anchorPosition.y,
-            opacity: 1
+            opacity: 1,
+            scale: 1,
+            rotate: 0
           }}
           exit={{ opacity: 0 }}
           transition={
             reduced
               ? { duration: 0 }
-              : {
-                  type: "spring",
-                  stiffness: moveProfile.stiffness,
-                  damping: moveProfile.damping,
-                  mass: moveProfile.mass
-                }
+              : walkOn
+                ? {
+                    type: "spring",
+                    stiffness: 230,
+                    damping: 24,
+                    mass: 0.95
+                  }
+                : {
+                    type: "spring",
+                    stiffness: moveProfile.stiffness,
+                    damping: moveProfile.damping,
+                    mass: moveProfile.mass
+                  }
           }
         >
           <div
@@ -133,6 +157,7 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
               className="pointer-events-none absolute -inset-x-20 -bottom-6 -z-10 h-32 rounded-full bg-[radial-gradient(closest-side,rgba(7,20,39,0.18),transparent_70%)]"
             />
 
+            <LayoutGroup id="concierge-hero-stack">
             <motion.div
               data-concierge-hitbox="true"
               className="flex w-[min(560px,calc(100vw-32px))] max-w-[min(560px,calc(100vw-32px))] flex-col items-center gap-2.5 will-change-transform"
@@ -160,7 +185,11 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
             >
               {/* AI streaming response (only during free-input thinking/replying) */}
               {showAiBubble ? (
-                <div className="w-full max-w-[440px]">
+                <motion.div
+                  layout
+                  transition={MAGIC_MOVE_LAYOUT}
+                  className="w-full max-w-[440px]"
+                >
                   <AiSpeechBubble
                     text={aiText}
                     isStreaming={props.freeInput.mode === "thinking"}
@@ -173,14 +202,18 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
                       : {})}
                     onDismiss={props.onDismissSuggestion}
                   />
-                </div>
+                </motion.div>
               ) : null}
 
               {/* Choice chips (above the speech pill) */}
               {props.bubbleVisible &&
               props.choices.length > 0 &&
               !showFreeInput ? (
-                <div className={showSection ? "" : "order-2"}>
+                <motion.div
+                  layout
+                  transition={MAGIC_MOVE_LAYOUT}
+                  className={showSection ? "" : "order-2"}
+                >
                   <QuickChips
                     chips={props.choices}
                     onSelect={props.onSelectChoice}
@@ -188,12 +221,14 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
                       ? { activeChipId: props.activeChoiceId }
                       : {})}
                   />
-                </div>
+                </motion.div>
               ) : null}
 
               {/* Free input (replaces chips when open) */}
               {props.bubbleVisible && showFreeInput ? (
-                <div
+                <motion.div
+                  layout
+                  transition={MAGIC_MOVE_LAYOUT}
                   className={`w-[min(440px,calc(100vw-32px))] max-w-full ${
                     showSection ? "" : "order-2"
                   }`}
@@ -205,11 +240,13 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
                     onChangeDraft={props.onChangeDraft}
                     onSubmit={props.onSubmitFreeInput}
                   />
-                </div>
+                </motion.div>
               ) : null}
 
               {/* Main speech pill: avatar + dark bubble */}
-              <div
+              <motion.div
+                layout
+                transition={MAGIC_MOVE_LAYOUT}
                 className={`flex items-center gap-2.5 ${
                   showSection ? "" : "order-1"
                 }`}
@@ -219,6 +256,7 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
                   mood={props.avatarMood}
                   expression={props.avatarExpression}
                   tilt={props.avatarTilt}
+                  firstWave={walkOn}
                 />
                 {props.bubbleVisible ? (
                   <SpeechPill
@@ -232,13 +270,16 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
                       ? { variantSuffix: props.variantSuffix }
                       : {})}
                     isPlaceholderScenario={props.isPlaceholderScenario}
+                    entranceDelaySec={walkOn ? 0.22 : 0}
                   />
                 ) : null}
-              </div>
+              </motion.div>
 
               {/* Toggle row: back + free input toggle */}
               {props.bubbleVisible ? (
-                <div
+                <motion.div
+                  layout
+                  transition={MAGIC_MOVE_LAYOUT}
                   className={`flex items-center justify-center gap-2 ${
                     showSection ? "" : "order-3"
                   }`}
@@ -274,14 +315,36 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
                       그냥 둘러보기
                     </button>
                   ) : null}
-                </div>
+                </motion.div>
               ) : null}
             </motion.div>
+            </LayoutGroup>
           </div>
         </motion.section>
       ) : null}
     </AnimatePresence>
   );
+}
+
+const MAGIC_MOVE_LAYOUT = {
+  type: "spring" as const,
+  stiffness: 240,
+  damping: 30,
+  mass: 0.9
+};
+
+function useFirstMount(active: boolean): boolean {
+  // True until the first time `active` flips from true → false. This lets
+  // walk-on entrance run once per mount cycle and stay stable across the
+  // re-renders that happen between mount and the next visibility toggle.
+  const consumedRef = useRef(false);
+  const seenActiveRef = useRef(false);
+  if (active) {
+    seenActiveRef.current = true;
+  } else if (seenActiveRef.current) {
+    consumedRef.current = true;
+  }
+  return active && !consumedRef.current;
 }
 
 function usePreviousAnchorPoint(current: AnchorPoint): AnchorPoint {
@@ -340,6 +403,7 @@ function SpeechPill(props: {
   readonly message: string;
   readonly variantSuffix?: string;
   readonly isPlaceholderScenario: boolean;
+  readonly entranceDelaySec: number;
 }): JSX.Element {
   const radius = props.stacked ? "rounded-3xl" : "rounded-full";
   const width = props.stacked
@@ -347,11 +411,13 @@ function SpeechPill(props: {
     : "max-w-[460px]";
   const contentKey = `${props.section?.label ?? "hero"}::${props.message.slice(0, 40)}`;
   const breathing = !props.reduced;
+  const delay = props.reduced ? 0 : props.entranceDelaySec;
   return (
     <motion.div
       layout
       data-testid="speech-pill"
       data-polish-breathing={breathing ? "true" : "false"}
+      data-polish-entrance-delay-ms={Math.round(delay * 1000)}
       data-floating-loop={
         breathing ? SPEECH_FLOAT_TRANSITION.repeatType : "off"
       }
@@ -360,9 +426,27 @@ function SpeechPill(props: {
       className={`relative ${width} ${radius} bg-ink/95 px-4 py-3 text-white shadow-[0_18px_40px_rgba(7,20,39,0.35)] backdrop-blur`}
       {...(breathing
         ? {
-            initial: { y: 0, scale: 1 },
-            animate: SPEECH_FLOAT_ANIMATE,
-            transition: SPEECH_FLOAT_TRANSITION
+            initial: {
+              y: 0,
+              scale: delay > 0 ? 0.94 : 1,
+              opacity: delay > 0 ? 0 : 1
+            },
+            animate: { ...SPEECH_FLOAT_ANIMATE, opacity: 1 },
+            transition: {
+              ...SPEECH_FLOAT_TRANSITION,
+              opacity: { duration: 0.32, delay, ease: [0.2, 0.8, 0.2, 1] },
+              scale:
+                delay > 0
+                  ? {
+                      ...SPEECH_FLOAT_TRANSITION,
+                      delay
+                    }
+                  : SPEECH_FLOAT_TRANSITION,
+              y:
+                delay > 0
+                  ? { ...SPEECH_FLOAT_TRANSITION, delay }
+                  : SPEECH_FLOAT_TRANSITION
+            }
           }
         : { initial: false, transition: { duration: 0 } })}
     >
@@ -390,13 +474,11 @@ function SpeechPill(props: {
               {props.section.title}
             </div>
           ) : null}
-          <p
-            className={`text-[13px] leading-[1.55] text-white/85 ${
-              props.section !== null ? "mt-1" : ""
-            }`}
-          >
-            {props.message}
-          </p>
+          <TypewriterLine
+            text={props.message}
+            reduced={props.reduced}
+            offsetTop={props.section !== null}
+          />
           {props.variantSuffix !== undefined ? (
             <p className="mt-1 text-[11px] leading-snug text-mint/90">
               {props.variantSuffix}
@@ -421,4 +503,35 @@ function resolveTailRotation(anchor: AnchorName): number {
   if (anchor.includes("left")) return 38;
   if (anchor.includes("bottom")) return 58;
   return 45;
+}
+
+function TypewriterLine(props: {
+  readonly text: string;
+  readonly reduced: boolean;
+  readonly offsetTop: boolean;
+}): JSX.Element {
+  const { displayed, isComplete } = useTypewriter(props.text, {
+    reducedMotion: props.reduced
+  });
+  const showCaret = !props.reduced && !isComplete;
+  return (
+    <p
+      data-testid="speech-typewriter"
+      data-tw-complete={isComplete ? "true" : "false"}
+      className={`text-[13px] leading-[1.55] text-white/85 ${
+        props.offsetTop ? "mt-1" : ""
+      }`}
+    >
+      {displayed}
+      {showCaret ? (
+        <motion.span
+          aria-hidden="true"
+          data-testid="speech-typewriter-caret"
+          className="ml-[1px] inline-block h-[0.85em] w-[2px] translate-y-[2px] bg-white/85 align-baseline"
+          animate={{ opacity: [0.9, 0] }}
+          transition={{ duration: 0.8, repeat: Infinity, ease: "easeInOut" }}
+        />
+      ) : null}
+    </p>
+  );
 }

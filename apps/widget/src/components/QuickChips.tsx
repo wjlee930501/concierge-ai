@@ -1,5 +1,6 @@
-import type { JSX } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useCallback, useRef, useState, type JSX } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { ChipFlare } from "./ChipFlare";
 
 export type ChipChoice = {
   readonly id: string;
@@ -17,6 +18,27 @@ export function QuickChips({
   onSelect,
   activeChipId
 }: QuickChipsProps): JSX.Element {
+  const reduced = useReducedMotion() === true;
+  const [flaringId, setFlaringId] = useState<string | null>(null);
+  const flareTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleSelect = useCallback(
+    (chipId: string) => {
+      if (!reduced) {
+        if (flareTimerRef.current !== null) {
+          clearTimeout(flareTimerRef.current);
+        }
+        setFlaringId(chipId);
+        flareTimerRef.current = setTimeout(() => {
+          setFlaringId(null);
+          flareTimerRef.current = null;
+        }, 420);
+      }
+      onSelect(chipId);
+    },
+    [onSelect, reduced]
+  );
+
   return (
     <motion.div
       layout
@@ -27,6 +49,7 @@ export function QuickChips({
       <AnimatePresence mode="popLayout" initial={false}>
         {chips.map((chip, index) => {
           const pressed = activeChipId === chip.id;
+          const flaring = flaringId === chip.id;
           return (
             <motion.button
               key={chip.id}
@@ -34,7 +57,7 @@ export function QuickChips({
               data-chip-id={chip.id}
               data-feedback-window-ms="120"
               aria-pressed={pressed}
-              onClick={() => onSelect(chip.id)}
+              onClick={() => handleSelect(chip.id)}
               layout
               initial={{ opacity: 0, y: 6, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -55,13 +78,14 @@ export function QuickChips({
               whileHover={{ y: -1 }}
               whileTap={{ y: 1, scale: 0.98 }}
               whileFocus={{ y: -1 }}
-              className={
+              className={`relative ${
                 pressed
                   ? "rounded-full border border-ink bg-ink px-3.5 py-1.5 text-[12px] font-bold text-white shadow-[0_6px_18px_rgba(7,20,39,0.22)]"
                   : "rounded-full border border-black/10 bg-white px-3.5 py-1.5 text-[12px] font-bold text-ink shadow-[0_6px_18px_rgba(7,20,39,0.10)] backdrop-blur hover:border-accent/40 hover:bg-white"
-              }
+              }`}
             >
               {chip.label}
+              <ChipFlare active={flaring} />
             </motion.button>
           );
         })}

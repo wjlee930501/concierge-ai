@@ -9,6 +9,7 @@ import type { AvatarExpression } from "./components/Avatar";
 import { LeadFormCard } from "./components/LeadFormCard";
 import { MinimizedPill } from "./components/MinimizedPill";
 import { Spotlight } from "./components/Spotlight";
+import { SpotlightConnector } from "./components/SpotlightConnector";
 import { SubmittedCard } from "./components/SubmittedCard";
 import type { ChipChoice } from "./components/QuickChips";
 import { HostPagePreview } from "./preview/HostPagePreview";
@@ -147,6 +148,12 @@ export function App(): JSX.Element {
         active={isStep}
         mode={renderHostPreview ? "internal" : "external"}
         reducedMotion={state.reducedMotion}
+      />
+
+      <SpotlightConnector
+        target={isStep && renderHostPreview ? stepNode!.spotlightTarget : null}
+        active={isStep && renderHostPreview && choreographyUi.bubbleVisible}
+        bubbleAnchor={safeAnchorPoint}
       />
 
       <HeroBubble
