@@ -14,7 +14,7 @@ export function AiSpeechBubble(props: AiSpeechBubbleProps): JSX.Element {
     <motion.div
       role="status"
       aria-live="polite"
-      className="rounded-2xl border border-white/10 bg-ink/95 px-4 py-3 text-[13px] leading-snug text-white/90 shadow-[0_18px_40px_rgba(7,20,39,0.35)] backdrop-blur"
+      className="rounded-2xl border border-white/10 bg-ink/95 px-4 py-3 text-[13px] leading-snug text-white/90 shadow-[0_10px_24px_rgba(7,20,39,0.20)] backdrop-blur"
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
     >

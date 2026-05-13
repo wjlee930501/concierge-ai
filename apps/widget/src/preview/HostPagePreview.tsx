@@ -27,7 +27,10 @@ import { SiteFooter } from "./sections/SiteFooter";
 
 export function HostPagePreview(): JSX.Element {
   return (
-    <div className="font-sans text-ink" data-testid="host-page-preview">
+    <div
+      className="min-h-screen bg-gradient-to-b from-white via-[#f6f9ff] to-[#eef5ff] font-sans text-ink"
+      data-testid="host-page-preview"
+    >
       <SiteHeader />
       <main>
         <HeroSection />

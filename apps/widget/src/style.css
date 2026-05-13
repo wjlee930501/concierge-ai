@@ -6,20 +6,22 @@
   html,
   body {
     min-height: 100vh;
-  }
-
-  html:not([data-concierge-embedded="true"]),
-  html:not([data-concierge-embedded="true"]) body {
-    background: linear-gradient(180deg, #ffffff 0%, #f6f9ff 50%, #eef5ff 100%);
-  }
-
-  html[data-concierge-embedded="true"],
-  html[data-concierge-embedded="true"] body {
     background: transparent;
   }
 }
 
 @layer utilities {
+  .speech-typewriter-reserve::before {
+    content: attr(data-reserve-text);
+    grid-area: 1 / 1;
+    visibility: hidden;
+    white-space: pre-wrap;
+  }
+
+  .speech-typewriter-visible {
+    grid-area: 1 / 1;
+  }
+
   .concierge-spotlight {
     outline: 4px solid rgba(55, 216, 178, 0.58);
     outline-offset: 8px;

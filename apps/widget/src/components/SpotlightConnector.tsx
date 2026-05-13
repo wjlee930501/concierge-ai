@@ -49,6 +49,19 @@ export function SpotlightConnector(
     return <AnimatePresence />;
   }
 
+  const viewport =
+    typeof window === "undefined"
+      ? { width: 0, height: 0 }
+      : { width: window.innerWidth, height: window.innerHeight };
+  const targetIsSectionScale =
+    viewport.width > 0 &&
+    viewport.height > 0 &&
+    (rect.width > viewport.width * 0.72 ||
+      rect.height > viewport.height * 0.45);
+  if (targetIsSectionScale) {
+    return <AnimatePresence />;
+  }
+
   // Nearest point on the spotlight ring edge to the bubble anchor.
   const cx = rect.left + rect.width / 2;
   const cy = rect.top + rect.height / 2;

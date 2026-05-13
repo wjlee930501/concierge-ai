@@ -7,7 +7,7 @@ export function HeroSection(): JSX.Element {
       data-concierge-section="hero"
       data-mc-section="hero"
       id="section-hero"
-      className="relative overflow-hidden bg-gradient-to-br from-white via-bg to-[#eef5ff] px-6 py-20 md:py-28"
+      className="relative overflow-hidden bg-gradient-to-br from-white via-bg to-[#eef5ff] px-6 pb-[360px] pt-20 md:pb-48 md:pt-28"
     >
       <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[1.1fr_0.9fr] md:items-center">
         <div>
@@ -25,7 +25,7 @@ export function HeroSection(): JSX.Element {
           <div className="mt-8 flex flex-wrap gap-3">
             <a
               href="#section-demo"
-              className="rounded-full bg-ink px-5 py-3 text-[13px] font-extrabold text-white shadow-[0_12px_30px_rgba(7,20,39,0.20)]"
+              className="rounded-full bg-ink px-5 py-3 text-[13px] font-extrabold text-white shadow-[0_7px_18px_rgba(7,20,39,0.12)]"
             >
               소개서 다운받기
             </a>
@@ -48,8 +48,8 @@ export function HeroSection(): JSX.Element {
             </span>
           </div>
         </div>
-        <div className="relative">
-          <div className="rounded-[28px] border border-white/70 bg-white p-5 shadow-[0_30px_80px_rgba(7,20,39,0.18)]">
+        <div className="relative hidden md:block">
+          <div className="rounded-[28px] border border-white/70 bg-white p-5 shadow-[0_18px_48px_rgba(7,20,39,0.10)]">
             <div className="mb-3 flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-accent">
                 알림톡 미리보기

@@ -1,0 +1,14 @@
+{
+  "score": 98,
+  "verdict": "pass",
+  "category_match": true,
+  "differences": [],
+  "suggestions": [
+    "If future host pages have dense content directly under the widget, tune the section-specific anchor rather than reintroducing a deck panel.",
+    "External spotlight rendering must stay host-owned; do not reintroduce a widget-level full-frame backdrop inside the clipped iframe."
+  ],
+  "reasoning": "The broken states from the reference screenshots are resolved: returning home restores the full four-choice grid, three-choice step actions use a clean vertical rail, and the 상담 CTA now opens the form directly. The later gray rounded background bug was traced to the widget Spotlight external dim layer being clipped by the iframe hitbox; external mode now renders no widget backdrop, leaving highlight/dim ownership to the host driver. The automated viewport audit covers desktop, short tablet, and mobile states with zero overflow or button overlap findings.",
+  "next_actions": [
+    "Finalize with typecheck, full unit tests, format check, widget build, design-polish verification, and e2e."
+  ]
+}

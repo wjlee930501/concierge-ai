@@ -30,14 +30,7 @@ describe("speech bubble floating motion", () => {
     expect(SPEECH_FLOAT_TRANSITION.duration).toBeGreaterThanOrEqual(4.8);
   });
 
-  it("upweights the scale breath so depth reads on screen", () => {
-    const scaleRange =
-      Math.max(...SPEECH_FLOAT_ANIMATE.scale) -
-      Math.min(...SPEECH_FLOAT_ANIMATE.scale);
-
-    // 2x the previous 0.003 amplitude — still ≤0.012 so the bubble never
-    // visibly grows, only "breathes".
-    expect(scaleRange).toBeGreaterThanOrEqual(0.005);
-    expect(scaleRange).toBeLessThanOrEqual(0.012);
+  it("does not animate scale while floating", () => {
+    expect("scale" in SPEECH_FLOAT_ANIMATE).toBe(false);
   });
 });

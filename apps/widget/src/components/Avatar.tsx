@@ -144,7 +144,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
             <img
               src={asset.webp}
               alt=""
-              className="h-full w-full select-none rounded-full object-cover ring-2 ring-white/80 shadow-[0_8px_18px_rgba(7,20,39,0.28)]"
+              className="h-full w-full select-none rounded-full object-cover ring-2 ring-white/80 shadow-[0_5px_14px_rgba(7,20,39,0.16)]"
               style={{ objectPosition: asset.objectPosition }}
               draggable={false}
             />

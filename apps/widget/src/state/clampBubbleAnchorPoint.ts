@@ -5,9 +5,9 @@ export function clampBubbleAnchorPoint(
   point: AnchorPoint,
   viewport: ViewportSnapshot
 ): AnchorPoint {
-  const bubbleWidth = Math.min(560, Math.max(0, viewport.width - 32));
+  const bubbleWidth = Math.min(820, Math.max(0, viewport.width - 32));
   const horizontalInset = bubbleWidth / 2 + 16;
-  const verticalInset = viewport.isMobile ? 96 : 112;
+  const verticalInset = viewport.isMobile ? 190 : 112;
 
   return {
     x: clamp(point.x, horizontalInset, viewport.width - horizontalInset),

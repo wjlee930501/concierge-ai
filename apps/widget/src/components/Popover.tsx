@@ -30,7 +30,7 @@ export function Popover(props: PopoverProps): JSX.Element {
           aria-live="polite"
           data-testid="concierge-popover"
           data-polish-position-spring={reduced ? "off" : "on"}
-          className="fixed z-[91] max-w-[340px] rounded-2xl bg-ink p-4 text-white shadow-[0_18px_60px_rgba(7,20,39,0.30)]"
+          className="fixed z-[91] max-w-[340px] rounded-2xl bg-ink p-4 text-white shadow-[0_12px_36px_rgba(7,20,39,0.20)]"
           initial={{
             top: position.top,
             left: position.left,

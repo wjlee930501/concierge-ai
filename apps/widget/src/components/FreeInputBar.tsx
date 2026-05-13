@@ -54,7 +54,7 @@ export function FreeInputBar(props: FreeInputBarProps): JSX.Element {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex items-center gap-2 rounded-full border border-black/10 bg-white px-2 py-1.5 shadow-[0_6px_18px_rgba(7,20,39,0.12)]"
+      className="flex min-h-[42px] items-center gap-2 rounded-full border border-ink/10 bg-white px-2 py-1.5 shadow-[0_5px_14px_rgba(7,20,39,0.08)]"
       aria-label="Concierge AI 자유 입력"
     >
       <label htmlFor={id} className="sr-only">
@@ -69,7 +69,7 @@ export function FreeInputBar(props: FreeInputBarProps): JSX.Element {
         onChange={(event) => props.onChangeDraft(event.currentTarget.value)}
         onKeyDown={handleInputKeyDown}
         disabled={props.disabled}
-        className="flex-1 bg-transparent px-2 text-[13px] text-ink placeholder:text-mist focus:outline-none disabled:text-mist"
+        className="flex-1 bg-transparent px-2 text-[13px] font-medium text-ink placeholder:text-mist focus:outline-none disabled:text-mist"
         autoComplete="off"
       />
       <button
@@ -77,7 +77,7 @@ export function FreeInputBar(props: FreeInputBarProps): JSX.Element {
         disabled={!canSubmit}
         onPointerUp={handleSubmitPointerUp}
         onClick={submitDraft}
-        className="rounded-full bg-ink px-3.5 py-1 text-[11px] font-extrabold text-white disabled:cursor-not-allowed disabled:bg-mist/60"
+        className="min-h-[30px] rounded-full bg-accent px-4 py-1 text-[11px] font-extrabold text-white shadow-[0_4px_12px_rgba(28,115,232,0.16)] disabled:cursor-not-allowed disabled:bg-mist/40 disabled:shadow-none"
       >
         보내기
       </button>

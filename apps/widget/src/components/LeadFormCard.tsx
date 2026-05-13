@@ -41,6 +41,11 @@ const FIELD_ITEM_VARIANTS = {
   }
 };
 
+const FIELD_LABEL_CLASS =
+  "flex items-center gap-1 text-[12px] font-extrabold text-ink";
+const FIELD_CONTROL_CLASS =
+  "rounded-lg border border-ink/10 bg-white px-3 py-2.5 text-sm font-medium text-ink placeholder:text-mist/75 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20";
+
 export function LeadFormCard(props: LeadFormCardProps): JSX.Element {
   const reduced = useReducedMotion() === true;
 
@@ -49,7 +54,7 @@ export function LeadFormCard(props: LeadFormCardProps): JSX.Element {
       aria-label="Concierge Lead Form"
       data-concierge-hitbox="true"
       data-polish-field-stagger={reduced ? "off" : "on"}
-      className="pointer-events-auto fixed bottom-7 left-1/2 z-[95] w-[min(440px,calc(100vw-28px))] rounded-[28px] border border-white/70 bg-white/95 p-5 shadow-[0_28px_90px_rgba(7,20,39,0.25)] backdrop-blur"
+      className="pointer-events-auto fixed bottom-5 left-1/2 z-[95] max-h-[min(720px,calc(100dvh-40px))] w-[min(440px,calc(100vw-28px))] overflow-y-auto rounded-[28px] border border-ink/10 bg-white/95 p-5 shadow-[0_18px_56px_rgba(7,20,39,0.16)] backdrop-blur"
       initial={
         reduced ? { x: "-50%", opacity: 0 } : { x: "-50%", y: 18, opacity: 0 }
       }
@@ -60,7 +65,7 @@ export function LeadFormCard(props: LeadFormCardProps): JSX.Element {
           : { type: "spring", stiffness: 210, damping: 28, mass: 0.95 }
       }
     >
-      <header className="mb-3 flex items-start justify-between gap-3">
+      <header className="mb-4 flex items-start justify-between gap-3 border-b border-ink/10 pb-3">
         <div>
           <h2 className="text-base font-black tracking-tight text-ink">
             {props.form.title}
@@ -72,7 +77,7 @@ export function LeadFormCard(props: LeadFormCardProps): JSX.Element {
         {props.onBack !== undefined ? (
           <button
             type="button"
-            className="shrink-0 rounded-full border border-black/10 bg-white px-2.5 py-1 text-[11px] font-bold text-mist hover:text-ink"
+            className="shrink-0 rounded-full border border-ink/10 bg-white px-3 py-1.5 text-[11px] font-extrabold text-mist shadow-[0_3px_10px_rgba(7,20,39,0.04)] hover:border-accent/40 hover:text-ink"
             onClick={props.onBack}
             aria-label="이전 단계로 돌아가기"
           >
@@ -95,7 +100,7 @@ export function LeadFormCard(props: LeadFormCardProps): JSX.Element {
 
       <motion.div
         role="form"
-        className="flex flex-col gap-3"
+        className="flex flex-col gap-3.5"
         variants={reduced ? undefined : FIELD_STAGGER_VARIANTS}
         initial={reduced ? false : "hidden"}
         animate={reduced ? undefined : "show"}
@@ -117,13 +122,15 @@ export function LeadFormCard(props: LeadFormCardProps): JSX.Element {
           if (field.type === "textarea") {
             return (
               <FieldRow key={field.id} reduced={reduced}>
-                <label className="flex flex-col gap-1 text-xs font-semibold text-ink">
-                  {field.label}
-                  {field.required ? (
-                    <span className="text-red-500"> *</span>
-                  ) : null}
+                <label className="flex flex-col gap-1.5">
+                  <span className={FIELD_LABEL_CLASS}>
+                    {field.label}
+                    {field.required ? (
+                      <span className="text-red-500">*</span>
+                    ) : null}
+                  </span>
                   <textarea
-                    className="min-h-[80px] rounded-md border border-black/10 px-2 py-2 text-sm font-normal"
+                    className={`${FIELD_CONTROL_CLASS} min-h-[92px] resize-y`}
                     required={field.required}
                     value={value}
                     {...(placeholder !== undefined ? { placeholder } : {})}
@@ -138,13 +145,15 @@ export function LeadFormCard(props: LeadFormCardProps): JSX.Element {
           if (field.type === "select") {
             return (
               <FieldRow key={field.id} reduced={reduced}>
-                <label className="flex flex-col gap-1 text-xs font-semibold text-ink">
-                  {field.label}
-                  {field.required ? (
-                    <span className="text-red-500"> *</span>
-                  ) : null}
+                <label className="flex flex-col gap-1.5">
+                  <span className={FIELD_LABEL_CLASS}>
+                    {field.label}
+                    {field.required ? (
+                      <span className="text-red-500">*</span>
+                    ) : null}
+                  </span>
                   <select
-                    className="rounded-md border border-black/10 bg-white px-2 py-2 text-sm font-normal"
+                    className={FIELD_CONTROL_CLASS}
                     required={field.required}
                     value={value}
                     onChange={(event) =>
@@ -164,14 +173,16 @@ export function LeadFormCard(props: LeadFormCardProps): JSX.Element {
           }
           return (
             <FieldRow key={field.id} reduced={reduced}>
-              <label className="flex flex-col gap-1 text-xs font-semibold text-ink">
-                {field.label}
-                {field.required ? (
-                  <span className="text-red-500"> *</span>
-                ) : null}
+              <label className="flex flex-col gap-1.5">
+                <span className={FIELD_LABEL_CLASS}>
+                  {field.label}
+                  {field.required ? (
+                    <span className="text-red-500">*</span>
+                  ) : null}
+                </span>
                 <input
                   type={field.type}
-                  className="rounded-md border border-black/10 px-2 py-2 text-sm font-normal"
+                  className={FIELD_CONTROL_CLASS}
                   required={field.required}
                   value={value}
                   {...(placeholder !== undefined ? { placeholder } : {})}
@@ -191,14 +202,14 @@ export function LeadFormCard(props: LeadFormCardProps): JSX.Element {
         ) : null}
 
         <FieldRow reduced={reduced}>
-          <fieldset className="flex flex-col gap-2 rounded-md border border-black/10 p-3 text-xs">
-            <legend className="px-1 text-[11px] font-bold uppercase tracking-wide text-mist">
+          <fieldset className="flex flex-col gap-2.5 rounded-xl border border-ink/10 bg-bg/70 p-3 text-xs">
+            <legend className="px-1 text-[11px] font-black uppercase tracking-wide text-mist">
               PIPA 동의 (필수 / 선택 분리)
             </legend>
             {props.form.pipaConsents.map((consent) => (
               <label
                 key={consent.id}
-                className="flex items-start gap-2 text-ink"
+                className="flex items-start gap-2 rounded-lg bg-white/70 px-2 py-1.5 text-ink"
               >
                 <input
                   type="checkbox"
@@ -232,8 +243,8 @@ export function LeadFormCard(props: LeadFormCardProps): JSX.Element {
             onClick={props.onSubmit}
             className={
               props.canSubmit
-                ? "min-h-[40px] w-full rounded-full bg-ink text-sm font-extrabold text-white hover:bg-ink/90"
-                : "min-h-[40px] w-full cursor-not-allowed rounded-full bg-mist/30 text-sm font-extrabold text-mist"
+                ? "min-h-[44px] w-full rounded-full bg-accent text-sm font-extrabold text-white shadow-[0_6px_16px_rgba(28,115,232,0.18)] hover:bg-accent/90"
+                : "min-h-[44px] w-full cursor-not-allowed rounded-full bg-mist/25 text-sm font-extrabold text-mist"
             }
           >
             {props.form.submitLabel}

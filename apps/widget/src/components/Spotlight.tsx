@@ -6,8 +6,9 @@ import { AnimatePresence, motion } from "framer-motion";
  *
  * - `external`: A host-side driver (apps/embed/src/host-driver.ts) is attached
  *   to the parent page and renders the ring/outline by injecting CSS on the
- *   target node directly. The widget Spotlight only paints a soft backdrop
- *   so we avoid a double-ring.
+ *   target node directly. The widget Spotlight intentionally paints nothing
+ *   in this mode; a full-frame layer inside the clipped iframe reads as an
+ *   unrelated rounded gray panel behind the avatar/bubble.
  * - `internal`: The widget is running stand-alone (iframe with no host driver,
  *   preview mode, or local dev). There is no parent CSS injection, so the
  *   widget must paint both the dim mask AND the ring itself by querying the
@@ -46,29 +47,14 @@ export function Spotlight(props: SpotlightProps): JSX.Element {
 
   return (
     <AnimatePresence>
-      {props.active ? (
-        isInternal && rect !== null ? (
-          <InternalSpotlight
-            key="internal"
-            target={props.target}
-            rect={rect}
-            duration={transitionDuration}
-            reducedMotion={props.reducedMotion === true}
-          />
-        ) : (
-          <motion.div
-            key="external"
-            aria-hidden="true"
-            data-spotlight-target={props.target ?? undefined}
-            data-spotlight-mode="external"
-            data-spotlight-source={isInternal ? "internal-fallback" : "host"}
-            className="pointer-events-none fixed inset-0 z-[80] bg-ink/10"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: transitionDuration }}
-          />
-        )
+      {props.active && isInternal && rect !== null ? (
+        <InternalSpotlight
+          key="internal"
+          target={props.target}
+          rect={rect}
+          duration={transitionDuration}
+          reducedMotion={props.reducedMotion === true}
+        />
       ) : null}
     </AnimatePresence>
   );
@@ -182,8 +168,8 @@ function InternalSpotlight(props: InternalSpotlightProps): JSX.Element {
  * Polls the local document for the target rect when running in `internal`
  * mode. Recomputes on viewport resize/scroll so the ring tracks the section
  * as the page reflows. Returns `null` when the target is missing — the
- * caller then falls back to the dim-only external rendering so users still
- * see *something* even if the selector cannot be located.
+ * caller then renders nothing. A fallback full-frame dim layer is visually
+ * worse than no spotlight because the widget often runs in a clipped iframe.
  *
  * Polish iter 4 — viewport guarantee: even when the choreographer's
  * self-scroll fires, the target rect can briefly resolve to a position

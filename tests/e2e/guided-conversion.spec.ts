@@ -6,8 +6,7 @@ import {
   type Page
 } from "@playwright/test";
 
-const HERO_COPY =
-  "어떤 고민으로 오셨나요? 모션랩스의 솔루션을 상황에 맞게 안내해드릴게요.";
+const HERO_COPY = /무엇을 도와드릴까요\?/u;
 const REVISIT_CHIP = "기존 환자 재방문을 높이고 싶어요";
 
 declare global {

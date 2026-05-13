@@ -49,7 +49,7 @@ export function SubmittedCard(props: SubmittedCardProps): JSX.Element {
       data-polish-submit-celebrate={reduced ? "off" : "on"}
       data-polish-sparkle-count={SPARKLES.length}
       data-polish-sparkle-duration-ms={Math.round(SPARKLE_DURATION_SEC * 1000)}
-      className="pointer-events-auto fixed bottom-7 left-1/2 z-[95] w-[min(360px,calc(100vw-28px))] overflow-hidden rounded-[24px] border border-white/70 bg-white/95 p-5 pt-7 text-center shadow-[0_28px_90px_rgba(7,20,39,0.25)] backdrop-blur"
+      className="pointer-events-auto fixed bottom-7 left-1/2 z-[95] w-[min(360px,calc(100vw-28px))] overflow-hidden rounded-[24px] border border-white/70 bg-white/95 p-5 pt-7 text-center shadow-[0_18px_56px_rgba(7,20,39,0.15)] backdrop-blur"
       initial={
         reduced ? { x: "-50%", opacity: 0 } : { x: "-50%", y: 18, opacity: 0 }
       }

@@ -16,25 +16,21 @@ describe("Spotlight", () => {
     expect(container.querySelector("[data-spotlight-mode]")).toBeNull();
   });
 
-  it("renders only the dim backdrop in external mode (host-driver draws the ring)", () => {
+  it("renders no widget backdrop in external mode because host-driver draws the ring and dim", () => {
     const { container } = render(
       <Spotlight target="#section" active={true} mode="external" />
     );
-    const overlay = container.querySelector('[data-spotlight-mode="external"]');
-    expect(overlay).not.toBeNull();
+    expect(container.querySelector("[data-spotlight-mode]")).toBeNull();
     expect(
       container.querySelector('[data-testid="widget-internal-spotlight-ring"]')
     ).toBeNull();
-    expect(overlay?.getAttribute("data-spotlight-target")).toBe("#section");
   });
 
-  it("falls back to dim-only when internal mode cannot resolve target", () => {
+  it("renders nothing when internal mode cannot resolve target", () => {
     const { container } = render(
       <Spotlight target="#missing" active={true} mode="internal" />
     );
-    expect(
-      container.querySelector('[data-spotlight-mode="external"]')
-    ).not.toBeNull();
+    expect(container.querySelector("[data-spotlight-mode]")).toBeNull();
     expect(
       container.querySelector('[data-testid="widget-internal-spotlight-ring"]')
     ).toBeNull();
@@ -83,18 +79,41 @@ describe("Spotlight", () => {
     expect(overlay?.querySelector("svg")).not.toBeNull();
   });
 
-  it("honors reducedMotion by collapsing transition duration to 0", () => {
-    // Smoke test — the component must still render without animation hangs.
+  it("honors reducedMotion by freezing the internal ring animation", async () => {
+    const target = document.createElement("div");
+    target.id = "reduced-target";
+    Object.defineProperty(target, "getBoundingClientRect", {
+      value: () => ({
+        x: 20,
+        y: 40,
+        left: 20,
+        top: 40,
+        right: 220,
+        bottom: 120,
+        width: 200,
+        height: 80,
+        toJSON: () => ({})
+      })
+    });
+    document.body.appendChild(target);
+
     const { container } = render(
       <Spotlight
-        target="#x"
+        target="#reduced-target"
         active={true}
-        mode="external"
+        mode="internal"
         reducedMotion={true}
       />
     );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
     expect(
-      container.querySelector('[data-spotlight-mode="external"]')
-    ).not.toBeNull();
+      container
+        .querySelector('[data-testid="widget-internal-spotlight-ring"]')
+        ?.getAttribute("data-polish-ring-breathing")
+    ).toBe("off");
   });
 });

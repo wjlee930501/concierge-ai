@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "isPlaceholder": true,
   "heroBubble": {
-    "message": "어떤 고민으로 오셨나요? 모션랩스의 솔루션을 상황에 맞게 안내해드릴게요.",
+    "message": "안녕하세요, 원장님!\n모션랩스 세일즈 컨설턴트 김연희입니다.\n무엇을 도와드릴까요?",
     "quickChips": [
       {
         "id": "chip_revisit",
@@ -23,7 +23,7 @@
       {
         "id": "chip_contact",
         "label": "상담을 받고 싶어요",
-        "nextStepId": "step_contact"
+        "nextStepId": "step_guided_conversion_complete"
       }
     ]
   },

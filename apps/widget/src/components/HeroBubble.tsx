@@ -77,7 +77,8 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
     props.freeInput.mode === "thinking" || props.freeInput.mode === "replying";
 
   const showSection = props.section !== null;
-  const stackedBubble = showSection || props.message.length > 60;
+  const stackedBubble =
+    showSection || props.message.includes("\n") || props.message.length > 60;
   const previousAnchorPosition = usePreviousAnchorPoint(props.anchorPosition);
   const motionDistance = computeMotionDistance(
     previousAnchorPosition,
@@ -96,6 +97,18 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
   const scrollLagY = useScrollLag(reduced);
   const isFirstEntrance = useFirstMount(props.visible);
   const walkOn = isFirstEntrance && !reduced;
+  const showChoices =
+    props.bubbleVisible && props.choices.length > 0 && !showFreeInput;
+  const useChoiceRail = !showSection || showChoices || showFreeInput;
+  const controlRowClass = showSection
+    ? "grid w-[min(360px,calc(100vw-104px))] grid-cols-2 gap-2"
+    : "order-3 flex items-center justify-center gap-2";
+  const primaryControlClass = showSection
+    ? "min-h-[34px] w-full rounded-full border border-ink/10 bg-white px-4 py-2 text-[12px] font-extrabold text-mist shadow-[0_3px_10px_rgba(7,20,39,0.05)] hover:border-accent/40 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+    : "min-h-[30px] rounded-full border border-ink/10 bg-white px-3 py-1.5 text-[11px] font-extrabold text-mist shadow-[0_3px_10px_rgba(7,20,39,0.05)] hover:border-accent/40 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
+  const secondaryControlClass = showSection
+    ? "min-h-[34px] w-full rounded-full border border-ink/10 bg-white/80 px-4 py-2 text-[12px] font-bold text-mist shadow-[0_3px_10px_rgba(7,20,39,0.05)] hover:border-ink/20 hover:bg-white hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+    : "min-h-[30px] rounded-full border border-ink/10 bg-white/80 px-3 py-1.5 text-[11px] font-bold text-mist shadow-[0_3px_10px_rgba(7,20,39,0.05)] hover:border-ink/20 hover:bg-white hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
 
   return (
     <AnimatePresence>
@@ -119,13 +132,12 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
             opacity: 0,
             x: props.anchorPosition.x,
             y: props.anchorPosition.y,
-            ...(walkOn ? { scale: 0.92, rotate: -2 } : {})
+            ...(walkOn ? { rotate: -2 } : {})
           }}
           animate={{
             x: props.anchorPosition.x,
             y: props.anchorPosition.y,
             opacity: 1,
-            scale: 1,
             rotate: 0
           }}
           exit={{ opacity: 0 }}
@@ -151,16 +163,14 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
             className="absolute left-0 top-0 will-change-transform"
             style={{ transform: "translate(-50%, -50%)" }}
           >
-            {/* Floor glow */}
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute -inset-x-20 -bottom-6 -z-10 h-32 rounded-full bg-[radial-gradient(closest-side,rgba(7,20,39,0.18),transparent_70%)]"
-            />
-
             <LayoutGroup id="concierge-hero-stack">
               <motion.div
                 data-concierge-hitbox="true"
-                className="flex w-[min(560px,calc(100vw-32px))] max-w-[min(560px,calc(100vw-32px))] flex-col items-center gap-2.5 will-change-transform"
+                className={`isolate relative flex ${
+                  useChoiceRail
+                    ? "w-[min(820px,calc(100vw-32px))] max-w-[min(820px,calc(100vw-32px))]"
+                    : "w-[min(560px,calc(100vw-32px))] max-w-[min(560px,calc(100vw-32px))]"
+                } flex-col items-center gap-2.5 will-change-transform`}
                 animate={
                   reduced
                     ? { x: 0, y: 0 }
@@ -205,89 +215,127 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
                   </motion.div>
                 ) : null}
 
-                {/* Choice chips (above the speech pill) */}
-                {props.bubbleVisible &&
-                props.choices.length > 0 &&
-                !showFreeInput ? (
+                {useChoiceRail ? (
                   <motion.div
                     layout
                     transition={MAGIC_MOVE_LAYOUT}
-                    className={showSection ? "" : "order-2"}
+                    className="flex w-full flex-col items-center justify-center gap-3 md:flex-row md:gap-4"
                   >
-                    <QuickChips
-                      chips={props.choices}
-                      onSelect={props.onSelectChoice}
-                      {...(props.activeChoiceId !== undefined
-                        ? { activeChipId: props.activeChoiceId }
-                        : {})}
-                    />
-                  </motion.div>
-                ) : null}
-
-                {/* Free input (replaces chips when open) */}
-                {props.bubbleVisible && showFreeInput ? (
-                  <motion.div
-                    layout
-                    transition={MAGIC_MOVE_LAYOUT}
-                    className={`w-[min(440px,calc(100vw-32px))] max-w-full ${
-                      showSection ? "" : "order-2"
-                    }`}
-                  >
-                    <FreeInputBar
-                      disabled={freeInputDisabled}
-                      placeholder="무엇이 궁금하세요?"
-                      draft={props.freeInput.draft}
-                      onChangeDraft={props.onChangeDraft}
-                      onSubmit={props.onSubmitFreeInput}
-                    />
-                  </motion.div>
-                ) : null}
-
-                {/* Main speech pill: avatar + dark bubble */}
-                <motion.div
-                  layout
-                  transition={MAGIC_MOVE_LAYOUT}
-                  className={`flex items-center gap-2.5 ${
-                    showSection ? "" : "order-1"
-                  }`}
-                >
-                  <Avatar
-                    point={props.avatarPoint}
-                    mood={props.avatarMood}
-                    expression={props.avatarExpression}
-                    tilt={props.avatarTilt}
-                    firstWave={walkOn}
-                  />
-                  {props.bubbleVisible ? (
-                    <SpeechPill
-                      stacked={stackedBubble}
+                    <SpeechRow
+                      avatarPoint={props.avatarPoint}
+                      avatarMood={props.avatarMood}
+                      avatarExpression={props.avatarExpression}
+                      avatarTilt={props.avatarTilt}
+                      firstWave={walkOn}
+                      bubbleVisible={props.bubbleVisible}
+                      stackedBubble={stackedBubble}
                       reduced={reduced}
                       currentAnchor={props.currentAnchor}
                       section={props.section}
                       message={props.message}
-                      {...(props.variantSuffix !== undefined &&
-                      props.variantSuffix !== null
-                        ? { variantSuffix: props.variantSuffix }
-                        : {})}
+                      variantSuffix={props.variantSuffix}
                       isPlaceholderScenario={props.isPlaceholderScenario}
                       entranceDelaySec={walkOn ? 0.22 : 0}
                     />
-                  ) : null}
-                </motion.div>
+                    {showChoices ? (
+                      <motion.div
+                        layout
+                        transition={MAGIC_MOVE_LAYOUT}
+                        className="w-full max-w-[390px] md:w-[390px]"
+                      >
+                        <QuickChips
+                          chips={props.choices}
+                          onSelect={props.onSelectChoice}
+                          layout={
+                            showSection && props.choices.length !== 2
+                              ? "stack"
+                              : "grid"
+                          }
+                          {...(props.activeChoiceId !== undefined
+                            ? { activeChipId: props.activeChoiceId }
+                            : {})}
+                        />
+                      </motion.div>
+                    ) : null}
+                    {props.bubbleVisible && showFreeInput ? (
+                      <motion.div
+                        layout
+                        transition={MAGIC_MOVE_LAYOUT}
+                        className="w-full max-w-[390px]"
+                      >
+                        <FreeInputBar
+                          disabled={freeInputDisabled}
+                          placeholder="무엇이 궁금하세요?"
+                          draft={props.freeInput.draft}
+                          onChangeDraft={props.onChangeDraft}
+                          onSubmit={props.onSubmitFreeInput}
+                        />
+                      </motion.div>
+                    ) : null}
+                  </motion.div>
+                ) : (
+                  <>
+                    {/* Choice chips (above the speech pill) */}
+                    {showChoices ? (
+                      <motion.div layout transition={MAGIC_MOVE_LAYOUT}>
+                        <QuickChips
+                          chips={props.choices}
+                          onSelect={props.onSelectChoice}
+                          {...(props.activeChoiceId !== undefined
+                            ? { activeChipId: props.activeChoiceId }
+                            : {})}
+                        />
+                      </motion.div>
+                    ) : null}
+
+                    {/* Free input (replaces chips when open) */}
+                    {props.bubbleVisible && showFreeInput ? (
+                      <motion.div
+                        layout
+                        transition={MAGIC_MOVE_LAYOUT}
+                        className="w-[min(440px,calc(100vw-32px))] max-w-full"
+                      >
+                        <FreeInputBar
+                          disabled={freeInputDisabled}
+                          placeholder="무엇이 궁금하세요?"
+                          draft={props.freeInput.draft}
+                          onChangeDraft={props.onChangeDraft}
+                          onSubmit={props.onSubmitFreeInput}
+                        />
+                      </motion.div>
+                    ) : null}
+
+                    {/* Main speech pill: avatar + dark bubble */}
+                    <SpeechRow
+                      avatarPoint={props.avatarPoint}
+                      avatarMood={props.avatarMood}
+                      avatarExpression={props.avatarExpression}
+                      avatarTilt={props.avatarTilt}
+                      firstWave={walkOn}
+                      bubbleVisible={props.bubbleVisible}
+                      stackedBubble={stackedBubble}
+                      reduced={reduced}
+                      currentAnchor={props.currentAnchor}
+                      section={props.section}
+                      message={props.message}
+                      variantSuffix={props.variantSuffix}
+                      isPlaceholderScenario={props.isPlaceholderScenario}
+                      entranceDelaySec={walkOn ? 0.22 : 0}
+                    />
+                  </>
+                )}
 
                 {/* Toggle row: back + free input toggle */}
                 {props.bubbleVisible ? (
                   <motion.div
                     layout
                     transition={MAGIC_MOVE_LAYOUT}
-                    className={`flex items-center justify-center gap-2 ${
-                      showSection ? "" : "order-3"
-                    }`}
+                    className={controlRowClass}
                   >
                     {props.canGoBack ? (
                       <button
                         type="button"
-                        className="rounded-full bg-white/80 px-3 py-1 text-[11px] font-bold text-mist shadow-[0_4px_12px_rgba(7,20,39,0.08)] hover:text-ink"
+                        className={primaryControlClass}
                         onClick={props.onBack}
                         aria-label="이전 단계로"
                       >
@@ -296,7 +344,7 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
                     ) : null}
                     <button
                       type="button"
-                      className="rounded-full bg-white/80 px-3 py-1 text-[11px] font-bold text-mist shadow-[0_4px_12px_rgba(7,20,39,0.08)] hover:text-ink"
+                      className={primaryControlClass}
                       onClick={
                         showFreeInput
                           ? props.onCloseFreeInput
@@ -308,7 +356,7 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
                     {props.canDismiss ? (
                       <button
                         type="button"
-                        className="rounded-full bg-white/80 px-3 py-1 text-[11px] font-bold text-mist shadow-[0_4px_12px_rgba(7,20,39,0.08)] hover:text-ink"
+                        className={secondaryControlClass}
                         onClick={props.onDismiss}
                         aria-label="안내 없이 그냥 둘러보기"
                       >
@@ -395,6 +443,59 @@ function useScrollLag(disabled: boolean): number {
   return disabled ? 0 : offset;
 }
 
+function SpeechRow(props: {
+  readonly avatarPoint: ScenarioAvatarPoint;
+  readonly avatarMood:
+    | "idle"
+    | "thinking"
+    | "replying"
+    | "pointing"
+    | "celebrate";
+  readonly avatarExpression: AvatarExpression;
+  readonly avatarTilt: number;
+  readonly firstWave: boolean;
+  readonly bubbleVisible: boolean;
+  readonly stackedBubble: boolean;
+  readonly reduced: boolean;
+  readonly currentAnchor: AnchorName;
+  readonly section: { readonly label: string; readonly title: string } | null;
+  readonly message: string;
+  readonly variantSuffix?: string | null;
+  readonly isPlaceholderScenario: boolean;
+  readonly entranceDelaySec: number;
+}): JSX.Element {
+  return (
+    <motion.div
+      layout="position"
+      data-avatar-layout-isolation="position-only"
+      transition={MAGIC_MOVE_LAYOUT}
+      className="flex shrink-0 items-center gap-2.5"
+    >
+      <Avatar
+        point={props.avatarPoint}
+        mood={props.avatarMood}
+        expression={props.avatarExpression}
+        tilt={props.avatarTilt}
+        firstWave={props.firstWave}
+      />
+      {props.bubbleVisible ? (
+        <SpeechPill
+          stacked={props.stackedBubble}
+          reduced={props.reduced}
+          currentAnchor={props.currentAnchor}
+          section={props.section}
+          message={props.message}
+          {...(props.variantSuffix !== undefined && props.variantSuffix !== null
+            ? { variantSuffix: props.variantSuffix }
+            : {})}
+          isPlaceholderScenario={props.isPlaceholderScenario}
+          entranceDelaySec={props.entranceDelaySec}
+        />
+      ) : null}
+    </motion.div>
+  );
+}
+
 function SpeechPill(props: {
   readonly stacked: boolean;
   readonly reduced: boolean;
@@ -405,16 +506,18 @@ function SpeechPill(props: {
   readonly isPlaceholderScenario: boolean;
   readonly entranceDelaySec: number;
 }): JSX.Element {
-  const radius = props.stacked ? "rounded-3xl" : "rounded-full";
+  const showConsultantLabel =
+    props.isPlaceholderScenario && props.section === null;
+  const radius = props.stacked ? "rounded-[22px]" : "rounded-full";
   const width = props.stacked
-    ? "w-[min(460px,calc(100vw-96px))]"
-    : "max-w-[460px]";
+    ? "w-fit min-w-[260px] max-w-[min(360px,calc(100vw-104px))]"
+    : "w-fit max-w-[min(420px,calc(100vw-104px))]";
   const contentKey = `${props.section?.label ?? "hero"}::${props.message.slice(0, 40)}`;
   const breathing = !props.reduced;
   const delay = props.reduced ? 0 : props.entranceDelaySec;
   return (
     <motion.div
-      layout
+      layout="position"
       data-testid="speech-pill"
       data-polish-breathing={breathing ? "true" : "false"}
       data-polish-entrance-delay-ms={Math.round(delay * 1000)}
@@ -423,25 +526,17 @@ function SpeechPill(props: {
       }
       data-floating-amplitude-px={SPEECH_FLOAT_AMPLITUDE_PX}
       data-tail-anchor={props.currentAnchor}
-      className={`relative ${width} ${radius} bg-ink/95 px-4 py-3 text-white shadow-[0_18px_40px_rgba(7,20,39,0.35)] backdrop-blur`}
+      className={`relative ${width} ${radius} border border-white/10 bg-ink px-4 py-[14px] text-white shadow-[0_10px_24px_rgba(7,20,39,0.20)] backdrop-blur`}
       {...(breathing
         ? {
             initial: {
               y: 0,
-              scale: delay > 0 ? 0.94 : 1,
               opacity: delay > 0 ? 0 : 1
             },
             animate: { ...SPEECH_FLOAT_ANIMATE, opacity: 1 },
             transition: {
               ...SPEECH_FLOAT_TRANSITION,
               opacity: { duration: 0.32, delay, ease: [0.2, 0.8, 0.2, 1] },
-              scale:
-                delay > 0
-                  ? {
-                      ...SPEECH_FLOAT_TRANSITION,
-                      delay
-                    }
-                  : SPEECH_FLOAT_TRANSITION,
               y:
                 delay > 0
                   ? { ...SPEECH_FLOAT_TRANSITION, delay }
@@ -452,7 +547,7 @@ function SpeechPill(props: {
     >
       <motion.span
         aria-hidden="true"
-        className="absolute -left-1.5 top-1/2 h-3 w-3 -translate-y-1/2 rotate-45 rounded-[2px] bg-ink/95"
+        className="absolute -left-1.5 top-8 h-3 w-3 rotate-45 rounded-[2px] bg-ink/95"
         animate={{ rotate: resolveTailRotation(props.currentAnchor) }}
         transition={{ type: "spring", stiffness: 200, damping: 25 }}
       />
@@ -463,14 +558,27 @@ function SpeechPill(props: {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -4 }}
           transition={{ duration: 0.22, ease: [0.2, 0.8, 0.2, 1] }}
+          className="flex flex-col justify-center"
         >
+          {showConsultantLabel ? (
+            <div
+              title="모션랩스 세일즈 컨설턴트"
+              className="mb-2 inline-flex items-center gap-1.5 text-[10px] font-black leading-none tracking-tight text-mint"
+            >
+              <span
+                aria-hidden="true"
+                className="h-1.5 w-1.5 rounded-full bg-mint shadow-[0_0_8px_rgba(46,230,166,0.65)]"
+              />
+              모션랩스 김연희 컨설턴트
+            </div>
+          ) : null}
           {props.section !== null ? (
-            <div className="mb-0.5 text-[9px] font-black uppercase tracking-[0.18em] text-mint">
+            <div className="mb-1 text-[9px] font-black uppercase tracking-[0.18em] text-mint">
               {props.section.label}
             </div>
           ) : null}
           {props.section !== null ? (
-            <div className="text-[14px] font-black tracking-tight">
+            <div className="text-[14px] font-black leading-snug tracking-tight text-white">
               {props.section.title}
             </div>
           ) : null}
@@ -486,14 +594,6 @@ function SpeechPill(props: {
           ) : null}
         </motion.div>
       </AnimatePresence>
-      {props.isPlaceholderScenario ? (
-        <span
-          title="실제 시나리오 카피는 source data 도착 후 교체"
-          className="absolute -top-2 right-3 rounded-full border border-white/20 bg-ink px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-white/70"
-        >
-          데모
-        </span>
-      ) : null}
     </motion.div>
   );
 }
@@ -518,20 +618,23 @@ function TypewriterLine(props: {
     <p
       data-testid="speech-typewriter"
       data-tw-complete={isComplete ? "true" : "false"}
-      className={`text-[13px] leading-[1.55] text-white/85 ${
+      data-reserve-text={props.text}
+      className={`speech-typewriter-reserve grid w-max max-w-full whitespace-pre-wrap text-[13px] leading-[1.55] text-white/92 ${
         props.offsetTop ? "mt-1" : ""
       }`}
     >
-      {displayed}
-      {showCaret ? (
-        <motion.span
-          aria-hidden="true"
-          data-testid="speech-typewriter-caret"
-          className="ml-[1px] inline-block h-[0.85em] w-[2px] translate-y-[2px] bg-white/85 align-baseline"
-          animate={{ opacity: [0.9, 0] }}
-          transition={{ duration: 0.8, repeat: Infinity, ease: "easeInOut" }}
-        />
-      ) : null}
+      <span className="speech-typewriter-visible">
+        {displayed}
+        {showCaret ? (
+          <motion.span
+            aria-hidden="true"
+            data-testid="speech-typewriter-caret"
+            className="ml-[1px] inline-block h-[0.85em] w-[2px] translate-y-[2px] bg-white/85 align-baseline"
+            animate={{ opacity: [0.9, 0] }}
+            transition={{ duration: 0.8, repeat: Infinity, ease: "easeInOut" }}
+          />
+        ) : null}
+      </span>
     </p>
   );
 }

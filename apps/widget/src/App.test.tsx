@@ -94,6 +94,14 @@ describe("App choreography wiring", () => {
     expect(
       screen.getByTestId("concierge-avatar").getAttribute("data-avatar-asset")
     ).toBe("smile");
+    expect(
+      screen
+        .getByTestId("concierge-avatar")
+        .closest('[data-avatar-layout-isolation="position-only"]')
+    ).not.toBeNull();
+    expect(screen.getByTestId("speech-pill").className.toString()).toContain(
+      "w-fit"
+    );
     const concierge = screen.getByLabelText("MotionLabs Concierge AI");
     expect(concierge.getAttribute("data-motion-profile")).toBe("short");
     expect(concierge.getAttribute("data-motion-positioning")).toBe("transform");
@@ -102,7 +110,7 @@ describe("App choreography wiring", () => {
       document
         .querySelector('[data-concierge-hitbox="true"]')
         ?.className.toString()
-    ).toContain("w-[min(560px,calc(100vw-32px))]");
+    ).toContain("w-[min(820px,calc(100vw-32px))]");
     expect(
       screen
         .getByText("기존 환자 재방문을 높이고 싶어요")
@@ -148,11 +156,6 @@ describe("App choreography wiring", () => {
       vi.advanceTimersByTime(3000);
     });
     fireEvent.click(screen.getByText("상담을 받고 싶어요"));
-
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(9000);
-    });
-    fireEvent.click(screen.getByRole("button", { name: "상담 신청하기" }));
 
     expect(screen.getByLabelText(/병원명/u)).not.toBeNull();
     expect(screen.getByLabelText(/관심 분야/u)).not.toBeNull();

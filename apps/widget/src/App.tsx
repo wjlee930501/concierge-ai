@@ -85,14 +85,6 @@ export function App(): JSX.Element {
 
   useLeadSubmissionEffect({ submission: state.submission, parentOrigin });
 
-  const usedChipIds = useMemo(() => {
-    const ids = new Set<string>();
-    for (const interaction of state.interactions) {
-      if (interaction.kind === "chip") ids.add(interaction.id);
-    }
-    return ids;
-  }, [state.interactions]);
-
   const summaryHint = state.leadDraft.messagePrefilled
     ? "방금까지의 안내 흐름을 메시지에 자동으로 정리했어요. 자유롭게 수정하셔도 됩니다."
     : undefined;
@@ -120,18 +112,21 @@ export function App(): JSX.Element {
             context: { kind: "step", choiceId: choice.id }
           }))
         : []
-      : scenario.heroBubble.quickChips
-          .filter((chip) => !usedChipIds.has(chip.id))
-          .map((chip) => ({
-            choice: { id: chip.id, label: chip.label },
-            context: { kind: "hero", chipId: chip.id }
-          }));
+      : scenario.heroBubble.quickChips.map((chip) => ({
+          choice: { id: chip.id, label: chip.label },
+          context: { kind: "hero", chipId: chip.id }
+        }));
 
   const choices = choiceContexts.map((entry) => entry.choice);
   const choiceContextById = new Map(
     choiceContexts.map((entry) => [entry.choice.id, entry.context])
   );
   const hitboxSignal = `${state.phase.kind}:${choreographyUi.anchor}:${choreographyUi.bubbleVisible}:${choices.map((choice) => choice.id).join(",")}:${message}:${state.submitError ?? ""}`;
+  const bubbleAnchorPoint = resolveBubbleAnchorPoint({
+    point: safeAnchorPoint,
+    viewport,
+    isStep
+  });
 
   useIframeHitbox({
     enabled: true,
@@ -153,7 +148,7 @@ export function App(): JSX.Element {
       <SpotlightConnector
         target={isStep && renderHostPreview ? stepNode!.spotlightTarget : null}
         active={isStep && renderHostPreview && choreographyUi.bubbleVisible}
-        bubbleAnchor={safeAnchorPoint}
+        bubbleAnchor={bubbleAnchorPoint}
       />
 
       <HeroBubble
@@ -161,7 +156,7 @@ export function App(): JSX.Element {
         avatarPoint={heroPoint}
         avatarMood={avatarMood}
         avatarExpression={avatarExpression}
-        anchorPosition={safeAnchorPoint}
+        anchorPosition={bubbleAnchorPoint}
         currentAnchor={choreographyUi.anchor}
         avatarTilt={choreographyUi.tilt}
         bubbleVisible={stepNode === null || choreographyUi.bubbleVisible}
@@ -280,4 +275,17 @@ function resolveAvatarExpression(input: {
 export function shouldRenderHostPreview(): boolean {
   if (typeof window === "undefined") return true;
   return window.parent === window;
+}
+
+function resolveBubbleAnchorPoint(input: {
+  readonly point: { readonly x: number; readonly y: number };
+  readonly viewport: { readonly width: number };
+  readonly isStep: boolean;
+}): { readonly x: number; readonly y: number } {
+  if (!input.isStep) return input.point;
+
+  return {
+    x: input.viewport.width / 2,
+    y: input.point.y
+  };
 }
