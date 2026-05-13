@@ -28,6 +28,7 @@ export type AiStreamEvent =
       readonly type: "done";
       readonly fullText: string;
       readonly suggestion: AiSuggestion;
+      readonly aborted?: boolean;
     };
 
 export type StreamMockAiInput = {
@@ -58,7 +59,18 @@ export async function streamMockAiResponse(
     signal: input.signal ?? null,
     tokenDelayMs: tokenDelay
   });
-  if (isAborted(input.signal)) return;
+  if (isAborted(input.signal)) {
+    // Surface the abort to the caller so they can cleanup `thinking` UI
+    // without inferring it from `controller.signal.aborted`. Callers must
+    // ignore `aborted: true` events except for cleanup.
+    input.onEvent({
+      type: "done",
+      fullText: matched.response,
+      suggestion: matched.suggestion,
+      aborted: true
+    });
+    return;
+  }
   input.onEvent({
     type: "done",
     fullText: matched.response,

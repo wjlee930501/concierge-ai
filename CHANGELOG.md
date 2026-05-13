@@ -1,5 +1,10 @@
 # CHANGELOG.md
 
+## [UX 핵심 수정 PR#2 / 2026-05-12]
+
+- 2026-05-12 KST PR#2 UX 핵심 수정 시작: B1 Spotlight widget 내부 ring/dim fallback, B2 streamMockAiResponse 에러/abort path, B3 console.info dev-flag 게이팅 3건 구현 예정.
+- 2026-05-12 KST PR#2 UX 핵심 수정 종료: B1 `Spotlight.tsx`에 `mode` prop(`"external"|"internal"`) 도입 — internal mode(host-driver 미부착, `window.parent === window`)에서 SVG mask + CSS box-shadow ring을 직접 그려 UX 4단계(Spotlight) 완결, external mode는 dim backdrop만 유지해 이중 ring 방지. B2 `useScenarioRunner.ts`에서 `streamMockAiResponse` fire-and-forget을 `.catch(kb_unavailable fallback)` + abort cleanup `dismiss-ai-response` 경로로 교체해 ghost-loading 방지; `llmMock.ts`에 `aborted: true` done event 추가. B3 `useLeadSubmissionEffect.ts:33` `console.info`를 `import.meta.env.DEV` + `NODE_ENV` 이중 가드로 게이팅. 신규 테스트 8개 추가(`Spotlight.test.tsx` 5개, `llmMock.test.ts` 1개, `useScenarioRunner.test.tsx` 2개). 검증 `npm run lint` PASS, `npm test` 47 files/389 passed(+8), `npm run security:scan` PASS(0 findings), `npm run test:e2e` 2 passed/5 failed(baseline 동일, 신규 회귀 0건).
+
 ## [Widget decomposition PR#3 / 2026-05-12]
 
 - 2026-05-12 KST PR#3 widget decomposition 시작: PR#1 보안 stack 위에서 `apps/widget/src/App.tsx`(545줄)와 `apps/widget/src/preview/HostPagePreview.tsx`(817줄)를 UX 변경 0으로 분해해 code-reviewer HIGH #1~#3을 닫고, choreography effect의 viewport/reducedMotion race를 hook 경계에서 해소할 예정.

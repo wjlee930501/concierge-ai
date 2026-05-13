@@ -55,7 +55,19 @@ export function useScenarioRunner(scenario: Scenario): {
     lastStreamSeq.current = seq;
     const controller = new AbortController();
     const query = state.freeInput.draft;
-    void streamMockAiResponse({
+    // Settled-flag prevents double dispatch when both .then/.catch and the
+    // effect-cleanup abort path race. The first writer wins.
+    let settled = false;
+    const finishWithSafety = (reason: "out_of_scope" | "kb_unavailable") => {
+      if (settled) return;
+      settled = true;
+      dispatch({
+        type: "complete-ai-response",
+        seq,
+        suggestion: { kind: "safety", reason }
+      });
+    };
+    streamMockAiResponse({
       query,
       scenario,
       signal: controller.signal,
@@ -64,6 +76,9 @@ export function useScenarioRunner(scenario: Scenario): {
         if (event.type === "chunk") {
           dispatch({ type: "stream-ai-chunk", seq, chunk: event.text });
         } else {
+          if (event.aborted === true) return;
+          if (settled) return;
+          settled = true;
           dispatch({
             type: "complete-ai-response",
             seq,
@@ -71,8 +86,23 @@ export function useScenarioRunner(scenario: Scenario): {
           });
         }
       }
+    }).catch(() => {
+      // Stream threw (e.g. mock provider crash or future real LLM error). Emit
+      // a kb_unavailable safety_response so the user is not left in a ghost
+      // thinking state. Skip if already cancelled by cleanup below.
+      if (controller.signal.aborted) return;
+      finishWithSafety("kb_unavailable");
     });
-    return () => controller.abort();
+    return () => {
+      controller.abort();
+      // If the stream was aborted before reporting `done`, the UI would
+      // otherwise stay in `thinking` mode (ghost-loading). Settle the slot
+      // with an out_of_scope safety so the bubble closes cleanly.
+      if (!settled) {
+        settled = true;
+        dispatch({ type: "dismiss-ai-response" });
+      }
+    };
   }, [
     scenario,
     state.freeInput.mode,
