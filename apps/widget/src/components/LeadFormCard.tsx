@@ -251,5 +251,7 @@ function FieldRow(props: {
   if (props.reduced) {
     return <div>{props.children}</div>;
   }
-  return <motion.div variants={FIELD_ITEM_VARIANTS}>{props.children}</motion.div>;
+  return (
+    <motion.div variants={FIELD_ITEM_VARIANTS}>{props.children}</motion.div>
+  );
 }

@@ -183,8 +183,7 @@ export function createHostDriverBridge(input: {
       readonly timeout: ReturnType<typeof setTimeout>;
     }
   >();
-  const replayGuardDisabled =
-    input.disableReplayGuard === true && isDevBuild();
+  const replayGuardDisabled = input.disableReplayGuard === true && isDevBuild();
   const replayGuard = replayGuardDisabled
     ? null
     : createEnvelopeReplayGuard({

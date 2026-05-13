@@ -101,17 +101,17 @@ describe("sanitizeOutput", () => {
 
   // PIPA PII — foreign registration number variants. 7th digit 5/6 = 1900s
   // 외국인등록번호, 7/8 = 2000s 외국인등록번호. Both fall under PIPA RRN scope.
-  it.each([
-    ["850101-5123456"],
-    ["050101-7123456"]
-  ])("blocks KR foreign registration number leak: %s", (rrn) => {
-    const result = sanitizeOutput(`외국인등록번호 ${rrn} 확인 바랍니다`);
-    expect(result.kind).toBe("blocked");
-    if (result.kind === "blocked") {
-      expect(result.pattern).toBe("kr_rrn");
-      expect(result.redacted).toContain("[REDACTED]");
+  it.each([["850101-5123456"], ["050101-7123456"]])(
+    "blocks KR foreign registration number leak: %s",
+    (rrn) => {
+      const result = sanitizeOutput(`외국인등록번호 ${rrn} 확인 바랍니다`);
+      expect(result.kind).toBe("blocked");
+      if (result.kind === "blocked") {
+        expect(result.pattern).toBe("kr_rrn");
+        expect(result.redacted).toContain("[REDACTED]");
+      }
     }
-  });
+  );
 
   // Regression: detection RegExps that previously carried the `/g` flag
   // would advance `lastIndex` between calls, producing alternating
@@ -135,15 +135,15 @@ describe("sanitizeOutput", () => {
     }
   });
 
-  it.each([
-    ["user@example.com"],
-    ["lead.contact+intent@motionlabs.kr"]
-  ])("blocks email address leak: %s", (email) => {
-    const result = sanitizeOutput(`이메일은 ${email} 입니다`);
-    expect(result.kind).toBe("blocked");
-    if (result.kind === "blocked") {
-      expect(result.pattern).toBe("email");
-      expect(result.redacted).toContain("[REDACTED]");
+  it.each([["user@example.com"], ["lead.contact+intent@motionlabs.kr"]])(
+    "blocks email address leak: %s",
+    (email) => {
+      const result = sanitizeOutput(`이메일은 ${email} 입니다`);
+      expect(result.kind).toBe("blocked");
+      if (result.kind === "blocked") {
+        expect(result.pattern).toBe("email");
+        expect(result.redacted).toContain("[REDACTED]");
+      }
     }
-  });
+  );
 });

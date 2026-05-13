@@ -91,8 +91,8 @@ type SegmenterCtor = new (
 
 function segmentText(text: string): readonly string[] {
   if (text.length === 0) return [];
-  const Segmenter = (globalThis as { Intl?: { Segmenter?: SegmenterCtor } }).Intl
-    ?.Segmenter;
+  const Segmenter = (globalThis as { Intl?: { Segmenter?: SegmenterCtor } })
+    .Intl?.Segmenter;
   if (typeof Segmenter === "function") {
     try {
       const segmenter = new Segmenter("ko", { granularity: "grapheme" });

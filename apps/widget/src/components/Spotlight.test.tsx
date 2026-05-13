@@ -20,9 +20,7 @@ describe("Spotlight", () => {
     const { container } = render(
       <Spotlight target="#section" active={true} mode="external" />
     );
-    const overlay = container.querySelector(
-      '[data-spotlight-mode="external"]'
-    );
+    const overlay = container.querySelector('[data-spotlight-mode="external"]');
     expect(overlay).not.toBeNull();
     expect(
       container.querySelector('[data-testid="widget-internal-spotlight-ring"]')
@@ -74,9 +72,7 @@ describe("Spotlight", () => {
       '[data-testid="widget-internal-spotlight-ring"]'
     );
     expect(ring).not.toBeNull();
-    const overlay = container.querySelector(
-      '[data-spotlight-mode="internal"]'
-    );
+    const overlay = container.querySelector('[data-spotlight-mode="internal"]');
     expect(overlay).not.toBeNull();
     // Ring must be positioned over the target rect (with the configured inset).
     expect(ring?.style.left).toMatch(/^\d+px$/u);

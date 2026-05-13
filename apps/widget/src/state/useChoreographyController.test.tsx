@@ -1,7 +1,11 @@
 // @vitest-environment jsdom
 import { act, cleanup, renderHook } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { parseScenario, type Scenario, type ScenarioStep } from "@conciergeai/shared";
+import {
+  parseScenario,
+  type Scenario,
+  type ScenarioStep
+} from "@conciergeai/shared";
 import {
   useChoreographyController,
   type ChoreographyViewport
@@ -13,10 +17,9 @@ import {
 const executeStepSpy = vi.fn(async () => undefined);
 
 vi.mock("@conciergeai/shared", async () => {
-  const actual =
-    await vi.importActual<typeof import("@conciergeai/shared")>(
-      "@conciergeai/shared"
-    );
+  const actual = await vi.importActual<typeof import("@conciergeai/shared")>(
+    "@conciergeai/shared"
+  );
   return {
     ...actual,
     executeStep: (...args: unknown[]) => executeStepSpy(...args)

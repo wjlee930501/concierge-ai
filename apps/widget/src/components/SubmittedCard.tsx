@@ -115,7 +115,9 @@ function CheckBadge(props: { readonly reduced: boolean }): JSX.Element {
       data-testid="submitted-check"
       data-polish-check-pulse={props.reduced ? "off" : "on"}
       className="relative mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-mint shadow-[0_0_18px_rgba(55,216,178,0.55)]"
-      initial={props.reduced ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
+      initial={
+        props.reduced ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }
+      }
       animate={
         props.reduced
           ? { scale: 1, opacity: 1 }

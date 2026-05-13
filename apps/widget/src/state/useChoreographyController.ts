@@ -84,7 +84,8 @@ export function useChoreographyController(
   const stepKey = input.stepNode?.id ?? null;
   // Only null⇄string transitions trigger a fresh effect; string⇄string changes
   // (e.g. user navigates between hosts) are accepted as a one-time restart.
-  const parentOriginPresence = input.parentOrigin === null ? "absent" : "present";
+  const parentOriginPresence =
+    input.parentOrigin === null ? "absent" : "present";
 
   useEffect(() => {
     const stepNode = stepNodeRef.current;
@@ -200,8 +201,13 @@ function buildExecuteStepHooks(input: {
   readonly currentAnchorRef: React.MutableRefObject<AnchorName>;
   readonly enterFallback: (fallback?: string) => void;
 }): ExecuteStepHooks {
-  const { isActive, bridge, setChoreographyUi, currentAnchorRef, enterFallback } =
-    input;
+  const {
+    isActive,
+    bridge,
+    setChoreographyUi,
+    currentAnchorRef,
+    enterFallback
+  } = input;
   return {
     setAvatarState: (next) => {
       if (!isActive()) return;

@@ -117,10 +117,7 @@ export function SpotlightConnector(
   );
 }
 
-function useTargetRect(
-  selector: string | null,
-  enabled: boolean
-): Rect | null {
+function useTargetRect(selector: string | null, enabled: boolean): Rect | null {
   const [rect, setRect] = useState<Rect | null>(null);
   useEffect(() => {
     if (!enabled || selector === null) {

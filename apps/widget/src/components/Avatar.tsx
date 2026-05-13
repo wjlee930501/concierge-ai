@@ -57,8 +57,17 @@ export function Avatar(props: AvatarProps): JSX.Element {
   const targetRotate = target.rotate + tilt;
   let containerAnimate: Record<string, number | number[]>;
   let containerTransition:
-    | { readonly duration: number; readonly ease: readonly number[]; readonly times: readonly number[] }
-    | { readonly type: "spring"; readonly stiffness: number; readonly damping: number; readonly mass: number };
+    | {
+        readonly duration: number;
+        readonly ease: readonly number[];
+        readonly times: readonly number[];
+      }
+    | {
+        readonly type: "spring";
+        readonly stiffness: number;
+        readonly damping: number;
+        readonly mass: number;
+      };
   if (reduced) {
     containerAnimate = { x: 0, y: 0, rotate: 0 };
     containerTransition = {

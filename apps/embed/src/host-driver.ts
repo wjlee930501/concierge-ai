@@ -101,7 +101,10 @@ export function attachConciergeHostDriver(input: {
         );
         return;
       case POST_MESSAGE_IFRAME_HITBOX_TYPE:
-        applyIframeHitbox(input.iframe, envelope.payload as IframeHitboxPayload);
+        applyIframeHitbox(
+          input.iframe,
+          envelope.payload as IframeHitboxPayload
+        );
         return;
     }
   };

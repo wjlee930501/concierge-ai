@@ -158,166 +158,166 @@ export function HeroBubble(props: HeroBubbleProps): JSX.Element {
             />
 
             <LayoutGroup id="concierge-hero-stack">
-            <motion.div
-              data-concierge-hitbox="true"
-              className="flex w-[min(560px,calc(100vw-32px))] max-w-[min(560px,calc(100vw-32px))] flex-col items-center gap-2.5 will-change-transform"
-              animate={
-                reduced
-                  ? { x: 0, y: 0 }
-                  : {
-                      x: [anticipation.x, anticipation.x * 0.35, 0],
-                      y: [
-                        anticipation.y + scrollLagY,
-                        settle.y + scrollLagY,
-                        scrollLagY
-                      ]
-                    }
-              }
-              transition={
-                reduced
-                  ? { duration: 0 }
-                  : {
-                      duration: moveProfile.durationMs / 1000,
-                      times: [0, 0.78, 1],
-                      ease: [0.2, 0.8, 0.2, 1]
-                    }
-              }
-            >
-              {/* AI streaming response (only during free-input thinking/replying) */}
-              {showAiBubble ? (
-                <motion.div
-                  layout
-                  transition={MAGIC_MOVE_LAYOUT}
-                  className="w-full max-w-[440px]"
-                >
-                  <AiSpeechBubble
-                    text={aiText}
-                    isStreaming={props.freeInput.mode === "thinking"}
-                    {...(props.freeInput.suggestion?.kind === "navigate"
-                      ? { suggestionLabel: props.freeInput.suggestion.label }
-                      : {})}
-                    {...(props.freeInput.mode === "replying" &&
-                    props.freeInput.suggestion?.kind === "navigate"
-                      ? { onAcceptSuggestion: props.onAcceptSuggestion }
-                      : {})}
-                    onDismiss={props.onDismissSuggestion}
-                  />
-                </motion.div>
-              ) : null}
+              <motion.div
+                data-concierge-hitbox="true"
+                className="flex w-[min(560px,calc(100vw-32px))] max-w-[min(560px,calc(100vw-32px))] flex-col items-center gap-2.5 will-change-transform"
+                animate={
+                  reduced
+                    ? { x: 0, y: 0 }
+                    : {
+                        x: [anticipation.x, anticipation.x * 0.35, 0],
+                        y: [
+                          anticipation.y + scrollLagY,
+                          settle.y + scrollLagY,
+                          scrollLagY
+                        ]
+                      }
+                }
+                transition={
+                  reduced
+                    ? { duration: 0 }
+                    : {
+                        duration: moveProfile.durationMs / 1000,
+                        times: [0, 0.78, 1],
+                        ease: [0.2, 0.8, 0.2, 1]
+                      }
+                }
+              >
+                {/* AI streaming response (only during free-input thinking/replying) */}
+                {showAiBubble ? (
+                  <motion.div
+                    layout
+                    transition={MAGIC_MOVE_LAYOUT}
+                    className="w-full max-w-[440px]"
+                  >
+                    <AiSpeechBubble
+                      text={aiText}
+                      isStreaming={props.freeInput.mode === "thinking"}
+                      {...(props.freeInput.suggestion?.kind === "navigate"
+                        ? { suggestionLabel: props.freeInput.suggestion.label }
+                        : {})}
+                      {...(props.freeInput.mode === "replying" &&
+                      props.freeInput.suggestion?.kind === "navigate"
+                        ? { onAcceptSuggestion: props.onAcceptSuggestion }
+                        : {})}
+                      onDismiss={props.onDismissSuggestion}
+                    />
+                  </motion.div>
+                ) : null}
 
-              {/* Choice chips (above the speech pill) */}
-              {props.bubbleVisible &&
-              props.choices.length > 0 &&
-              !showFreeInput ? (
-                <motion.div
-                  layout
-                  transition={MAGIC_MOVE_LAYOUT}
-                  className={showSection ? "" : "order-2"}
-                >
-                  <QuickChips
-                    chips={props.choices}
-                    onSelect={props.onSelectChoice}
-                    {...(props.activeChoiceId !== undefined
-                      ? { activeChipId: props.activeChoiceId }
-                      : {})}
-                  />
-                </motion.div>
-              ) : null}
+                {/* Choice chips (above the speech pill) */}
+                {props.bubbleVisible &&
+                props.choices.length > 0 &&
+                !showFreeInput ? (
+                  <motion.div
+                    layout
+                    transition={MAGIC_MOVE_LAYOUT}
+                    className={showSection ? "" : "order-2"}
+                  >
+                    <QuickChips
+                      chips={props.choices}
+                      onSelect={props.onSelectChoice}
+                      {...(props.activeChoiceId !== undefined
+                        ? { activeChipId: props.activeChoiceId }
+                        : {})}
+                    />
+                  </motion.div>
+                ) : null}
 
-              {/* Free input (replaces chips when open) */}
-              {props.bubbleVisible && showFreeInput ? (
+                {/* Free input (replaces chips when open) */}
+                {props.bubbleVisible && showFreeInput ? (
+                  <motion.div
+                    layout
+                    transition={MAGIC_MOVE_LAYOUT}
+                    className={`w-[min(440px,calc(100vw-32px))] max-w-full ${
+                      showSection ? "" : "order-2"
+                    }`}
+                  >
+                    <FreeInputBar
+                      disabled={freeInputDisabled}
+                      placeholder="무엇이 궁금하세요?"
+                      draft={props.freeInput.draft}
+                      onChangeDraft={props.onChangeDraft}
+                      onSubmit={props.onSubmitFreeInput}
+                    />
+                  </motion.div>
+                ) : null}
+
+                {/* Main speech pill: avatar + dark bubble */}
                 <motion.div
                   layout
                   transition={MAGIC_MOVE_LAYOUT}
-                  className={`w-[min(440px,calc(100vw-32px))] max-w-full ${
-                    showSection ? "" : "order-2"
+                  className={`flex items-center gap-2.5 ${
+                    showSection ? "" : "order-1"
                   }`}
                 >
-                  <FreeInputBar
-                    disabled={freeInputDisabled}
-                    placeholder="무엇이 궁금하세요?"
-                    draft={props.freeInput.draft}
-                    onChangeDraft={props.onChangeDraft}
-                    onSubmit={props.onSubmitFreeInput}
+                  <Avatar
+                    point={props.avatarPoint}
+                    mood={props.avatarMood}
+                    expression={props.avatarExpression}
+                    tilt={props.avatarTilt}
+                    firstWave={walkOn}
                   />
+                  {props.bubbleVisible ? (
+                    <SpeechPill
+                      stacked={stackedBubble}
+                      reduced={reduced}
+                      currentAnchor={props.currentAnchor}
+                      section={props.section}
+                      message={props.message}
+                      {...(props.variantSuffix !== undefined &&
+                      props.variantSuffix !== null
+                        ? { variantSuffix: props.variantSuffix }
+                        : {})}
+                      isPlaceholderScenario={props.isPlaceholderScenario}
+                      entranceDelaySec={walkOn ? 0.22 : 0}
+                    />
+                  ) : null}
                 </motion.div>
-              ) : null}
 
-              {/* Main speech pill: avatar + dark bubble */}
-              <motion.div
-                layout
-                transition={MAGIC_MOVE_LAYOUT}
-                className={`flex items-center gap-2.5 ${
-                  showSection ? "" : "order-1"
-                }`}
-              >
-                <Avatar
-                  point={props.avatarPoint}
-                  mood={props.avatarMood}
-                  expression={props.avatarExpression}
-                  tilt={props.avatarTilt}
-                  firstWave={walkOn}
-                />
+                {/* Toggle row: back + free input toggle */}
                 {props.bubbleVisible ? (
-                  <SpeechPill
-                    stacked={stackedBubble}
-                    reduced={reduced}
-                    currentAnchor={props.currentAnchor}
-                    section={props.section}
-                    message={props.message}
-                    {...(props.variantSuffix !== undefined &&
-                    props.variantSuffix !== null
-                      ? { variantSuffix: props.variantSuffix }
-                      : {})}
-                    isPlaceholderScenario={props.isPlaceholderScenario}
-                    entranceDelaySec={walkOn ? 0.22 : 0}
-                  />
+                  <motion.div
+                    layout
+                    transition={MAGIC_MOVE_LAYOUT}
+                    className={`flex items-center justify-center gap-2 ${
+                      showSection ? "" : "order-3"
+                    }`}
+                  >
+                    {props.canGoBack ? (
+                      <button
+                        type="button"
+                        className="rounded-full bg-white/80 px-3 py-1 text-[11px] font-bold text-mist shadow-[0_4px_12px_rgba(7,20,39,0.08)] hover:text-ink"
+                        onClick={props.onBack}
+                        aria-label="이전 단계로"
+                      >
+                        ← 이전
+                      </button>
+                    ) : null}
+                    <button
+                      type="button"
+                      className="rounded-full bg-white/80 px-3 py-1 text-[11px] font-bold text-mist shadow-[0_4px_12px_rgba(7,20,39,0.08)] hover:text-ink"
+                      onClick={
+                        showFreeInput
+                          ? props.onCloseFreeInput
+                          : props.onOpenFreeInput
+                      }
+                    >
+                      {showFreeInput ? "선택지로 돌아가기" : "직접 물어보기"}
+                    </button>
+                    {props.canDismiss ? (
+                      <button
+                        type="button"
+                        className="rounded-full bg-white/80 px-3 py-1 text-[11px] font-bold text-mist shadow-[0_4px_12px_rgba(7,20,39,0.08)] hover:text-ink"
+                        onClick={props.onDismiss}
+                        aria-label="안내 없이 그냥 둘러보기"
+                      >
+                        그냥 둘러보기
+                      </button>
+                    ) : null}
+                  </motion.div>
                 ) : null}
               </motion.div>
-
-              {/* Toggle row: back + free input toggle */}
-              {props.bubbleVisible ? (
-                <motion.div
-                  layout
-                  transition={MAGIC_MOVE_LAYOUT}
-                  className={`flex items-center justify-center gap-2 ${
-                    showSection ? "" : "order-3"
-                  }`}
-                >
-                  {props.canGoBack ? (
-                    <button
-                      type="button"
-                      className="rounded-full bg-white/80 px-3 py-1 text-[11px] font-bold text-mist shadow-[0_4px_12px_rgba(7,20,39,0.08)] hover:text-ink"
-                      onClick={props.onBack}
-                      aria-label="이전 단계로"
-                    >
-                      ← 이전
-                    </button>
-                  ) : null}
-                  <button
-                    type="button"
-                    className="rounded-full bg-white/80 px-3 py-1 text-[11px] font-bold text-mist shadow-[0_4px_12px_rgba(7,20,39,0.08)] hover:text-ink"
-                    onClick={
-                      showFreeInput
-                        ? props.onCloseFreeInput
-                        : props.onOpenFreeInput
-                    }
-                  >
-                    {showFreeInput ? "선택지로 돌아가기" : "직접 물어보기"}
-                  </button>
-                  {props.canDismiss ? (
-                    <button
-                      type="button"
-                      className="rounded-full bg-white/80 px-3 py-1 text-[11px] font-bold text-mist shadow-[0_4px_12px_rgba(7,20,39,0.08)] hover:text-ink"
-                      onClick={props.onDismiss}
-                      aria-label="안내 없이 그냥 둘러보기"
-                    >
-                      그냥 둘러보기
-                    </button>
-                  ) : null}
-                </motion.div>
-              ) : null}
-            </motion.div>
             </LayoutGroup>
           </div>
         </motion.section>

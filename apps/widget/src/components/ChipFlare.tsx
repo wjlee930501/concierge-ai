@@ -3,7 +3,11 @@ import { AnimatePresence, motion } from "framer-motion";
 
 // Mint particle that floats upward from the chip toward the avatar area.
 // Purely cosmetic — no DOM interaction, no z-index conflicts.
-export function ChipFlare({ active }: { readonly active: boolean }): JSX.Element {
+export function ChipFlare({
+  active
+}: {
+  readonly active: boolean;
+}): JSX.Element {
   return (
     <AnimatePresence>
       {active ? (
