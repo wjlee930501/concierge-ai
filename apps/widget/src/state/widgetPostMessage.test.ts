@@ -18,13 +18,35 @@ describe("widgetPostMessage", () => {
     ).toBe("https://host.example.test");
   });
 
-  it("allows wildcard only when the widget has sandbox opaque origin and no parent origin", () => {
+  it("allows wildcard only when the widget has sandbox opaque origin AND the caller explicitly opts in", () => {
+    expect(
+      resolveWidgetParentTargetOrigin({
+        parentOrigin: null,
+        opaqueOrigin: true,
+        allowWildcardTarget: true
+      })
+    ).toBe("*");
+    // Default (allowWildcardTarget undefined or false) is fail-closed.
     expect(
       resolveWidgetParentTargetOrigin({
         parentOrigin: null,
         opaqueOrigin: true
       })
-    ).toBe("*");
+    ).toBeNull();
+    expect(
+      resolveWidgetParentTargetOrigin({
+        parentOrigin: null,
+        opaqueOrigin: true,
+        allowWildcardTarget: false
+      })
+    ).toBeNull();
+    expect(
+      resolveWidgetParentTargetOrigin({
+        parentOrigin: null,
+        opaqueOrigin: false,
+        allowWildcardTarget: true
+      })
+    ).toBeNull();
     expect(
       resolveWidgetParentTargetOrigin({
         parentOrigin: null,

@@ -8,6 +8,7 @@ import {
   POST_MESSAGE_IFRAME_HITBOX_TYPE,
   POST_MESSAGE_HOST_SECTION_NOT_FOUND_TYPE,
   POST_MESSAGE_PARENT_SOURCE,
+  createEnvelopeReplayGuard,
   createPostMessageEnvelope,
   validateKnownPostMessageEnvelope,
   type HostDriverHighlightMessagePayload,
@@ -40,9 +41,15 @@ export function attachConciergeHostDriver(input: {
   readonly widgetOrigin: string;
   readonly doc?: Document;
   readonly win?: Window;
+  readonly allowWildcardTarget?: boolean;
 }): () => void {
   const win = input.win ?? window;
   const doc = input.doc ?? document;
+  const allowWildcardTarget = input.allowWildcardTarget ?? false;
+  // Replay guard for widget→host envelopes. Defaults (128 nonce LRU + 60s clock
+  // skew) match the embed/inject path so any nonce or stale-timestamp replay
+  // is silently dropped per FINAL_ALIGNMENT fail-closed policy.
+  const replayGuard = createEnvelopeReplayGuard();
 
   const onMessage = (event: MessageEvent) => {
     if (event.source !== input.iframe.contentWindow) return;
@@ -56,11 +63,17 @@ export function attachConciergeHostDriver(input: {
           expectedType
         });
 
+        if (!replayGuard.verify(envelope).ok) {
+          // Silently swallow replays (duplicate nonce or stale timestamp).
+          return;
+        }
+
         switch (envelope.type) {
           case POST_MESSAGE_HOST_SCROLL_TO_TYPE:
             scrollToSelector(
               input.iframe,
               input.widgetOrigin,
+              allowWildcardTarget,
               doc,
               envelope.payload
             );
@@ -75,6 +88,7 @@ export function attachConciergeHostDriver(input: {
             respondToRectQuery(
               input.iframe,
               input.widgetOrigin,
+              allowWildcardTarget,
               doc,
               win,
               envelope.payload
@@ -134,12 +148,13 @@ function applyIframeHitbox(
 function scrollToSelector(
   iframe: HTMLIFrameElement,
   widgetOrigin: string,
+  allowWildcardTarget: boolean,
   doc: Document,
   payload: HostScrollToMessagePayload
 ): void {
   const node = doc.querySelector<HTMLElement>(payload.selector);
   if (node === null) {
-    postToWidget(iframe, widgetOrigin, {
+    postToWidget(iframe, widgetOrigin, allowWildcardTarget, {
       type: POST_MESSAGE_HOST_SECTION_NOT_FOUND_TYPE,
       payload: { selector: payload.selector }
     });
@@ -171,13 +186,14 @@ function highlightSelector(
 function respondToRectQuery(
   iframe: HTMLIFrameElement,
   widgetOrigin: string,
+  allowWildcardTarget: boolean,
   doc: Document,
   win: Window,
   payload: HostRectQueryMessagePayload
 ): void {
   const node = doc.querySelector<HTMLElement>(payload.selector);
   const rect = node?.getBoundingClientRect();
-  postToWidget(iframe, widgetOrigin, {
+  postToWidget(iframe, widgetOrigin, allowWildcardTarget, {
     type: POST_MESSAGE_HOST_RECT_RESPONSE_TYPE,
     payload: {
       request_id: payload.request_id,
@@ -201,6 +217,7 @@ function respondToRectQuery(
 function postToWidget(
   iframe: HTMLIFrameElement,
   widgetOrigin: string,
+  allowWildcardTarget: boolean,
   input: WidgetHostResponse
 ): void {
   iframe.contentWindow?.postMessage(
@@ -210,7 +227,7 @@ function postToWidget(
       source: POST_MESSAGE_PARENT_SOURCE,
       payload: input.payload
     }),
-    targetOriginForWidget(iframe, widgetOrigin)
+    targetOriginForWidget(iframe, widgetOrigin, allowWildcardTarget)
   );
 }
 
@@ -238,9 +255,36 @@ function isSandboxOpaqueWidgetMessage(
 
 function targetOriginForWidget(
   iframe: HTMLIFrameElement,
-  widgetOrigin: string
+  widgetOrigin: string,
+  allowWildcardTarget: boolean
 ): string {
-  return usesOpaqueSandbox(iframe) ? "*" : widgetOrigin;
+  // Prefer the explicit widgetOrigin passed in. When the iframe runs under an
+  // opaque sandbox we still try to resolve the iframe.src origin before
+  // falling back to a wildcard. Wildcard target is only allowed when explicitly
+  // opted in via allowWildcardTarget — fail-closed default per FINAL_ALIGNMENT.
+  if (!usesOpaqueSandbox(iframe)) {
+    return widgetOrigin;
+  }
+  const srcOrigin = tryReadIframeSrcOrigin(iframe);
+  if (srcOrigin !== null) {
+    return srcOrigin;
+  }
+  if (allowWildcardTarget) {
+    return "*";
+  }
+  return widgetOrigin;
+}
+
+function tryReadIframeSrcOrigin(iframe: HTMLIFrameElement): string | null {
+  const rawSrc = iframe.getAttribute("src") ?? iframe.src;
+  if (typeof rawSrc !== "string" || rawSrc.length === 0) {
+    return null;
+  }
+  try {
+    return new URL(rawSrc).origin;
+  } catch {
+    return null;
+  }
 }
 
 function usesOpaqueSandbox(iframe: HTMLIFrameElement): boolean {

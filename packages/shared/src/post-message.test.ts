@@ -17,6 +17,7 @@ import {
   POST_MESSAGE_READY_TYPE,
   POST_MESSAGE_RESIZE_TYPE,
   POST_MESSAGE_WIDGET_SOURCE,
+  createEnvelopeReplayGuard,
   createPostMessageEnvelope,
   isKnownPostMessageEnvelope,
   isPostMessageEnvelope,
@@ -438,5 +439,70 @@ describe("message-specific postMessage validation", () => {
         expectedNonce: "nonce-other"
       })
     ).toThrow(/Invalid Concierge postMessage nonce/u);
+  });
+});
+
+describe("createEnvelopeReplayGuard", () => {
+  it("accepts a fresh envelope and rejects the same nonce on a second verify", () => {
+    const now = 1_714_000_000_000;
+    const guard = createEnvelopeReplayGuard({ now: () => now });
+    const envelope = { nonce: "nonce-replay-1", timestamp: now };
+
+    expect(guard.verify(envelope)).toEqual({ ok: true });
+    expect(guard.verify(envelope)).toEqual({
+      ok: false,
+      reason: "nonce_replay"
+    });
+  });
+
+  it("rejects envelopes whose timestamp is outside the clock skew window", () => {
+    const now = 1_714_000_000_000;
+    const guard = createEnvelopeReplayGuard({
+      maxClockSkewMs: 60_000,
+      now: () => now
+    });
+
+    expect(
+      guard.verify({ nonce: "nonce-skew-old", timestamp: now - 70_000 })
+    ).toEqual({ ok: false, reason: "clock_skew" });
+    expect(
+      guard.verify({ nonce: "nonce-skew-future", timestamp: now + 70_000 })
+    ).toEqual({ ok: false, reason: "clock_skew" });
+  });
+
+  it("admits a fresh envelope within the clock skew window", () => {
+    const now = 1_714_000_000_000;
+    const guard = createEnvelopeReplayGuard({
+      maxClockSkewMs: 60_000,
+      now: () => now
+    });
+
+    expect(
+      guard.verify({ nonce: "nonce-fresh", timestamp: now - 30_000 })
+    ).toEqual({ ok: true });
+  });
+
+  it("evicts the oldest nonce when the LRU exceeds maxNonces", () => {
+    const now = 1_714_000_000_000;
+    const guard = createEnvelopeReplayGuard({
+      maxNonces: 2,
+      now: () => now
+    });
+
+    expect(guard.verify({ nonce: "a", timestamp: now })).toEqual({ ok: true });
+    expect(guard.verify({ nonce: "b", timestamp: now })).toEqual({ ok: true });
+    // After admitting "c" the LRU evicts the oldest ("a"). "b" and "c" are
+    // still tracked, so re-verifying either is rejected as a nonce replay.
+    expect(guard.verify({ nonce: "c", timestamp: now })).toEqual({ ok: true });
+    expect(guard.verify({ nonce: "b", timestamp: now })).toEqual({
+      ok: false,
+      reason: "nonce_replay"
+    });
+    expect(guard.verify({ nonce: "c", timestamp: now })).toEqual({
+      ok: false,
+      reason: "nonce_replay"
+    });
+    // "a" was evicted, so verifying it again is treated as fresh.
+    expect(guard.verify({ nonce: "a", timestamp: now })).toEqual({ ok: true });
   });
 });

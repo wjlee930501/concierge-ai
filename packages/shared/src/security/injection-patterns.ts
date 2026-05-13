@@ -53,6 +53,21 @@ const INJECTION_PATTERN_TABLE: ReadonlyArray<{
   },
   { name: "korean_role_hijack", re: /당신은\s+이제/ },
   { name: "korean_system_prompt", re: /시스템\s*프롬프트/ },
+  // KR variant: "이전/위 (의) 지시/명령/규칙 (을/를) 무시/잊" — instruction override.
+  {
+    name: "role_hijack",
+    re: /(이전|위)\s*(의)?\s*(지시|명령|규칙)\s*(을|를)?\s*(무시|잊)/
+  },
+  // KR variant: "시스템/기본 프롬프트/명령/지시 (을/를) 공개/보여/알려" — system prompt leak.
+  {
+    name: "korean_system_prompt",
+    re: /(시스템|기본)\s*(프롬프트|명령|지시)\s*(을|를)?\s*(공개|보여|알려)/
+  },
+  // KR variant: "역할/페르소나/규칙 (을/를) 잊/무시/바꿔" — role override.
+  {
+    name: "korean_role_hijack",
+    re: /(역할|페르소나|규칙)\s*(을|를)?\s*(잊|무시|바꿔)/
+  },
   {
     name: "system_message_reveal",
     re: /system\s+(message|instruction)\s+(reveal|show|print|output|leak)/i

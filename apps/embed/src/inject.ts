@@ -10,12 +10,14 @@ import {
   POST_MESSAGE_PARENT_SOURCE,
   POST_MESSAGE_EMBED_SOURCE,
   POST_MESSAGE_LEAD_SUBMITTED_TYPE,
+  createEnvelopeReplayGuard,
   createPostMessageEnvelope,
   validateKnownPostMessageEnvelope,
   type LeadSubmittedPayload,
   type PostMessageEnvelope
 } from "@conciergeai/shared";
 import { attachConciergeHostDriver } from "./host-driver";
+import { assertSafeSrc } from "./iframe";
 
 export type ConciergeInjectOptions = EmbedRuntimeFactoryInput & {
   readonly widgetSrc: string;
@@ -58,6 +60,7 @@ export function injectConciergeWidget(
   });
 
   const handshakeNonce = generateNonce();
+  const replayGuard = createEnvelopeReplayGuard();
   const messageListener = (event: MessageEvent) => {
     if (event.source !== iframe.contentWindow) return;
     try {
@@ -68,6 +71,7 @@ export function injectConciergeWidget(
         expectedType: EMBED_READY_MESSAGE_TYPE
       });
       if (envelope.type !== EMBED_READY_MESSAGE_TYPE) return;
+      if (!replayGuard.verify(envelope).ok) return;
       const handshake = createPostMessageEnvelope({
         type: POST_MESSAGE_HANDSHAKE_TYPE,
         nonce: handshakeNonce,
@@ -85,6 +89,7 @@ export function injectConciergeWidget(
           expectedType: POST_MESSAGE_LEAD_SUBMITTED_TYPE
         });
         if (envelope.type !== POST_MESSAGE_LEAD_SUBMITTED_TYPE) return;
+        if (!replayGuard.verify(envelope).ok) return;
         options.onLeadSubmit?.(envelope.payload);
       } catch {
         /* swallow invalid envelopes per security policy */
@@ -144,6 +149,9 @@ function createIframe(input: {
   const iframe = document.createElement("iframe");
   iframe.id = options.idAttribute ?? CONCIERGE_DEFAULT_IFRAME_ID;
   iframe.title = options.title ?? "MotionLabs Concierge AI";
+  // Reject dangerous protocols (javascript:, data:, blob:, vbscript:, file:)
+  // before the iframe ever receives the src attribute.
+  assertSafeSrc(options.widgetSrc);
   iframe.src = options.widgetSrc;
   iframe.setAttribute("sandbox", runtime.iframePolicy.sandbox);
   iframe.setAttribute("loading", "eager");
